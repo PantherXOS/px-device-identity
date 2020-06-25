@@ -20,9 +20,9 @@ def create_path(path: str):
     print("Path {} found".format(path))
     return True
 
-def create_file(path: str, filename: str, content: str):
+def create_file(path: str, filename: str, content: str, mode: str):
     file_path = path + filename
-    print("- Creating file at {}".format(file_path))
+    print(".. Creating file at {}".format(file_path))
     p_exists = path_exists(path)
     if p_exists == False:
         create_path(path)
@@ -32,7 +32,7 @@ def create_file(path: str, filename: str, content: str):
     
     formatted_content = bytearray(content)
     try:
-        with open(file_path, "wb") as writer:
+        with open(file_path, mode) as writer:
             writer.write(formatted_content)
             print(".. Created file.")
             return True
@@ -51,6 +51,7 @@ def open_file(file_path: str, mode: str):
                 file_content = reader.read()
                 print(".. ## FILE CONTENT ##")
                 print(file_content)
+                print()
                 return file_content
             except:
                 print(".. Error opening file at {}".format(file_path))

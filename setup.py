@@ -17,7 +17,8 @@ LONG_DESC_TYPE = "text/markdown"
 INSTALL_REQUIRES = [
     'requests==2.24.0',
     'authlib==0.14.3',
-    'argparse==1.4.0'
+    'argparse==1.4.0',
+    'pycryptodomex==3.9.8'
 ]
 
 setup(name=PACKAGE_NAME,

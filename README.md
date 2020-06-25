@@ -16,9 +16,25 @@ pip install .
 
 ## Run
 
+Key operations
+
 ```bash
-python3 run.py --operation <generateKeys|getJWK>
+python3 run.py --operation <init|getJWK> --type <default|tpm>
 ```
+
+This generates the following files:
+
+```bash
+device_id  private.pem  public_jwk.json  public.pem
+```
+
+Signing
+
+```bash
+python3 run.py --operation sign --type <default|tpm> --string <hash>
+```
+
+returns `binascii.b2a_base64`
 
 To show debug messages (default: False):
 
