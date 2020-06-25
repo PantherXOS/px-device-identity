@@ -1,33 +1,41 @@
-from authlib.jose import JsonWebKey
+from authlib.jose import jwk
 from .filesystem import open_file, create_file
 import json
+import array
 
-def save_jwk(path, file_name, jwk):
-    return create_file(path, file_name, json.dumps(jwk))
+def save_jwk(path, file_name, jwk_data):
+    return create_file(path, file_name, json.dumps(jwk_data))
 
-def generate_key(path: str):
+def generate_key_from_pem(path: str):
     file_path = path + 'public.pem'
-    public_key = open_file(file_path)
+    file_content = open_file(file_path, 'rb')
+    if file_content == False:
+        return file_content
+
     try:
-        return JsonWebKey.dumps(public_key, {'kty': 'RSA'})
+        return jwk.dumps(file_content, kty='RSA')
     except Exception as e:
-        print(e)
+            print(".. Failed to get JWK from {}".format(file_path))
+            print(e)
     return False
 
 def generate_jwk(path: str):
-    return generate_key(path)
+    print("Generating JWK")
+    return generate_key_from_pem(path)
 
 def get_jwk(path: str):
     file_path = path + 'public_jwk.json'
-    return open_file(file_path)
+    print("Loading JWK from {}".format(file_path))
+    return open_file(file_path, 'rb')
     
 def generate_and_save_jwk(path: str):
-    jwk = generate_key(path)
-    if jwk == False:
-        return jwk
-    print(jwk.as_json())
+    jwk_data = generate_jwk(path)
+    if jwk_data == False:
+        return jwk_data
+    print(".. Successfully generated JWK from public key")
+    print(jwk_data)
     file_name = 'public_jwk.json'
-    saved_jwk = save_jwk(path, file_name, jwk)
-    if saved_jwk:
-        return True
-    return False
+    file_path = path + file_name
+    print(".. Saving JWK at {}".format(file_path))
+    jwk_data_formatted = json.dumps(jwk_data, ensure_ascii=True).encode('utf8')
+    return create_file(path, file_name, jwk_data_formatted)

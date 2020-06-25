@@ -1,3 +1,4 @@
+import sys
 from Crypto.PublicKey import RSA
 from .filesystem import create_file
 
@@ -11,14 +12,15 @@ def save_private_key(key: str, path: str):
     return create_file(path, file_name, private_key)
 
 def save_public_key(key: str, path: str):
-    public_key = key.publickey().export_key("PEM")
+    public_key = key.publickey().export_key(format='PEM')
     file_name = 'public.pem'
     return create_file(path, file_name, public_key)
 
 def generate_rsa_keys(type: str, path: str):
+    print("Generating RSA keys: {}".format(type))
     if type == 'tpm':
-        print('TPM is not supported at this moment')
-        return False
+        print('.. Sorry, TPM is not supported at this moment. Exitting.')
+        sys.exit()
 
     rsa_key = generate_key()
     saved_private_key = save_private_key(rsa_key, path)
