@@ -3,14 +3,14 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.0.1'
+VERSION = '0.1.0'
 PACKAGE_NAME = 'px-device-identity'
 AUTHOR = 'Franz Geffke'
 AUTHOR_EMAIL = 'franz@pantherx.org'
 URL = ''
 
 LICENSE = ''
-DESCRIPTION = 'Generates RSA keypair, JWK, Device Identity'
+DESCRIPTION = 'Initiates device; provides JWK and Signing Services'
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 

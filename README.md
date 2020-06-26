@@ -16,10 +16,10 @@ pip install .
 
 ## Run
 
-Key operations
+### Initiate device:
 
 ```bash
-python3 run.py --operation <init|getJWK> --type <default|tpm>
+python3 run.py --operation INIT --type <DEFAULT|TPM>
 ```
 
 This generates the following files:
@@ -28,13 +28,29 @@ This generates the following files:
 device_id  private.pem  public_jwk.json  public.pem
 ```
 
-Signing
+and should respond with either 'SUCCESS'  or 'ERROR' depending on the outcome of the operation.
+
+**To overwrite an existing device identification**, do:
 
 ```bash
-python3 run.py --operation sign --type <default|tpm> --string <hash>
+python3 run.py --operation INIT --type <DEFAULT|TPM> --force TRUE
+```
+
+### Get the JWK for the device `public.pem`
+
+```bash
+python3 run.py --operation GET_JWK --type <DEFAULT|TPM>
+```
+
+### Sign a hash
+
+```bash
+python3 run.py --operation SIGN --type <DEFAULT|TPM> --message <HASH>
 ```
 
 returns `binascii.b2a_base64`
+
+### Debug Messages
 
 To show debug messages (default: False):
 

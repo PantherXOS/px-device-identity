@@ -1,58 +1,61 @@
+import sys
 import os
 import base64
 from pathlib import Path
 
-def path_exists(path: str):
-    return os.path.isdir(path)
+class Filesystem():
+    def __init__(self, config_path, file_name, mode):
+        self.config_path = config_path
+        self.file_name = file_name
+        self.file_path = config_path + file_name
+        self.mode = mode
 
-def file_exists(file_path: str):
-    return os.path.isfile(file_path)
-
-def create_path(path: str):
-    exists = path_exists(path)
-    if exists == False:
+    def config_path_exits(self):
         try:
-            os.mkdir(path)
-            return True
-        except:
-            print(".. Could not create path {}".format(path))
+            return os.path.isdir(self.config_path)
+        except EnvironmentError:
             return False
-    print("Path {} found".format(path))
-    return True
 
-def create_file(path: str, filename: str, content: str, mode: str):
-    file_path = path + filename
-    print(".. Creating file at {}".format(file_path))
-    p_exists = path_exists(path)
-    if p_exists == False:
-        create_path(path)
-    f_exists = file_exists(file_path)
-    if f_exists == True:
-        print(".. Found existing file. Overwriting {}".format(filename))
-    
-    formatted_content = bytearray(content)
-    try:
-        with open(file_path, mode) as writer:
-            writer.write(formatted_content)
-            print(".. Created file.")
-            return True
-    except Exception as e:
-        print(".. Could not create file {}".format(file_path))
-        print(e)
-    
-    return False
+    def file_exists(self):
+        try:
+            return os.path.isfile(self.file_path)
+        except FileNotFoundError:
+            return False
 
-def open_file(file_path: str, mode: str):
-    print(".. Opening file at {}".format(file_path))
-    f_exists = file_exists(file_path)
-    if f_exists:
-        with open(file_path, mode, buffering=0) as reader:
+    def create_path(self):
+        if self.config_path_exits() == False:
             try:
-                file_content = reader.read()
-                print(".. ## FILE CONTENT ##")
-                print(file_content)
-                print()
-                return file_content
-            except:
-                print(".. Error opening file at {}".format(file_path))
-    return False
+                os.mkdir(self.config_path)
+                return True
+            except EnvironmentError:
+                print(".. Could not create path {}".format(self.config_path))
+                sys.exit()
+        return True
+    
+    def create_file(self, content):
+        print(".. Creating file at {}".format(self.file_path))
+        self.create_path()
+        formatted_content = bytearray(content)
+        try:
+            with open(self.file_path, self.mode) as writer:
+                writer.write(formatted_content)
+                print(".. Created file.")
+                return True
+        except Exception as e:
+            print(".. Could not create file {}".format(self.file_path))
+            print(e)
+        return False
+    
+    def open_file(self):
+        # print(".. Opening file at {}".format(self.file_path))
+        if self.file_exists:
+            with open(self.file_path, self.mode, buffering=0) as reader:
+                try:
+                    file_content = reader.read()
+                    #print(".. ## FILE CONTENT ##")
+                    #print(file_content)
+                    #print()
+                    return file_content
+                except:
+                    print(".. Error opening file at {}".format(self.file_path))
+        return False

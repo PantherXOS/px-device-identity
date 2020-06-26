@@ -1,79 +1,38 @@
 import sys
-from Cryptodome.PublicKey import RSA
-from Cryptodome.Signature import PKCS1_v1_5
-from Cryptodome.Hash import SHA256
-from .filesystem import create_file, open_file, create_path
-from base64 import b64encode, b64decode
-from .jwk import get_jwk, generate_and_save_jwk
-import json
-from authlib.jose import jwt
+from Cryptodome.PublicKey import RSA as _RSA
 
-def generate_key():
-    return RSA.generate(2048)
+class RSA:
+    def __init__(self, config_path, operation_type):
+        self.config_path = config_path
+        self.operation_type = operation_type
+        self.private_key_path = config_path + 'private.pem'
+        self.public_key_path = config_path + 'public.pem'
 
-def get_private_key(path: str):
-    print(path)
-    file_path = path + 'private.pem'
-    private_key = open_file(file_path, 'rb')
-    return private_key
+    def generate_private_key(self):
+        print('=> Generating new private key')
+        if self.operation_type == 'DEFAULT':
+            return _RSA.generate(2048)
+        else:
+            print('ERROR: Unsupported method {}'.format(self.operation_type))
+            # TODO: Implement TPM
+            return False
 
-# Default only (not supported by TPM)
-def save_private_key(key: str, path: str):
-    file_name = 'private.pem'
-    print('.. Saving private key as {} at {}'.format(file_name, path))
-    private_key = key.export_key("PEM")
-    return create_file(path, file_name, private_key, "wb")
+    def get_private_key_from_file(self):
+        print('=> Loading private key from file')
+        file_path = self.config_path + 'private.pem'
+        with open(file_path, 'rb', buffering=0) as reader:
+            key = reader.read()
+            return key
 
-def save_public_key(key: str, path: str):
-    file_name = 'public.pem'
-    print('.. Saving public key as {} at {}'.format(file_name, path))
-    public_key = key.publickey().export_key(format='PEM')
-    return create_file(path, file_name, public_key, "wb")
+    def get_public_key_from_private_key(self, key):
+        print('=> Loading public key from private key')
+        return key.publickey()
 
-def generate_rsa_keys(type: str, path: str):
-    print("# Generating and saving RSA keys: {}".format(type))
-    if type == 'tpm':
-        print('.. Error: TPM is not supported at this moment. Exitting.')
-        sys.exit()
-
-    key = generate_key()
-    saved_private_key = save_private_key(key, path)
-    saved_public_key = save_public_key(key, path)
-
-    if saved_private_key and saved_public_key:
+    def generate_and_save_to_config_path(self):
+        private_key = self.generate_private_key()
+        public_key = self.get_public_key_from_private_key(private_key)
+        with open(self.private_key_path, 'wb') as writer:
+            writer.write(bytearray(private_key.export_key("PEM")))
+        with open(self.public_key_path, 'wb') as writer:
+            writer.write(bytearray(public_key.export_key("PEM")))
         return True
-    else:
-        return False
-
-def generate_keys(path: str, type: str):
-    created_path = create_path(path)
-    if created_path == False:
-        return {
-            'status': 'error',
-            'status_signature': 'error:path',
-            'message': 'Error: Could not create path.'
-        }
-
-    generated_rsa_keys = generate_rsa_keys(type, path)
-    if generated_rsa_keys == False:
-        return {
-            'status': 'error',
-            'status_signature': 'error:rsa' ,
-            'message': 'Could not generate RSA keys.'
-        }
-    print('Success: Generated RSA keys')
-
-    generated_jwk = generate_and_save_jwk(path)
-    if generated_jwk == False:
-        return {
-            'status': 'error',
-            'status_signature': 'error.jwk',
-            'message': 'Could not generate JWK from existing RSA keys.'
-        }
-    print('Success: Generated JWK key')
-
-    return {
-        'status': 'success',
-        'status_signature': 'success',
-        'message': 'We are done here..'
-    }

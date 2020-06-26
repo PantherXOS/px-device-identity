@@ -1,11 +1,12 @@
+import sys
 from pathlib import Path
 import json
 import binascii
 
-from .device import init
-from .jwk import generate_and_save_jwk, get_jwk
+from .device import Device
+from .jwk import JWK
 from .cli import get_cl_arguments
-from .sign import sign
+from .sign import Sign
 
 def get_config_path():
     home_path = str(Path.home())
@@ -19,25 +20,32 @@ def run_all():
     path = get_config_path()
     cl_arguments = get_cl_arguments()
     operation = cl_arguments.get('operation')
-    string = cl_arguments.get('string')
-    type = 'default'
+    message = cl_arguments.get('message')
+    force_operation = cl_arguments.get('force')
+    operation_type = cl_arguments.get('operation_type')
 
-    if operation == 'init':
-        result = init(path, type)
-        return json.dumps(result)
+    device = Device(path, operation_type, force_operation)
+    INITIATED = device.check_init()
 
-    if operation == 'getJWK':
-        result = get_jwk(path)
-        return json.dumps(result)
+    if operation != 'INIT' and INITIATED == False:
+        print('ERROR: Device is not initiated.')
+        print('Initiate device with --operation INIT --type <DEFAULT|TPM>')
+        sys.exit()
 
-    if operation == 'sign':
-        result = sign('default', path, string)
-        conv = binascii.b2a_base64(result)
-        return conv
+    if operation == 'INIT':
+        device = Device(path, operation_type, force_operation)
+        success = device.init()
+        if success:
+            return 'SUCCESS'
+        else:
+            return 'ERROR'
 
-    unknownError = {
-        'status': 'error',
-        'status_signature': 'error:unknown',
-        'message': 'An unknown error has occured.'
-    }
-    return unknownError
+    if operation == 'GET_JWK':
+        jwk = JWK(path, operation_type)
+        return json.dumps(jwk.get())
+
+    if operation == 'SIGN':
+        sign = Sign(path, operation_type, message)
+        signed = sign.sign()
+        signed_converted = binascii.b2a_base64(signed)
+        return signed_converted

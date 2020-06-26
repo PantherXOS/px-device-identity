@@ -2,37 +2,45 @@ import sys
 import argparse
 
 def get_cl_arguments():
-    debug = False
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--operation", type=str,
-                        help="Type of operation; options: 'init', 'getJWK', 'sign'")
+                        help="Operation; Options: -- operation <INIT|GET_JWK|SIGN>")
     parser.add_argument("-t", "--type", type=str,
-                        help="Whether to use TPM; options: 'default', 'tpm'")
-    parser.add_argument("-s", "--string", type=str,
-                        help="String type for signing; works only with 'sign' operation.")
-    parser.add_argument("-d", "--debug", type=bool,
+                        help="Operation type; Options: --type <DEFAULT|TPM>")
+    parser.add_argument("-m", "--message", type=str,
+                        help="Message type for signing; works only with 'SIGN' operation.")
+    parser.add_argument("-f", "--force", type=bool, default=False,
+                        help="Overwrite existing device identity")
+    parser.add_argument("-d", "--debug", type=bool, default=False,
                         help="Turn on debug messages")
     args = parser.parse_args()
 
     if args.operation is None:
-        print("You need to specify an operation: 'generateKeys', 'getJWK', 'sign")
+        print("ERROR: You need to specify a operation.")
+        print("Options: -- operation <INIT|GET_JWK|SIGN>")
         sys.exit()
 
-    if args.type is None:
-        print("You need to specify whether to use the default, or TPM for key operations. Do -t")
+    if args.operation == 'INIT' or args.operation == 'GET_JWK':
+        pass
+    elif args.operation == 'SIGN':
+        if args.message is None:
+            print("You need to pass a --message for signing.")
+            sys.exit()
+    else:
+        print("ERROR: You need to specify a operation.")
+        print("Options: -- operation <INIT|GET_JWK|SIGN>")
         sys.exit()
 
-    if args.operation == 'sign' and args.string is None:
-        print("You need to pass a string for signing.")
+    if args.type != 'DEFAULT' and args.type != 'TPM':
+        print("ERROR: You need to specify an operation type.")
+        print("Options: --type <DEFAULT|TPM>")
         sys.exit()
-
-    if args.debug is not None:
-        if args.debug == True:
-            debug = True
 
     return {
         'operation': args.operation,
-        'string': args.string,
-        'debug': debug
+        'operation_type': args.type,
+        'message': args.message,
+        'force': args.force,
+        'debug': args.debug
     }

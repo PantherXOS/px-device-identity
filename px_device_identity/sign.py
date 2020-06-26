@@ -1,19 +1,23 @@
 from Cryptodome.PublicKey import RSA
 from Cryptodome.Signature import PKCS1_v1_5
 from Cryptodome.Hash import SHA256
+from .filesystem import Filesystem
+class Sign:
+    def __init__(self, config_path, operation_type, message):
+        self.config_path = config_path
+        self.operation_type = operation_type
+        self.message = message
 
-from .filesystem import open_file
+    def sign_with_rsa_signing_key(self, key):
+        key = RSA.import_key(key)
+        m = SHA256.new(self.message.encode('utf8'))
+        return PKCS1_v1_5.new(key).sign(m)
 
-def sign_with_rsa_signing_key(message: str, private_key):
-    key = RSA.import_key(private_key)
-    m = SHA256.new(message.encode('utf8'))
-    return PKCS1_v1_5.new(key).sign(m)
-
-def sign(type: str, path: str, message: str):
-    print('Signing string with type {}'.format(type))
-    if type == 'tpm':
-        print('ERROR: TPM is not supported at this moment')
-    if type == 'default':
-        file_path = path + 'private.pem'
-        private_key = open_file(file_path, 'rb')
-        return sign_with_rsa_signing_key(message, private_key)
+    def sign(self):
+        print('Signing string with type {}'.format(self.operation_type))
+        if self.operation_type == 'TPM':
+            print('ERROR: TPM is not supported at this moment')
+        if self.operation_type == 'DEFAULT':
+            fs = Filesystem(self.config_path, 'private.pem', 'rb')
+            return self.sign_with_rsa_signing_key(fs.open_file())
+        return False
