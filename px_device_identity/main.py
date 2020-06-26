@@ -7,6 +7,7 @@ from .device import Device
 from .jwk import JWK
 from .cli import get_cl_arguments
 from .sign import Sign
+from .cm import CM
 
 def get_config_path():
     home_path = str(Path.home())
@@ -21,6 +22,7 @@ def run_all():
     cl_arguments = get_cl_arguments()
     operation = cl_arguments.get('operation')
     message = cl_arguments.get('message')
+    host = cl_arguments.get('host')
     force_operation = cl_arguments.get('force')
     operation_type = cl_arguments.get('operation_type')
 
@@ -49,3 +51,23 @@ def run_all():
         signed = sign.sign()
         signed_converted = binascii.b2a_base64(signed)
         return signed_converted
+
+    if operation == 'REGISTER':
+        identity: TPM2KeyIdentity = {
+            'label': 'IdP',
+            'sopin': 'abc',
+            'userpin': 'abc',
+            'path': '~/.data/tpm2'
+        }
+        # TODO: Actual values!
+        registration: DeviceRegistration = {
+            'public_key': '',
+            'title': 'Device-ABC',
+            'location': 'BK1',
+        }
+        cm = CM(registration, host)
+        registered =  cm.register_device()
+        if registered:
+            print('Registered')
+        print('Failed to register.')
+        return 'ERROR'

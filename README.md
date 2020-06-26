@@ -36,7 +36,15 @@ and should respond with either 'SUCCESS'  or 'ERROR' depending on the outcome of
 python3 run.py --operation INIT --type <DEFAULT|TPM> --force TRUE
 ```
 
-### Get the JWK for the device `public.pem`
+## Register device
+
+_Completely untested!_
+
+```bash
+python3 run.py --operation REGISTER --type <DEFAULT|TPM> --address <https://...>
+```
+
+### Get the JWK for the device public key
 
 ```bash
 python3 run.py --operation GET_JWK --type <DEFAULT|TPM>

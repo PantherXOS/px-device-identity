@@ -35,7 +35,10 @@ class Filesystem():
     def create_file(self, content):
         print(".. Creating file at {}".format(self.file_path))
         self.create_path()
-        formatted_content = bytearray(content)
+        if self.mode == 'wb':
+            formatted_content = bytearray(content)
+        else:
+            formatted_content = content
         try:
             with open(self.file_path, self.mode) as writer:
                 writer.write(formatted_content)
