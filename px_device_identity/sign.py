@@ -20,7 +20,7 @@ class Sign:
     def sign(self):
         log.info('=> Signing string with type {}'.format(self.operation_type))
         if self.operation_type == 'TPM':
-            log.error('ERROR: TPM is not supported at this moment')
+            log.error('TPM is not supported at this moment')
         if self.operation_type == 'DEFAULT':
             fs = Filesystem(self.config_path, 'private.pem', 'rb')
             return self.sign_with_rsa_signing_key(fs.open_file())

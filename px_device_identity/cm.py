@@ -1,4 +1,5 @@
 import requests
+import json
 from time import sleep
 from .classes import DeviceRegistration
 
@@ -16,21 +17,31 @@ class CM:
         try:
             api_url = self.host +  '/kyc/register'
             log.info("=> Posting registration to {}".format(api_url))
-            result = requests.post(api_url, data=self.registration)
+            log.info(self.registration)
+            result = requests.post(api_url, json=self.registration)
+            log.info(result)
+            log.info(result.text)
             if result.status_code == 200:
                 # TODO: Probably going to fail
-                verification_code: str = result.text
+                formatted_result = json.loads(result.text)
+                verification_code: str = formatted_result["verification_code"]
+                log.info('Received `verification_code`.')
+                log.info(verification_code)
                 return verification_code
+            else:
+                log.error("Could not post device registration.")
+                if result.content:
+                    log.error(result.content)
         except:
-            log.error("ERROR: Something went wrong posting the registration.")
+            log.error("Something went wrong posting the registration.")
         return False
 
     def check_registration_result(self, verification_code: str):
         try:
-            api_url = self.host + '/kyc/register/' + verification_code
+            api_url = self.host + '/kyc/register/' + str(verification_code)
             return requests.get(api_url)
         except:
-            log.error("ERROR: Something went wrong checking for the registration result.")
+            log.error("Something went wrong checking for the registration result.")
         return False
 
     def check_registration_result_loop(self, verification_code: str):
@@ -46,24 +57,26 @@ class CM:
             if result == False:
                 return result
             status_code = result.status_code
+            result_formatted = json.loads(result.text)
             if status_code == 200:
                 waited_time_approx += wait_time + 1
-                status = result.json.__getattribute__(status)
+                status = result_formatted["status"]
+                log.info('Request status: {}'.format(status))
                 if status == 'pending':
                     timeout = total_time_approx - waited_time_approx
                     log.info('=> Waiting for approval ... Going to sleep for {}s. Timeout in {}s.'.format(wait_time, timeout))
-                    sleep(0, wait_time)
+                    sleep(wait_time)
                 if status == 'rejected':
                     log.error("=> The device registration was rejected after {}s.".format(waited_time_approx))
                     return False
                 if status == 'accepted':
-                    log.error("=> The device registration was accepted after {}s".format(waited_time_approx))
-                    app_id: str  = result.json.__getattribute__(app_id)
+                    log.info("=> The device registration was accepted after {}s".format(waited_time_approx))
+                    app_id: str  = result_formatted["app_id"]
                     return app_id
             else:
                 log.error("Request failed with status code {}".format(status_code))
                 if status_code == 404:
-                    log.error("ERROR: Cannot find pending registration. Did you register already?")
+                    log.error("Cannot find pending registration. Did you register already?")
         return False
 
     def register_device(self):
@@ -73,7 +86,5 @@ class CM:
             registration_approval = self.check_registration_result_loop(verification_code)
             if registration_approval != False:
                 app_id: str = registration_approval
-                fs = Filesystem(self.config_path, 'registration', 'w', app_id)
-                fs.create_file()
                 return app_id
         return False

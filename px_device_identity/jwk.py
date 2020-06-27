@@ -28,3 +28,10 @@ class JWK:
 
     def get(self):
         return self.generate()
+
+    def get_jwks(self):
+        jwk = self.get()
+        jwks = {
+            'keys': [jwk]
+        }
+        return jwks
