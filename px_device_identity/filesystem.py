@@ -2,7 +2,11 @@ import sys
 import os
 import base64
 from pathlib import Path
+from exitstatus import ExitStatus
 
+from .log import Logger
+
+log = Logger('FILESYSTEM')
 class Filesystem():
     def __init__(self, config_path, file_name, mode):
         self.config_path = config_path
@@ -28,12 +32,12 @@ class Filesystem():
                 os.mkdir(self.config_path)
                 return True
             except EnvironmentError:
-                print(".. Could not create path {}".format(self.config_path))
-                sys.exit()
+                log.error("ERROR: Could not create path {}".format(self.config_path))
+                sys.exit(ExitStatus.failure)
         return True
     
     def create_file(self, content):
-        print(".. Creating file at {}".format(self.file_path))
+        log.info("=> Creating file at {}".format(self.file_path))
         self.create_path()
         if self.mode == 'wb':
             formatted_content = bytearray(content)
@@ -42,23 +46,19 @@ class Filesystem():
         try:
             with open(self.file_path, self.mode) as writer:
                 writer.write(formatted_content)
-                print(".. Created file.")
+                log.info("=> Created file.")
                 return True
-        except Exception as e:
-            print(".. Could not create file {}".format(self.file_path))
-            print(e)
+        except EnvironmentError:
+            log.error("ERROR: Could not create file {}".format(self.file_path))
         return False
     
     def open_file(self):
-        # print(".. Opening file at {}".format(self.file_path))
+        log.info("=> Opening file at {}".format(self.file_path))
         if self.file_exists:
             with open(self.file_path, self.mode, buffering=0) as reader:
                 try:
                     file_content = reader.read()
-                    #print(".. ## FILE CONTENT ##")
-                    #print(file_content)
-                    #print()
                     return file_content
                 except:
-                    print(".. Error opening file at {}".format(self.file_path))
+                    log.error("ERROR: Could not open file at {}".format(self.file_path))
         return False

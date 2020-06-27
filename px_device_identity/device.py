@@ -4,6 +4,9 @@ import uuid
 from uuid import UUID
 from .rsa import RSA
 from .filesystem import Filesystem
+from .log import Logger
+
+log = Logger('DEVICE')
 
 class Device:
     def __init__(self, config_path, operation_type, force_operation):
@@ -34,17 +37,17 @@ class Device:
     def init(self):
         initiated = self.check_init()
         if initiated:
-            print('# Device already initiated.')
+            log.error('# Device already initiated.')
             if self.force_operation:
-                print('.. OVERWRITING')
+                log.warning('=> OVERWRITING')
             else:
-                print('Use --force TRUE to overwrite')
+                log.error('=> Use --force TRUE to overwrite')
                 sys.exit()
         else:
-            print('# Initiating a new device')
+            log.info('# Initiating a new device')
             fs = Filesystem(self.config_path, 'device_id', 'r')
             fs.create_path()
-        print(".. Saving identification as uuid4 as 'device_id' at {}".format(self.config_path))
+        log.info("=> Saving identification as uuid4 as 'device_id' at {}".format(self.config_path))
         with open(self.device_id_path, 'w') as writer:
             writer.write(str(self.id))
         rsa = RSA(self.config_path, self.operation_type)

@@ -1,4 +1,5 @@
 import sys
+from exitstatus import ExitStatus
 from pathlib import Path
 import json
 import binascii
@@ -8,19 +9,23 @@ from .jwk import JWK
 from .cli import get_cl_arguments
 from .sign import Sign
 from .cm import CM
+from .log import Logger
+
+log = Logger('MAIN')
 
 def get_config_path():
     home_path = str(Path.home())
     config_path = '/.config/device/'
     return home_path + config_path
 
+def handle_result(success):
+    if success:
+        sys.exit(ExitStatus.success)
+    else:
+        sys.exit(ExitStatus.failure)
+
 def main():
-    print()
-    print('Welcome to PantherX Device Identity Service')
-    print()
-    # TODO; device `title`
-    # TODO: device `location`
-    # type = 'fs'
+    log.info('Welcome to PantherX Device Identity Service')
     path = get_config_path()
     cl_arguments = get_cl_arguments()
     operation = cl_arguments.get('operation')
@@ -33,17 +38,14 @@ def main():
     INITIATED = device.check_init()
 
     if operation != 'INIT' and INITIATED == False:
-        print('ERROR: Device is not initiated.')
-        print('Initiate device with --operation INIT --type <DEFAULT|TPM>')
-        sys.exit()
+        log.error('Device is not initiated.')
+        log.error('Initiate device with --operation INIT --type <DEFAULT|TPM>')
+        sys.exit(ExitStatus.failure)
 
     if operation == 'INIT':
         device = Device(path, operation_type, force_operation)
-        success = device.init()
-        if success:
-            return 'SUCCESS'
-        else:
-            return 'ERROR'
+        initiated = device.init()
+        handle_result(initiated)
 
     if operation == 'GET_JWK':
         jwk = JWK(path, operation_type)
@@ -70,10 +72,7 @@ def main():
         }
         cm = CM(registration, host)
         registered =  cm.register_device()
-        if registered:
-            print('Registered')
-        print('Failed to register.')
-        return 'ERROR'
+        handle_result(registered)
 
 if __name__ == '__main__':
     main()

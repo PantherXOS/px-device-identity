@@ -4,6 +4,7 @@ import px_device_identity
 
 def main():
     r = px_device_identity.main()
+    sys.stdout.flush()
     if type(r) == str:
         sys.stdout.write(r)
     else:

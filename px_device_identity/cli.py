@@ -1,5 +1,9 @@
 import sys
 import argparse
+from exitstatus import ExitStatus
+from .log import Logger
+
+log = Logger('CLI')
 
 def get_cl_arguments():
 
@@ -19,28 +23,28 @@ def get_cl_arguments():
     args = parser.parse_args()
 
     if args.operation is None:
-        print("ERROR: You need to specify a operation.")
-        print("Options: -- operation <INIT|GET_JWK|SIGN>")
+        log.error("ERROR: You need to specify a operation.")
+        log.error("ERROR: You need to specify a operation.")
         sys.exit()
 
     if args.operation == 'INIT' or args.operation == 'GET_JWK':
         pass
     elif args.operation == 'REGISTER':
         if args.address is None:
-            print("ERROR: You need to provide a host for registration: --address 'https://....'")
+            log.error("ERROR: You need to provide a host for registration: --address 'https://....'")
     elif args.operation == 'SIGN':
         if args.message is None:
-            print("You need to pass a --message for signing.")
-            sys.exit()
+            log.error("You need to pass a --message for signing.")
+            sys.exit(ExitStatus.failure)
     else:
-        print("ERROR: You need to specify a operation.")
-        print("Options: -- operation <INIT|GET_JWK|SIGN>")
-        sys.exit()
+        log.error("ERROR: You need to specify a operation.")
+        log.error("Options: -- operation <INIT|GET_JWK|SIGN>")
+        sys.exit(ExitStatus.failure)
 
     if args.type != 'DEFAULT' and args.type != 'TPM':
-        print("ERROR: You need to specify an operation type.")
-        print("Options: --type <DEFAULT|TPM>")
-        sys.exit()
+        log.error("ERROR: You need to specify an operation type.")
+        log.error("Options: --type <DEFAULT|TPM>")
+        sys.exit(ExitStatus.failure)
 
     return {
         'operation': args.operation,

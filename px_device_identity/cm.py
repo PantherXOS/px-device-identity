@@ -1,7 +1,11 @@
 import requests
 from time import sleep
 from .classes import DeviceRegistration
+
 from .filesystem import Filesystem
+from .log import Logger
+
+log = Logger('CM')
 
 class CM:
     def __init__(self, registration: DeviceRegistration, host: str):
@@ -11,14 +15,14 @@ class CM:
     def post_registration(self):
         try:
             api_url = self.host +  '/kyc/register'
-            print("=> Posting registration to {}".format(api_url))
+            log.info("=> Posting registration to {}".format(api_url))
             result = requests.post(api_url, data=self.registration)
             if result.status_code == 200:
                 # TODO: Probably going to fail
                 verification_code: str = result.text
                 return verification_code
         except:
-            print("ERROR: Something went wrong posting the registration.")
+            log.error("ERROR: Something went wrong posting the registration.")
         return False
 
     def check_registration_result(self, verification_code: str):
@@ -26,7 +30,7 @@ class CM:
             api_url = self.host + '/kyc/register/' + verification_code
             return requests.get(api_url)
         except:
-            print("ERROR: Something went wrong checking for the registration result.")
+            log.error("ERROR: Something went wrong checking for the registration result.")
         return False
 
     def check_registration_result_loop(self, verification_code: str):
@@ -37,7 +41,7 @@ class CM:
         total_time_approx = limit * wait_time
         for i in range(limit):
             if i == limit:
-                print('Last try!')
+                log.warning('Last try!')
             result = self.check_registration_result(verification_code)
             if result == False:
                 return result
@@ -47,19 +51,19 @@ class CM:
                 status = result.json.__getattribute__(status)
                 if status == 'pending':
                     timeout = total_time_approx - waited_time_approx
-                    print('=> Waiting for approval ... Going to sleep for {}s. Timeout in {}s.'.format(wait_time, timeout))
+                    log.info('=> Waiting for approval ... Going to sleep for {}s. Timeout in {}s.'.format(wait_time, timeout))
                     sleep(0, wait_time)
                 if status == 'rejected':
-                    print("=> The device registration was rejected after {}s.".format(waited_time_approx))
+                    log.error("=> The device registration was rejected after {}s.".format(waited_time_approx))
                     return False
                 if status == 'accepted':
-                    print("=> The device registration was accepted after {}s".format(waited_time_approx))
+                    log.error("=> The device registration was accepted after {}s".format(waited_time_approx))
                     app_id: str  = result.json.__getattribute__(app_id)
                     return app_id
             else:
-                print("Request failed with status code {}".format(status_code))
+                log.error("Request failed with status code {}".format(status_code))
                 if status_code == 404:
-                    print("ERROR: Cannot find pending registration. Did you register already?")
+                    log.error("ERROR: Cannot find pending registration. Did you register already?")
         return False
 
     def register_device(self):
