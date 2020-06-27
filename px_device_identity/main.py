@@ -14,7 +14,10 @@ def get_config_path():
     config_path = '/.config/device/'
     return home_path + config_path
 
-def run_all():
+def main():
+    print()
+    print('Welcome to PantherX Device Identity Service')
+    print()
     # TODO; device `title`
     # TODO: device `location`
     # type = 'fs'
@@ -71,3 +74,6 @@ def run_all():
             print('Registered')
         print('Failed to register.')
         return 'ERROR'
+
+if __name__ == '__main__':
+    main()

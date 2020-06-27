@@ -19,7 +19,7 @@ pip install .
 ### Initiate device:
 
 ```bash
-python3 run.py --operation INIT --type <DEFAULT|TPM>
+px-device-identity --operation INIT --type <DEFAULT|TPM>
 ```
 
 This generates the following files:
@@ -33,7 +33,7 @@ and should respond with either 'SUCCESS'  or 'ERROR' depending on the outcome of
 **To overwrite an existing device identification**, do:
 
 ```bash
-python3 run.py --operation INIT --type <DEFAULT|TPM> --force TRUE
+px-device-identity --operation INIT --type <DEFAULT|TPM> --force TRUE
 ```
 
 ## Register device
@@ -41,19 +41,19 @@ python3 run.py --operation INIT --type <DEFAULT|TPM> --force TRUE
 _Completely untested!_
 
 ```bash
-python3 run.py --operation REGISTER --type <DEFAULT|TPM> --address <https://...>
+px-device-identity --operation REGISTER --type <DEFAULT|TPM> --address <https://...>
 ```
 
 ### Get the JWK for the device public key
 
 ```bash
-python3 run.py --operation GET_JWK --type <DEFAULT|TPM>
+px-device-identity --operation GET_JWK --type <DEFAULT|TPM>
 ```
 
 ### Sign a hash
 
 ```bash
-python3 run.py --operation SIGN --type <DEFAULT|TPM> --message <HASH>
+px-device-identity --operation SIGN --type <DEFAULT|TPM> --message <HASH>
 ```
 
 returns `binascii.b2a_base64`
