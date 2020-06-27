@@ -18,7 +18,8 @@ INSTALL_REQUIRES = [
     'requests==2.24.0',
     'authlib==0.14.3',
     'argparse==1.4.0',
-    'pycryptodomex==3.9.8'
+    'pycryptodomex==3.9.8',
+    'requests==2.24.0'
 ]
 
 setup(name=PACKAGE_NAME,
