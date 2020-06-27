@@ -18,30 +18,28 @@ pip install .
 
 ### Initiate device:
 
+**Unmanaged**
+
 ```bash
 px-device-identity --operation INIT --type <DEFAULT|TPM>
+```
+
+**Managed**
+
+```bash
+px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --type <DEFAULT|TPM>
 ```
 
 This generates the following files:
 
 ```bash
-device_id  private.pem  public_jwk.json  public.pem
+device_id   public_jwk.json  public.pem  private.pem # not for TPM
 ```
-
-and should respond with either 'SUCCESS'  or 'ERROR' depending on the outcome of the operation.
 
 **To overwrite an existing device identification**, do:
 
 ```bash
 px-device-identity --operation INIT --type <DEFAULT|TPM> --force TRUE
-```
-
-## Register device
-
-_Completely untested!_
-
-```bash
-px-device-identity --operation REGISTER --type <DEFAULT|TPM> --address <https://...>
 ```
 
 ### Get the JWK for the device public key

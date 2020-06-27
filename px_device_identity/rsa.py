@@ -1,5 +1,6 @@
 import sys
 from Cryptodome.PublicKey import RSA as _RSA
+from exitstatus import ExitStatus
 
 from .log import Logger
 log = Logger('RSA')
@@ -16,7 +17,7 @@ class RSA:
         if self.operation_type == 'DEFAULT':
             return _RSA.generate(2048)
         else:
-            log.error('ERROR: Unsupported method {}'.format(self.operation_type))
+            log.error('Unsupported method {}'.format(self.operation_type))
             # TODO: Implement TPM
             return False
 
@@ -34,8 +35,13 @@ class RSA:
     def generate_and_save_to_config_path(self):
         private_key = self.generate_private_key()
         public_key = self.get_public_key_from_private_key(private_key)
-        with open(self.private_key_path, 'wb') as writer:
-            writer.write(bytearray(private_key.export_key("PEM")))
-        with open(self.public_key_path, 'wb') as writer:
-            writer.write(bytearray(public_key.export_key("PEM")))
-        return True
+        # TODO: Refine error handling
+        try:
+            with open(self.private_key_path, 'wb') as writer:
+                writer.write(bytearray(private_key.export_key("PEM")))
+            with open(self.public_key_path, 'wb') as writer:
+                writer.write(bytearray(public_key.export_key("PEM")))
+            return True
+        except EnvironmentError:
+            log.error('Could not save key file(s).')
+        sys.exit(ExitStatus.failure)

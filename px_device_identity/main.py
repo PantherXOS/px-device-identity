@@ -4,6 +4,7 @@ from pathlib import Path
 import json
 import binascii
 
+from .classes import RequestedOperation
 from .device import Device
 from .jwk import JWK
 from .cli import get_cl_arguments
@@ -28,51 +29,37 @@ def main():
     log.info('Welcome to PantherX Device Identity Service')
     path = get_config_path()
     cl_arguments = get_cl_arguments()
-    operation = cl_arguments.get('operation')
+    operation: RequestedOperation = cl_arguments.get('operation')
     message = cl_arguments.get('message')
     host = cl_arguments.get('host')
-    force_operation = cl_arguments.get('force')
-    operation_type = cl_arguments.get('operation_type')
+    device_type = cl_arguments.get('device_type')
 
-    device = Device(path, operation_type, force_operation)
+    device = Device(path, operation, device_type)
     INITIATED = device.check_init()
 
-    if operation != 'INIT' and INITIATED == False:
+    if operation.action != 'INIT' and INITIATED == False:
         log.error('Device is not initiated.')
         log.error('Initiate device with --operation INIT --type <DEFAULT|TPM>')
         sys.exit(ExitStatus.failure)
 
-    if operation == 'INIT':
-        device = Device(path, operation_type, force_operation)
-        initiated = device.init()
+    if operation.action == 'INIT':
+        device = Device(path, operation, device_type)
+        initiated = device.init(host)
         handle_result(initiated)
 
-    if operation == 'GET_JWK':
-        jwk = JWK(path, operation_type)
+    if operation.action == 'GET_JWK':
+        jwk = JWK(path, operation)
         return json.dumps(jwk.get())
 
-    if operation == 'SIGN':
-        sign = Sign(path, operation_type, message)
+    if operation.action == 'GET_JWKS':
+        jwk = JWK(path, operation)
+        return json.dumps(jwk.get_jwks())
+
+    if operation.action == 'SIGN':
+        sign = Sign(path, operation.operation_type, message)
         signed = sign.sign()
         signed_converted = binascii.b2a_base64(signed)
         return signed_converted
-
-    if operation == 'REGISTER':
-        identity: TPM2KeyIdentity = {
-            'label': 'IdP',
-            'sopin': 'abc',
-            'userpin': 'abc',
-            'path': '~/.data/tpm2'
-        }
-        # TODO: Actual values!
-        registration: DeviceRegistration = {
-            'public_key': '',
-            'title': 'Device-ABC',
-            'location': 'BK1',
-        }
-        cm = CM(registration, host)
-        registered =  cm.register_device()
-        handle_result(registered)
 
 if __name__ == '__main__':
     main()

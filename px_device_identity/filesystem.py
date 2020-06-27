@@ -32,7 +32,7 @@ class Filesystem():
                 os.mkdir(self.config_path)
                 return True
             except EnvironmentError:
-                log.error("ERROR: Could not create path {}".format(self.config_path))
+                log.error("Could not create path {}".format(self.config_path))
                 sys.exit(ExitStatus.failure)
         return True
     
@@ -49,7 +49,7 @@ class Filesystem():
                 log.info("=> Created file.")
                 return True
         except EnvironmentError:
-            log.error("ERROR: Could not create file {}".format(self.file_path))
+            log.error("Could not create file {}".format(self.file_path))
         return False
     
     def open_file(self):
@@ -60,5 +60,5 @@ class Filesystem():
                     file_content = reader.read()
                     return file_content
                 except:
-                    log.error("ERROR: Could not open file at {}".format(self.file_path))
+                    log.error("Could not open file at {}".format(self.file_path))
         return False
