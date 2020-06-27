@@ -15,7 +15,9 @@ class JWK:
     def generate(self):
         with open(self.public_key_path, 'rb', buffering=0) as reader:
             file_content = reader.read()
-            return jwk.dumps(file_content, kty='RSA')
+            key = jwk.dumps(file_content, kty='RSA')
+            key['alg'] = 'RS256'
+            return key
 
     def save_to_config_path(self):
         key = self.generate()
