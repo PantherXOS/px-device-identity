@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 PACKAGE_NAME = 'px-device-identity'
 AUTHOR = 'Franz Geffke'
 AUTHOR_EMAIL = 'franz@pantherx.org'
@@ -19,7 +19,8 @@ INSTALL_REQUIRES = [
     'authlib==0.14.3',
     'argparse==1.4.0',
     'pycryptodomex==3.9.8',
-    'exitstatus==2.0.1'
+    'exitstatus==2.0.1',
+    'python_jose==3.1.0'
 ]
 
 setup(name=PACKAGE_NAME,
