@@ -3,6 +3,7 @@ from exitstatus import ExitStatus
 from pathlib import Path
 import json
 import binascii
+import base64
 
 from .classes import RequestedOperation
 from .device import Device
@@ -58,7 +59,7 @@ def main():
     if operation.action == 'SIGN':
         sign = Sign(path, operation.operation_type, message)
         signed = sign.sign()
-        signed_converted = binascii.b2a_base64(signed)
+        signed_converted = base64.urlsafe_b64encode(binascii.b2a_base64(signed))
         return signed_converted
 
 if __name__ == '__main__':

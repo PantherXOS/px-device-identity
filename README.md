@@ -48,6 +48,11 @@ px-device-identity --operation INIT --type <DEFAULT|TPM> --force TRUE
 px-device-identity --operation GET_JWK --type <DEFAULT|TPM>
 ```
 
+### Get the JWK as JWKS
+
+```bash
+px-device-identity --operation GET_JWKS --type <DEFAULT|TPM>
+
 ### Sign a hash
 
 ```bash
