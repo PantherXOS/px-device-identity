@@ -3,6 +3,7 @@ from Cryptodome.Signature import PKCS1_v1_5
 from Cryptodome.Hash import SHA256
 
 from .filesystem import Filesystem
+from .util import b64encode
 from .log import Logger
 
 log = Logger('main')
@@ -15,7 +16,7 @@ class Sign:
     def sign_with_rsa_signing_key(self, key):
         key = RSA.import_key(key)
         m = SHA256.new(self.message.encode('utf8'))
-        return PKCS1_v1_5.new(key).sign(m)
+        return b64encode(PKCS1_v1_5.new(key).sign(m))
 
     def sign(self):
         log.info('=> Signing string with type {}'.format(self.operation_type))

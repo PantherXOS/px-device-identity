@@ -1,15 +1,14 @@
-import sys
-import os
+from sys import stdout
 import px_device_identity
 
 def main():
     r = px_device_identity.main()
-    sys.stdout.flush()
+    stdout.flush()
     if type(r) == str:
-        sys.stdout.write(r)
+        stdout.write(r)
     else:
-        sys.stdout.buffer.write(r)
-    sys.stdout.flush()
+        stdout.buffer.write(r)
+    stdout.flush()
 
 if __name__ == '__main__':
     main()

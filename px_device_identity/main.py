@@ -1,9 +1,7 @@
-import sys
+from sys import exit
 from exitstatus import ExitStatus
 from pathlib import Path
-import json
-import binascii
-from jose.utils import base64url_encode
+from json import dumps as json_dumps
 
 from .classes import RequestedOperation
 from .device import Device
@@ -22,9 +20,9 @@ def get_config_path():
 
 def handle_result(success):
     if success:
-        sys.exit(ExitStatus.success)
+        exit(ExitStatus.success)
     else:
-        sys.exit(ExitStatus.failure)
+        exit(ExitStatus.failure)
 
 def main():
     log.info('Welcome to PantherX Device Identity Service')
@@ -41,7 +39,7 @@ def main():
     if operation.action != 'INIT' and INITIATED == False:
         log.error('Device is not initiated.')
         log.error('Initiate device with --operation INIT --type <DEFAULT|TPM>')
-        sys.exit(ExitStatus.failure)
+        exit(ExitStatus.failure)
 
     if operation.action == 'INIT':
         device = Device(path, operation, device_type)
@@ -50,16 +48,16 @@ def main():
 
     if operation.action == 'GET_JWK':
         jwk = JWK(path, operation)
-        return json.dumps(jwk.get())
+        return json_dumps(jwk.get())
 
     if operation.action == 'GET_JWKS':
         jwk = JWK(path, operation)
-        return json.dumps(jwk.get_jwks())
+        return json_dumps(jwk.get_jwks())
 
     if operation.action == 'SIGN':
         sign = Sign(path, operation.operation_type, message)
         signed = sign.sign()
-        signed_converted = base64url_encode(signed)
+        signed_converted = signed
         return signed_converted
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
-import os
+from os import environ
 import logging
-logging.basicConfig(level=os.environ.get("LOGLEVEL", "INFO"))
+logging.basicConfig(level=environ.get("LOGLEVEL", "INFO"))
 log = logging.getLogger("LOG")
 
 class Logger:

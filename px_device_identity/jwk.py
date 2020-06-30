@@ -1,6 +1,6 @@
 from pathlib import Path
 from authlib.jose import jwk
-import json
+from json import dumps as json_dumps 
 
 class JWK:
     def __init__(self, config_path, operation_type):
@@ -21,7 +21,7 @@ class JWK:
 
     def save_to_config_path(self):
         key = self.generate()
-        formatted_key = bytearray(json.dumps(key, ensure_ascii=True).encode('utf8'))
+        formatted_key = bytearray(json_dumps(key, ensure_ascii=True).encode('utf8'))
         with open(self.public_key_path, 'wb') as writer:
             writer.write(formatted_key)
             return True

@@ -1,7 +1,5 @@
-import sys
-import os
-import base64
-from pathlib import Path
+from sys import exit
+from os import mkdir, path 
 from exitstatus import ExitStatus
 
 from .log import Logger
@@ -16,24 +14,24 @@ class Filesystem():
 
     def config_path_exits(self):
         try:
-            return os.path.isdir(self.config_path)
+            return path.isdir(self.config_path)
         except EnvironmentError:
             return False
 
     def file_exists(self):
         try:
-            return os.path.isfile(self.file_path)
+            return path.isfile(self.file_path)
         except FileNotFoundError:
             return False
 
     def create_path(self):
         if self.config_path_exits() == False:
             try:
-                os.mkdir(self.config_path)
+                mkdir(self.config_path)
                 return True
             except EnvironmentError:
                 log.error("Could not create path {}".format(self.config_path))
-                sys.exit(ExitStatus.failure)
+                exit(ExitStatus.failure)
         return True
     
     def create_file(self, content):
