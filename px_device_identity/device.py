@@ -17,9 +17,9 @@ log = Logger('DEVICE')
 class Device:
     def __init__(self, config_path, operation: RequestedOperation, device_type):
         self.config_path = config_path
-        self.operation_type = operation.operation_type
+        self.operation_type = vars(operation)['operation_type']
         self.device_type = device_type
-        self.force_operation = operation.force_operation
+        self.force_operation = vars(operation)['force_operation']
         self.id = uuid4()
         self.device_id_path = config_path + 'device_id'
 

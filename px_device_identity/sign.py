@@ -14,6 +14,7 @@ class Sign:
         self.message = message
 
     def sign_with_rsa_signing_key(self, key):
+        log.info("=> Signing {}".format(self.message))
         key = RSA.import_key(key)
         m = SHA256.new(self.message.encode('utf8'))
         return b64encode(PKCS1_v1_5.new(key).sign(m))

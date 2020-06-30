@@ -20,12 +20,15 @@ def get_config_path():
 
 def handle_result(success):
     if success:
+        info.log("We're done here.")
         exit(ExitStatus.success)
     else:
+        info.log("Something went wrong.")
         exit(ExitStatus.failure)
 
 def main():
     log.info('Welcome to PantherX Device Identity Service')
+    log.info("--- This application should be run as root on the target device! ---")
     path = get_config_path()
     cl_arguments = get_cl_arguments()
     operation: RequestedOperation = cl_arguments.get('operation')
