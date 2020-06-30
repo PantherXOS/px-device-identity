@@ -52,6 +52,7 @@ px-device-identity --operation GET_JWK --type <DEFAULT|TPM>
 
 ```bash
 px-device-identity --operation GET_JWKS --type <DEFAULT|TPM>
+```
 
 ### Sign a hash
 
@@ -59,7 +60,21 @@ px-device-identity --operation GET_JWKS --type <DEFAULT|TPM>
 px-device-identity --operation SIGN --type <DEFAULT|TPM> --message <HASH>
 ```
 
-returns `binascii.b2a_base64`
+returns `base64`
+
+#### Example for JWT
+
+Request signature:
+
+```bash
+px-device-identity --operation SIGN --type DEFAULT --message eyJhbGciOiAiUlMyNTYiLCAidHlwZSI6ICJKV1QifQ.eyJhcHBfaWQiOiAiYzNlZmMzYTYtZGE1MS00N2IwLWFiNTYtOTA4MjRkYTFmNDNmIn0
+```
+
+Response:
+
+```bash
+UWyxzPn_r9VAdKH0MKwHirI3saCn21IuHpYNxMMgzq0KQk1PK83MBYTxqhnEwpq17ruKwQehhXb5bPg4Z9XF6a_dotdyZ8gYlrOefyBPBD712k0gPFOmf0KtJn6jYaR10lPbRyKI-fo21sb-0COp7Sb62rwNPv43tABiFD5C7mltYlH2EF2lN58uDytQypUCToWSapcRgfO9L5NCGShsjubBKkoLjzrP4qPC-AB8-EQx8jCm2hzy0dPg0GtppG1ZnLzeB0g2Vt4dFH21bjVO4o97CNb95PP6pZhNdqOq5LjsTfS6CbFi3h5bXHQQN_VU2mjq_E_5_QDeH8SAAFW-2g
+```
 
 ### Debug Messages
 

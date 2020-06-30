@@ -1,8 +1,8 @@
-import requests
-import json
+from requests import post, get
+from json import loads as json_loads
 from time import sleep
-from .classes import DeviceRegistration
 
+from .classes import DeviceRegistration
 from .filesystem import Filesystem
 from .log import Logger
 
@@ -18,15 +18,14 @@ class CM:
             api_url = self.host +  '/kyc/register'
             log.info("=> Posting registration to {}".format(api_url))
             log.info(self.registration)
-            result = requests.post(api_url, json=self.registration)
+            result = post(api_url, json=self.registration)
             log.info(result)
             log.info(result.text)
             if result.status_code == 200:
                 # TODO: Probably going to fail
-                formatted_result = json.loads(result.text)
+                formatted_result = json_loads(result.text)
                 verification_code: str = formatted_result["verification_code"]
-                log.info('Received `verification_code`.')
-                log.info(verification_code)
+                log.info("Received verification code: {}".format(verification_code))
                 return verification_code
             else:
                 log.error("Could not post device registration.")
@@ -39,7 +38,7 @@ class CM:
     def check_registration_result(self, verification_code: str):
         try:
             api_url = self.host + '/kyc/register/' + str(verification_code)
-            return requests.get(api_url)
+            return get(api_url)
         except:
             log.error("Something went wrong checking for the registration result.")
         return False
@@ -57,7 +56,7 @@ class CM:
             if result == False:
                 return result
             status_code = result.status_code
-            result_formatted = json.loads(result.text)
+            result_formatted = json_loads(result.text)
             if status_code == 200:
                 waited_time_approx += wait_time + 1
                 status = result_formatted["status"]
@@ -67,10 +66,10 @@ class CM:
                     log.info('=> Waiting for approval ... Going to sleep for {}s. Timeout in {}s.'.format(wait_time, timeout))
                     sleep(wait_time)
                 if status == 'rejected':
-                    log.error("=> The device registration was rejected after {}s.".format(waited_time_approx))
+                    log.error("The device registration was rejected after {}s.".format(waited_time_approx))
                     return False
                 if status == 'accepted':
-                    log.info("=> The device registration was accepted after {}s".format(waited_time_approx))
+                    log.info("The device registration was accepted after {}s".format(waited_time_approx))
                     app_id: str  = result_formatted["app_id"]
                     return app_id
             else:
