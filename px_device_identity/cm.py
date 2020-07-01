@@ -44,8 +44,8 @@ class CM:
         return False
 
     def check_registration_result_loop(self, verification_code: str):
-        limit = 100
-        wait_time = 5
+        limit = 200
+        wait_time = 10
         # TODO: Very rudimentaty. Should be based on actual time run (and average time of each loop + wait_time)
         waited_time_approx = 0
         total_time_approx = limit * wait_time

@@ -1,6 +1,6 @@
 
 from sys import exit
-import random
+import shortuuid
 from uuid import uuid4, UUID
 from exitstatus import ExitStatus
 from string import ascii_uppercase
@@ -23,10 +23,12 @@ class Device:
         self.id = uuid4()
         self.device_id_path = config_path + 'device_id'
 
-    def generate_random_device_name(self):
-        letters = ascii_uppercase
-        identifier = ''.join(random.choice(letters) for i in range(8))
-        return 'Device-' + identifier
+    def generate_random_device_name(self, host: str):
+        try:
+            return 'Device-' + shortuuid.uuid(name=host)
+        except:
+            log.error("Could not generate device ID with uuid.NAMESPACE_URL {}".format(host))
+            exit(ExitStatus.failure)
 
     def check_init(self):
         try:
@@ -80,7 +82,7 @@ class Device:
             #}
             registration = {
                 "public_key": jwks,
-                "title": self.generate_random_device_name(),
+                "title": self.generate_random_device_name(host),
                 "location": "Unknown",
             }
             cm = CM(registration, host)
@@ -91,9 +93,9 @@ class Device:
 
         if self.device_type == 'UNMANAGED':
             log.info('This is an UNAMANAGED device.')
-            pass
-        
-        log.info("=> Saving identification as uuid4 in {}".format(self.device_id_path))
+            log.info("=> Saving identification as uuid4 in {}".format(self.device_id_path))
+        else:
+            log.info("=> Saving identification as NanoID in {}".format(self.device_id_path))
         filesystem = Filesystem(self.config_path, 'device_id', 'w')
         saved = filesystem.create_file(str(device_id))
         if saved:
