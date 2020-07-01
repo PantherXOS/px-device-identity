@@ -20,10 +20,10 @@ def get_config_path():
 
 def handle_result(success):
     if success:
-        info.log("We're done here.")
+        log.info("We're done here.")
         exit(ExitStatus.success)
     else:
-        info.log("Something went wrong.")
+        log.info("Something went wrong.")
         exit(ExitStatus.failure)
 
 def main():
