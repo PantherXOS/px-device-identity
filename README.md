@@ -8,6 +8,11 @@
 
 ## Setup
 
+**Requirements**
+
+- `openssl`
+- [`tpm2-tss-engine`](https://github.com/tpm2-software/tpm2-tss-engine)
+
 ```bash
 python3 -m venv venv
 source venv/bin/activate
@@ -40,6 +45,9 @@ Defaults to _type_ `DESKTOP`:
 px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --security <DEFAULT|TPM> # --type <DESKTOP|SERVER|CLOUD|ENTERPRISE>
 ```
 
+- `DEFAULT` - RSA 2048 bits
+- `TPM` - RSA 2048 bits (private key stored in TPM)
+
 This generates the following files:
 
 ```bash
@@ -52,8 +60,24 @@ The `device.yml` contains the device configuration:
 id: str # ['UUID4', 'NanoID']
 deviceType: str # ['DESKTOP', 'SERVER', 'CLOUD', 'ENTERPRISE']
 keySecurity: str # ['DEFAULT', 'TPM']
+keyType: str # ['RSA:bitrate', 'ECDSA:bitrate']
 isManaged: bool # [true, false]
 host: str # ['NONE', 'https://....']
+configVersion: str # ['*.*.*']
+initiatedOn: dateTime # ['2020-07-03 23:02:36.733746']
+```
+
+Here's an example for an unmanaged desktop (basically a home user):
+
+```yml
+configVersion: 0.0.1
+deviceType: DESKTOP
+host: NONE
+id: 99fa5f7e-e68d-4bf0-947d-8e4e485f61dd
+initiatedOn: '2020-07-03 23:07:41.008684'
+isManaged: false
+keySecurity: TPM
+keyType: RSA:2048
 ```
 
 **DEPRECIATION**:
