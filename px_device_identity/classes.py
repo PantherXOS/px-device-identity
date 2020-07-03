@@ -12,7 +12,12 @@ class DeviceRegistration:
         self.location: str = location
 
 class RequestedOperation:
-    def __init__(self, action, operation_type, force_operation):
+    def __init__(self, action, security, force_operation):
         self.action = action
-        self.operation_type = operation_type
+        self.security = security
         self.force_operation = force_operation
+
+class DeviceClass:
+    def __init__(self, device_type, device_is_managed):
+        self.device_type = device_type
+        self.device_is_managed = device_is_managed

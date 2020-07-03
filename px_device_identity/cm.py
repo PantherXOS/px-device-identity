@@ -85,5 +85,5 @@ class CM:
             registration_approval = self.check_registration_result_loop(verification_code)
             if registration_approval != False:
                 app_id: str = registration_approval
-                return app_id
+                return str(app_id)
         return False

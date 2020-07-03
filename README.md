@@ -20,44 +20,68 @@ pip install .
 
 **Unmanaged**
 
+Defaults to _type_ `DESKTOP`:
+
 ```bash
-px-device-identity --operation INIT --type <DEFAULT|TPM>
+px-device-identity --operation INIT --security <DEFAULT|TPM>
+```
+
+All options:
+
+```bash
+px-device-identity --operation INIT --security <DEFAULT|TPM> --type <DESKTOP|SERVER|CLOUD|ENTERPRISE>
 ```
 
 **Managed**
 
+Defaults to _type_ `DESKTOP`:
+
 ```bash
-px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --type <DEFAULT|TPM>
+px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --security <DEFAULT|TPM> # --type <DESKTOP|SERVER|CLOUD|ENTERPRISE>
 ```
 
 This generates the following files:
 
 ```bash
-device_id   public_jwk.json  public.pem  private.pem # not for TPM
+device.yml   public.pem  private.pem
 ```
+
+The `device.yml` contains the device configuration:
+
+```yml
+id: str # ['UUID4', 'NanoID']
+deviceType: str # ['DESKTOP', 'SERVER', 'CLOUD', 'ENTERPRISE']
+keySecurity: str # ['DEFAULT', 'TPM']
+isManaged: bool # [true, false]
+host: str # ['NONE', 'https://....']
+```
+
+**DEPRECIATION**:
+
+The `~/.config/device/device_id` file is depreciated with `v0.4.0` and will be removed. Read the configuration including device ID from `~/.config/device/device.yml` instead.
 
 **To overwrite an existing device identification**, do:
 
 ```bash
-px-device-identity --operation INIT --type <DEFAULT|TPM> --force TRUE
+px-device-identity --operation INIT --security <DEFAULT|TPM> --force TRUE
 ```
 
 ### Get the JWK for the device public key
 
 ```bash
-px-device-identity --operation GET_JWK --type <DEFAULT|TPM>
+px-device-identity --operation GET_JWK --security <DEFAULT|TPM>
 ```
 
 ### Get the JWK as JWKS
 
 ```bash
-px-device-identity --operation GET_JWKS --type <DEFAULT|TPM>
+px-device-identity --operation GET_JWKS --security <DEFAULT|TPM>
 ```
 
 ### Sign a hash
 
 ```bash
-px-device-identity --operation SIGN --type <DEFAULT|TPM> --message <HASH>
+px-device-identity --operation SIGN --security <DEFAULT|TPM> --message <HASH>
 ```
 
 returns `base64`
@@ -67,7 +91,7 @@ returns `base64`
 Request signature:
 
 ```bash
-px-device-identity --operation SIGN --type DEFAULT --message eyJhbGciOiAiUlMyNTYiLCAidHlwZSI6ICJKV1QifQ.eyJhcHBfaWQiOiAiYzNlZmMzYTYtZGE1MS00N2IwLWFiNTYtOTA4MjRkYTFmNDNmIn0
+px-device-identity --operation SIGN --security DEFAULT --message eyJhbGciOiAiUlMyNTYiLCAidHlwZSI6ICJKV1QifQ.eyJhcHBfaWQiOiAiYzNlZmMzYTYtZGE1MS00N2IwLWFiNTYtOTA4MjRkYTFmNDNmIn0
 ```
 
 Response:

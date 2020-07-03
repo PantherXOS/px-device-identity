@@ -3,9 +3,9 @@ from authlib.jose import jwk
 from json import dumps as json_dumps 
 
 class JWK:
-    def __init__(self, config_path, operation_type):
+    def __init__(self, config_path, security):
         self.config_path = config_path
-        self.operation_type = operation_type
+        self.security = security
         self.jwk_path = config_path + 'public_jwk.json'
         self.public_key_path = config_path + 'public.pem'
 
@@ -22,7 +22,7 @@ class JWK:
     def save_to_config_path(self):
         key = self.generate()
         formatted_key = bytearray(json_dumps(key, ensure_ascii=True).encode('utf8'))
-        with open(self.public_key_path, 'wb') as writer:
+        with open(self.jwk_path, 'wb') as writer:
             writer.write(formatted_key)
             return True
 
