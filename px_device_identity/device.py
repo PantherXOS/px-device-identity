@@ -3,6 +3,7 @@ import yaml
 import shortuuid
 
 from sys import exit
+from datetime import datetime
 from uuid import uuid4, UUID
 from exitstatus import ExitStatus
 from string import ascii_uppercase
@@ -72,7 +73,6 @@ class Device:
             log.error('Could not read config file at {}'.format(self.device_config_path))
         return False
         
-
     def init(self, host: str):
         if self.check_init():
             if self.force_operation:
@@ -90,7 +90,7 @@ class Device:
         rsa = RSA(self.config_path, self.security)
         rsa.generate_and_save_to_config_path()
 
-        if self.device_is_managed == 'MANAGED':
+        if self.device_is_managed == True:
             log.info("This is a MANAGED device.")
             jwk = JWK(self.config_path, self.security)
             jwks = jwk.get_jwks()
@@ -112,14 +112,16 @@ class Device:
             'id': device_id_str,
             'deviceType': self.device_type,
             'keySecurity': self.security,
+            'keyType': 'RSA:2048',
             'isManaged': self.device_is_managed,
-            'host': host
+            'host': host,
+            'configVersion': '0.0.1',
+            'initiatedOn': str(datetime.now())
         }
 
-        if self.device_is_managed == 'MANAGED':
+        if self.device_is_managed == True:
             log.info("=> Saving device identification as NanoID in {}".format(self.device_config_path))
         else:
-            cfg_device['isManaged'] = False
             cfg_device['host'] = 'NONE'
             log.info('This is an UNAMANAGED device.')
             log.info("=> Saving device identification as uuid4 in {}".format(self.device_config_path))
