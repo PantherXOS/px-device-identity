@@ -14,18 +14,20 @@ from .filesystem import Filesystem
 from .log import Logger
 from .cm import CM
 from .jwk import JWK
+from .util import KEY_DIR, CONFIG_DIR
 
 log = Logger('DEVICE')
 
 class Device:
-    def __init__(self, config_path, operation: RequestedOperation, device: DeviceClass):
-        self.config_path = config_path
+    def __init__(self, operation, device_class: DeviceClass):
         self.security = vars(operation)['security']
-        self.device_type = vars(device)['device_type']
-        self.device_is_managed = vars(device)['device_is_managed']
+        self.device_type = vars(device_class)['device_type']
+        self.device_is_managed = vars(device_class)['device_is_managed']
         self.force_operation = vars(operation)['force_operation']
         self.id = uuid4()
-        self.device_config_path = config_path + 'device.yml'
+        self.device_key_dir = KEY_DIR()
+        self.device_config_dir = CONFIG_DIR()
+        self.device_config_path = CONFIG_DIR() + 'device.yml'
 
     def generate_random_device_name(self, host: str):
         try:
@@ -45,7 +47,7 @@ class Device:
                     else:
                         UUID(device_config.get('id'), version=4)
                     try:
-                        public_key_path = self.config_path + 'public.pem'
+                        public_key_path = self.device_key_dir + 'public.pem'
                         with open(public_key_path) as public_key_reader:
                             public_key_reader.read()
                         return True
@@ -84,15 +86,15 @@ class Device:
                 exit(ExitStatus.failure)
         else:
             log.info("=> Initiating a new device")
-            fs = Filesystem(self.config_path, 'device_id', 'r')
+            fs = Filesystem(CONFIG_DIR(), 'device_id', 'r')
             fs.create_path()
         
-        rsa = RSA(self.config_path, self.security)
+        rsa = RSA(self.security)
         rsa.generate_and_save_to_config_path()
 
         if self.device_is_managed == True:
             log.info("This is a MANAGED device.")
-            jwk = JWK(self.config_path, self.security)
+            jwk = JWK(self.security)
             jwks = jwk.get_jwks()
             registration = {
                 "public_key": jwks,
@@ -114,7 +116,7 @@ class Device:
             'keySecurity': self.security,
             'keyType': 'RSA:2048',
             'isManaged': self.device_is_managed,
-            'host': host,
+            'host': str(host),
             'configVersion': '0.0.1',
             'initiatedOn': str(datetime.now())
         }

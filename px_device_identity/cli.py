@@ -44,11 +44,11 @@ def get_cl_arguments():
             exit(ExitStatus.failure)
 
     operation = RequestedOperation(args.operation, args.security, args.force)
-    device = DeviceClass(device_type, device_is_managed)
 
     return {
         'operation': operation, # RequestedOperation
-        'device': device, # Device
+        'device_type': device_type,
+        'device_is_managed': device_is_managed,
         'message': args.message,
         'host': args.address,
         'debug': args.debug

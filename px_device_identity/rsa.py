@@ -3,6 +3,7 @@ from Cryptodome.PublicKey import RSA as _RSA
 from exitstatus import ExitStatus
 
 from .filesystem import Filesystem
+from .util import KEY_DIR, CONFIG_DIR
 from .log import Logger
 
 import subprocess
@@ -10,11 +11,11 @@ import subprocess
 log = Logger('RSA')
 
 class RSA:
-    def __init__(self, config_path, security):
-        self.config_path = config_path
+    def __init__(self, security):
         self.security = security
-        self.private_key_path = config_path + 'private.pem'
-        self.public_key_path = config_path + 'public.pem'
+        self.key_dir = KEY_DIR()
+        self.private_key_path = KEY_DIR() + 'private.pem'
+        self.public_key_path = KEY_DIR() + 'public.pem'
 
     def generate_private_key(self):
         key_size = 2048
@@ -33,7 +34,7 @@ class RSA:
 
     def get_private_key_from_file(self):
         log.info('=> Loading private key from file')
-        file_path = self.config_path + 'private.pem'
+        file_path = self.private_key_path
         with open(file_path, 'rb', buffering=0) as reader:
             key = reader.read()
             return key
@@ -59,9 +60,9 @@ class RSA:
         if self.security == "DEFAULT":
             private_key = self.generate_private_key()
             public_key = self.get_public_key_from_private_key(private_key)
-            fs_private_key = Filesystem(self.config_path, 'private.pem', 'wb')
+            fs_private_key = Filesystem(self.key_dir, 'private.pem', 'wb')
             result_private_key = fs_private_key.create_file(private_key.export_key("PEM"))
-            fs_public_key = Filesystem(self.config_path, 'public.pem', 'wb')
+            fs_public_key = Filesystem(self.key_dir, 'public.pem', 'wb')
             result_public_key = fs_public_key.create_file(public_key.export_key("PEM"))
         elif self.security == "TPM":
             result_private_key =  self.generate_private_key()

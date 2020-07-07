@@ -8,15 +8,16 @@ from shutil import rmtree
 from os import mkdir, path, times
 
 from .filesystem import Filesystem
-from .util import b64encode
+from .util import KEY_DIR, CONFIG_DIR, b64encode
 from .log import Logger
 
 log = Logger('main')
 class Sign:
-    def __init__(self, config_path, security, message):
-        self.config_path = config_path
+    def __init__(self, security, message):
         self.security = security
         self.message = message
+        self.key_dir = KEY_DIR()
+        self.private_key_dir = KEY_DIR() + 'private.pem'
 
     def sign_with_rsa_signing_key(self, key):
         log.info("=> Signing {} RSA key".format(self.message))
@@ -49,7 +50,7 @@ class Sign:
             return False
 
         try:
-            key_path = self.config_path + 'private.pem'
+            key_path = self.private_key_dir
             subprocess.run(["openssl", "pkeyutl", "-engine", "tpm2tss", "-keyform", "engine", "-inkey", key_path, "-sign", "-in", message_tmp_file_path, "-out", signature_tmp_file])
         except:
             log.error("Could not sign message with TPM.")
@@ -70,7 +71,7 @@ class Sign:
     def sign(self):
         log.info('=> Signing message with type {}'.format(self.security))
         if self.security == 'DEFAULT':
-            fs = Filesystem(self.config_path, 'private.pem', 'rb')
+            fs = Filesystem(self.key_dir, 'private.pem', 'rb')
             return self.sign_with_rsa_signing_key(fs.open_file())
         if self.security == 'TPM':
             return self.sign_with_rsa_tpm_signing_key()

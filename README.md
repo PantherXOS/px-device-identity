@@ -51,7 +51,9 @@ px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --sec
 This generates the following files:
 
 ```bash
-device.yml   public.pem  private.pem
+/etc/px-device-identity/device.yml
+~/.config/device/public.pem
+~/.config/device/private.pem
 ```
 
 The `device.yml` contains the device configuration:
@@ -79,10 +81,6 @@ isManaged: false
 keySecurity: TPM
 keyType: RSA:2048
 ```
-
-**DEPRECIATION**:
-
-The `~/.config/device/device_id` file is depreciated with `v0.4.0` and will be removed. Read the configuration including device ID from `~/.config/device/device.yml` instead.
 
 **To overwrite an existing device identification**, do:
 
