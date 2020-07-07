@@ -1,3 +1,4 @@
+from pathlib import Path
 from base64 import (
     urlsafe_b64encode,
     urlsafe_b64decode,
@@ -12,3 +13,11 @@ def b64decode(s: str) -> bytes:
     s_bin = s.encode('ascii')
     s_bin += b'=' * (4 - len(s_bin) % 4)
     return urlsafe_b64decode(s_bin)
+
+def KEY_DIR():
+    home_path = str(Path.home())
+    config_path = '/.config/device/'
+    return home_path + config_path
+
+def CONFIG_DIR():
+    return '/etc/px-device-identity/'

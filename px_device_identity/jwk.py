@@ -2,15 +2,13 @@ from pathlib import Path
 from authlib.jose import jwk
 from json import dumps as json_dumps 
 
-class JWK:
-    def __init__(self, config_path, security):
-        self.config_path = config_path
-        self.security = security
-        self.jwk_path = config_path + 'public_jwk.json'
-        self.public_key_path = config_path + 'public.pem'
+from .util import KEY_DIR, CONFIG_DIR
 
-    def __repr__(self):
-        return f'JWK({self.config_path!r})'
+class JWK:
+    def __init__(self, security):
+        self.security = security
+        self.jwk_path = KEY_DIR() + 'public_jwk.json'
+        self.public_key_path = KEY_DIR() + 'public.pem'
 
     def generate(self):
         with open(self.public_key_path, 'rb', buffering=0) as reader:
@@ -19,7 +17,7 @@ class JWK:
             key['alg'] = 'RS256'
             return key
 
-    def save_to_config_path(self):
+    def save_to_key_path(self):
         key = self.generate()
         formatted_key = bytearray(json_dumps(key, ensure_ascii=True).encode('utf8'))
         with open(self.jwk_path, 'wb') as writer:

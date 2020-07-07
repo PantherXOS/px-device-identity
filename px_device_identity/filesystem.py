@@ -6,15 +6,15 @@ from .log import Logger
 
 log = Logger('FILESYSTEM')
 class Filesystem():
-    def __init__(self, config_path, file_name, mode):
-        self.config_path = config_path
+    def __init__(self, file_dir, file_name, mode):
+        self.file_dir = file_dir
         self.file_name = file_name
-        self.file_path = config_path + file_name
+        self.file_path = file_dir + file_name
         self.mode = mode
 
-    def config_path_exits(self):
+    def file_dir_exits(self):
         try:
-            return path.isdir(self.config_path)
+            return path.isdir(self.file_dir)
         except EnvironmentError:
             return False
 
@@ -25,12 +25,12 @@ class Filesystem():
             return False
 
     def create_path(self):
-        if self.config_path_exits() == False:
+        if self.file_dir_exits() == False:
             try:
-                mkdir(self.config_path)
+                mkdir(self.file_dir)
                 return True
             except EnvironmentError:
-                log.error("Could not create path {}".format(self.config_path))
+                log.error("Could not create path {}".format(self.file_dir))
                 exit(ExitStatus.failure)
         return True
     
