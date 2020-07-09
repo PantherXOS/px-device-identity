@@ -2,7 +2,7 @@
 # Device Identity --- Initiate PantherX Devices
 # Copyright © 2020 Franz Geffke <franz@pantherx.org>
 #
-# This file is part of GNU Guix.
+# This file is part of PantherX OS
 #
 # GNU Guix is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.5.1'
+VERSION = '0.5.3'
 PACKAGE_NAME = 'px-device-identity'
 AUTHOR = 'Franz Geffke'
 AUTHOR_EMAIL = 'franz@pantherx.org'

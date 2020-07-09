@@ -43,6 +43,16 @@ class CM:
             log.error("Something went wrong checking for the registration result.")
         return False
 
+    def check_registration_result_retry(self, verification_code: str):
+        wait_time = 60
+        result = self.check_registration_result(verification_code)
+        if result != False:
+            return result
+        else:
+            log.warning("Will try one more time in {}s".format(wait_time))
+            sleep(wait_time)
+            return self.check_registration_result(verification_code)
+
     def check_registration_result_loop(self, verification_code: str):
         limit = 200
         wait_time = 10
@@ -52,7 +62,7 @@ class CM:
         for i in range(limit):
             if i == limit:
                 log.warning('Last try!')
-            result = self.check_registration_result(verification_code)
+            result = self.check_registration_result_retry(verification_code)
             if result == False:
                 return result
             status_code = result.status_code
