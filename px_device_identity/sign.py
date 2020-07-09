@@ -18,6 +18,7 @@ class Sign:
         self.message = message
         self.key_dir = KEY_DIR()
         self.private_key_dir = KEY_DIR() + 'private.pem'
+        self.public_key_dir = KEY_DIR() + 'public.pem'
 
     def sign_with_rsa_signing_key(self, key):
         log.info("=> Signing {} RSA key".format(self.message))
@@ -32,7 +33,7 @@ class Sign:
     def sign_with_rsa_tpm_signing_key(self):
         log.info("=> Signing {} with TPM RSA key".format(self.message))
         message = SHA256.new(self.message.encode('utf8'))
-        message_base64 = b64encode(message.digest()).encode('utf8')
+        message_digest = message.digest()
         
         tmp_path = path.join(gettempdir(), '.{}'.format(hash(times())))
         log.info("=> Creating temp directory at {}".format(tmp_path))
@@ -43,7 +44,7 @@ class Sign:
 
         try:
             with open(message_tmp_file_path, 'wb') as message_writer:
-                message_writer.write(message_base64)
+                message_writer.write(message_digest)
         except:
             log.error("Could not write message to {}".format(message_tmp_file_path))
             self.remove_tmp_path(tmp_path)
@@ -51,11 +52,16 @@ class Sign:
 
         try:
             key_path = self.private_key_dir
-            subprocess.run(["openssl", "pkeyutl", "-engine", "tpm2tss", "-keyform", "engine", "-inkey", key_path, "-sign", "-in", message_tmp_file_path, "-out", signature_tmp_file])
+            subprocess.run(["openssl", "pkeyutl", "-engine", "tpm2tss", "-keyform", "engine", "-inkey", key_path, "-sign", "-in", message_tmp_file_path, "-out", signature_tmp_file, "-pkeyopt", "digest:sha256"])
         except:
             log.error("Could not sign message with TPM.")
             self.remove_tmp_path(tmp_path)
             return False
+
+        # try:
+        #     subprocess.run(["openssl", "pkeyutl", "-pubin", "-inkey", self.public_key_dir, "-verify", "-in", message_tmp_file_path, "-sigfile", signature_tmp_file])
+        # except:
+        #     log.error("Could not verify signature.")
 
         try:
             with open(signature_tmp_file, 'rb', buffering=0) as signature_reader:
