@@ -1,3 +1,22 @@
+##
+# Device Identity --- Initiate PantherX Devices
+# Copyright © 2020 Franz Geffke <franz@pantherx.org>
+#
+# This file is part of GNU Guix.
+#
+# GNU Guix is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+#
+# GNU Guix is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GNU Guix.  If not, see <http://www.gnu.org/licenses/>.
+
 import pathlib
 from setuptools import setup, find_packages
 
@@ -7,7 +26,7 @@ VERSION = '0.5.0'
 PACKAGE_NAME = 'px-device-identity'
 AUTHOR = 'Franz Geffke'
 AUTHOR_EMAIL = 'franz@pantherx.org'
-URL = ''
+URL = 'https://git.pantherx.org/development/applications/px-device-identity'
 
 LICENSE = ''
 DESCRIPTION = 'Initiates device; provides JWK, JWKS and Signing Services'
