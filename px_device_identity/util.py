@@ -21,3 +21,9 @@ def KEY_DIR():
 
 def CONFIG_DIR():
     return '/etc/px-device-identity/'
+
+def split_key_type(key: str):
+    key_array = key.split(":")
+    key_cryptography = key_array[0]
+    key_strength =key_array[1]
+    return key_cryptography, key_strength

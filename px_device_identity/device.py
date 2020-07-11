@@ -9,7 +9,7 @@ from exitstatus import ExitStatus
 from string import ascii_uppercase
 
 from .classes import DeviceClass, RequestedOperation
-from .rsa import RSA
+from .crypto import Crypto
 from .filesystem import Filesystem
 from .log import Logger
 from .cm import CM
@@ -21,6 +21,7 @@ log = Logger('DEVICE')
 class Device:
     def __init__(self, operation, device_class: DeviceClass):
         self.security = vars(operation)['security']
+        self.key_type = vars(operation)['key_type']
         self.device_type = vars(device_class)['device_type']
         self.device_is_managed = vars(device_class)['device_is_managed']
         self.force_operation = vars(operation)['force_operation']
@@ -89,8 +90,8 @@ class Device:
             fs = Filesystem(CONFIG_DIR(), 'device_id', 'r')
             fs.create_path()
         
-        rsa = RSA(self.security)
-        rsa.generate_and_save_to_config_path()
+        crypto = Crypto(self.security)
+        crypto.generate_and_save_to_config_path()
 
         if self.device_is_managed == True:
             log.info("This is a MANAGED device.")
@@ -114,7 +115,7 @@ class Device:
             'id': device_id_str,
             'deviceType': self.device_type,
             'keySecurity': self.security,
-            'keyType': 'RSA:2048',
+            'keyType': str(self.key_type),
             'isManaged': self.device_is_managed,
             'host': str(host),
             'configVersion': '0.0.1',

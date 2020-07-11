@@ -13,12 +13,12 @@ from .log import Logger
 
 log = Logger('main')
 class Sign:
-    def __init__(self, security, message):
+    def __init__(self, security, message, key_dir = KEY_DIR()):
         self.security = security
         self.message = message
-        self.key_dir = KEY_DIR()
-        self.private_key_dir = KEY_DIR() + 'private.pem'
-        self.public_key_dir = KEY_DIR() + 'public.pem'
+        self.key_dir = key_dir
+        self.private_key_dir = key_dir + 'private.pem'
+        self.public_key_dir = key_dir + 'public.pem'
 
     def sign_with_rsa_signing_key(self, key):
         log.info("=> Signing {} RSA key".format(self.message))

@@ -1,30 +1,37 @@
 from sys import exit
-from Cryptodome.PublicKey import RSA as _RSA
+from Cryptodome.PublicKey import RSA, ECC
 from exitstatus import ExitStatus
 
 from .filesystem import Filesystem
-from .util import KEY_DIR, CONFIG_DIR
+from .util import KEY_DIR, CONFIG_DIR, split_key_type
 from .log import Logger
 
 import subprocess
 
-log = Logger('RSA')
+log = Logger('Crypto')
 
-class RSA:
-    def __init__(self, security):
+class Crypto:
+    def __init__(self, security, key_type, key_dir = KEY_DIR()):
         self.security = security
-        self.key_dir = KEY_DIR()
-        self.private_key_path = KEY_DIR() + 'private.pem'
-        self.public_key_path = KEY_DIR() + 'public.pem'
+        self.key_type = key_type
+        self.key_dir = key_dir
+        self.private_key_path = key_dir + 'private.pem'
+        self.public_key_path = key_dir + 'public.pem'
 
     def generate_private_key(self):
-        key_size = 2048
-        log.info('=> Generating new private key with {}-bits. This might take a moment ...'.format(key_size))
+        key_cryptography, key_strength = split_key_type(self.key_type)
+        log.info('=> Generating new private key with {}-bits. This might take a moment ...'.format(key_strength))
         if self.security == 'DEFAULT':
-            return _RSA.generate(key_size)
+            if key_cryptography == 'RSA':
+                return RSA.generate(bits=key_strength)
+            elif key_cryptography == 'ECC':
+                return ECC.generate(curve=key_strength)
         elif self.security == 'TPM':
+            if self.key_type != 'RSA:2048':
+                log.error("Anything other than 'RSA:2048' is currently not supported with TPM2.")
+                exit(ExitStatus.failure)
             try:
-                subprocess.run(["tpm2tss-genkey", "-a", "rsa", "-s", str(key_size), self.private_key_path])
+                subprocess.run(["tpm2tss-genkey", "-a", "rsa", "-s", str(key_strength), self.private_key_path])
                 return True
             except EnvironmentError as e:
                 log.error('Could not generate TPM private key.')
@@ -40,8 +47,12 @@ class RSA:
             return key
 
     def get_public_key_from_private_key(self, key):
+        key_cryptography = split_key_type(self.key_type)
         log.info('=> Loading public key from private key.')
-        return key.publickey()
+        if key_cryptography == 'RSA':
+            return key.publickey()
+        elif key_cryptography == 'ECC':
+            return key.public_key()
 
     def get_and_save_public_key_from_tpm_private_key(self):
         log.info('=> Loading public key from TPM private key and saving as {}.'.format(self.public_key_path))
