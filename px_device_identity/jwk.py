@@ -3,7 +3,10 @@ from authlib.jose import jwk
 from exitstatus import ExitStatus
 from json import dumps as json_dumps 
 
+from .log import Logger
 from .util import KEY_DIR, CONFIG_DIR, split_key_type
+
+log = Logger('JWK')
 
 class JWK:
     def __init__(self, security, key_type, key_dir = KEY_DIR()):
@@ -14,7 +17,7 @@ class JWK:
         self.public_key_path = key_dir + 'public.pem'
 
     def generate(self):
-        key_cryptography, key_strength = split_key_type(self.key_type)
+        key_cryptography = split_key_type(self.key_type)
 
         with open(self.public_key_path, 'rb', buffering=0) as reader:
             file_content = reader.read()
@@ -23,9 +26,9 @@ class JWK:
                 key['alg'] = 'RS256'
             elif self.key_type == 'ECC:p256':
                 key['alg'] = 'ES256'
-            elif self.key_type = 'ECC:p384':
+            elif self.key_type == 'ECC:p384':
                 key['alg'] = 'ES384'
-            elif self.key_type = 'ECC:p521':
+            elif self.key_type == 'ECC:p521':
                 key['alg'] = 'ES521'
             else:
                 log.error('Unsupported key type.')
