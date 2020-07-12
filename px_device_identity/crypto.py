@@ -1,3 +1,4 @@
+import os.path
 from sys import exit
 from Cryptodome.PublicKey import RSA, ECC
 from exitstatus import ExitStatus
@@ -32,19 +33,23 @@ class Crypto:
                 exit(ExitStatus.failure)
             try:
                 subprocess.run(["tpm2tss-genkey", "-a", "rsa", "-s", str(key_strength), self.private_key_path])
-                return True
+                # TODO: Sanity check; look for response of process instead
+                if os.path.isfile(self.private_key_path):
+                    log.info('Saved private key.')
+                    return True
             except EnvironmentError as e:
-                log.error('Could not generate TPM private key.')
                 log.error(e)
-                exit(ExitStatus.failure)
-        return False
+        log.error('Could not generate TPM private key.')
+        exit(ExitStatus.failure)
 
     def get_private_key_from_file(self):
         log.info('=> Loading private key from file')
-        file_path = self.private_key_path
-        with open(file_path, 'rb', buffering=0) as reader:
-            key = reader.read()
-            return key
+        try:
+            with open(self.private_key_path, 'rb', buffering=0) as reader:
+                return reader.read()
+        except:
+            log.error('Could not read private key from {}'.format(self.private_key_path))
+            exit(ExitStatus.failure)
 
     def get_public_key_from_private_key(self, key):
         key_cryptography = split_key_type(self.key_type)
@@ -58,10 +63,13 @@ class Crypto:
         log.info('=> Loading public key from TPM private key and saving as {}.'.format(self.public_key_path))
         try:
             subprocess.run(["openssl", "rsa", "-engine", "tpm2tss", "-inform", "engine", "-in", self.private_key_path, "-pubout", "-outform", "pem", "-out", self.public_key_path])
-            log.info('Saved public key.')
-            return True
+            # TODO: Sanity check; look for response of process instead
+            if os.path.isfile(self.public_key_path):
+                log.info('Saved public key.')
+                return True
         except:
-            log.error('Could not save public key from TPM private key.')
+            pass
+        log.error('Could not save public key from TPM private key.')
         return False
 
     def generate_and_save_to_config_path(self):
