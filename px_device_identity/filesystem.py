@@ -1,5 +1,5 @@
 from sys import exit
-from os import mkdir, path 
+from os import mkdir, path, makedirs
 from exitstatus import ExitStatus
 
 from .log import Logger
@@ -27,7 +27,7 @@ class Filesystem():
     def create_path(self):
         if self.file_dir_exits() == False:
             try:
-                mkdir(self.file_dir)
+                makedirs(self.file_dir)
                 return True
             except EnvironmentError:
                 log.error("Could not create path {}".format(self.file_dir))
