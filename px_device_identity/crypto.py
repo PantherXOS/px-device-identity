@@ -6,22 +6,23 @@ from exitstatus import ExitStatus
 from .filesystem import Filesystem
 from .util import KEY_DIR, CONFIG_DIR, split_key_type
 from .log import Logger
+from .classes import RequestedOperation
 
 import subprocess
 
 log = Logger('Crypto')
 
 class Crypto:
-    def __init__(self, security, key_type, key_dir = KEY_DIR()):
-        self.security = security
-        self.key_type = key_type
+    def __init__(self, operation_class: RequestedOperation, key_dir = KEY_DIR()):
+        self.security =  operation_class.security
+        self.key_type =  vars(operation_class)['key_type']
         self.key_dir = key_dir
         self.private_key_path = key_dir + 'private.pem'
         self.public_key_path = key_dir + 'public.pem'
 
     def generate_private_key(self):
         key_cryptography, key_strength = split_key_type(self.key_type)
-        log.info('=> Generating new private key with {}-bits. This might take a moment ...'.format(key_strength))
+        log.info('=> Generating new {} private key with. This might take a moment ...'.format(self.key_type))
         if self.security == 'DEFAULT':
             if key_cryptography == 'RSA':
                 return RSA.generate(bits=key_strength)
@@ -52,8 +53,8 @@ class Crypto:
             exit(ExitStatus.failure)
 
     def get_public_key_from_private_key(self, key):
-        key_cryptography = split_key_type(self.key_type)
-        log.info('=> Loading public key from private key.')
+        key_cryptography = split_key_type(self.key_type)[0]
+        log.info('=> Loading {} public key from private key.'.format(key_cryptography))
         if key_cryptography == 'RSA':
             return key.publickey()
         elif key_cryptography == 'ECC':
@@ -73,6 +74,7 @@ class Crypto:
         return False
 
     def generate_and_save_to_config_path(self):
+        key_cryptography = split_key_type(self.key_type)[0]
         result_private_key = False
         result_public_key = False
 
@@ -80,9 +82,15 @@ class Crypto:
             private_key = self.generate_private_key()
             public_key = self.get_public_key_from_private_key(private_key)
             fs_private_key = Filesystem(self.key_dir, 'private.pem', 'wb')
-            result_private_key = fs_private_key.create_file(private_key.export_key("PEM"))
             fs_public_key = Filesystem(self.key_dir, 'public.pem', 'wb')
-            result_public_key = fs_public_key.create_file(public_key.export_key("PEM"))
+            if key_cryptography == 'RSA':
+                private_key_pem = private_key.export_key('PEM')
+                public_key_pem = public_key.export_key('PEM')
+            elif key_cryptography == 'ECC':
+                private_key_pem = private_key.export_key(format='PEM').encode('utf8')
+                public_key_pem = public_key.export_key(format='PEM').encode('utf8')
+            result_private_key = fs_private_key.create_file(private_key_pem)
+            result_public_key = fs_public_key.create_file(public_key_pem)
         elif self.security == "TPM":
             result_private_key =  self.generate_private_key()
             result_public_key = self.get_and_save_public_key_from_tpm_private_key()

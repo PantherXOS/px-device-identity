@@ -18,6 +18,9 @@ class RequestedOperation:
         self.key_type = key_type
         self.force_operation = force_operation
 
+    def get_security(self):
+        return self.action
+
 class DeviceClass:
     def __init__(self, device_type, device_is_managed):
         self.device_type = device_type

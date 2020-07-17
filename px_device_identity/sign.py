@@ -14,9 +14,9 @@ from .log import Logger
 
 log = Logger('main')
 class Sign:
-    def __init__(self, security, key_type, message, key_dir = KEY_DIR()):
-        self.security = security
-        self.key_type = key_type
+    def __init__(self, operation_class, message, key_dir = KEY_DIR()):
+        self.security =  vars(operation_class)['security']
+        self.key_type =  vars(operation_class)['key_type']
         self.message = message
         self.key_dir = key_dir
         self.private_key_dir = key_dir + 'private.pem'
@@ -84,7 +84,7 @@ class Sign:
         return False
 
     def sign(self):
-        key_cryptography = split_key_type(self.key_type)
+        key_cryptography = split_key_type(self.key_type)[0]
         log.info('=> Signing message with type {}'.format(self.security))
         if self.security == 'DEFAULT':
             fs = Filesystem(self.key_dir, 'private.pem', 'rb')

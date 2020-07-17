@@ -25,5 +25,8 @@ def CONFIG_DIR():
 def split_key_type(key: str):
     key_array = key.split(":")
     key_cryptography = key_array[0]
-    key_strength =key_array[1]
+    if key_cryptography == 'RSA':
+        key_strength =int(key_array[1])
+    elif key_cryptography == 'ECC':
+        key_strength =key_array[1]
     return key_cryptography, key_strength

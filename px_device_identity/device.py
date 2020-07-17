@@ -19,14 +19,15 @@ from .util import KEY_DIR, CONFIG_DIR
 log = Logger('DEVICE')
 
 class Device:
-    def __init__(self, operation, device_class: DeviceClass):
-        self.security = vars(operation)['security']
-        self.key_type = vars(operation)['key_type']
+    def __init__(self, operation_class, device_class: DeviceClass, key_dir = KEY_DIR()):
+        self.operation_class = operation_class
+        self.security = operation_class.security
+        self.key_type = vars(operation_class)['key_type']
         self.device_type = vars(device_class)['device_type']
         self.device_is_managed = vars(device_class)['device_is_managed']
-        self.force_operation = vars(operation)['force_operation']
+        self.force_operation = vars(operation_class)['force_operation']
         self.id = uuid4()
-        self.device_key_dir = KEY_DIR()
+        self.device_key_dir = key_dir
         self.device_config_dir = CONFIG_DIR()
         self.device_config_path = CONFIG_DIR() + 'device.yml'
 
@@ -90,7 +91,7 @@ class Device:
             fs = Filesystem(CONFIG_DIR(), 'device_id', 'r')
             fs.create_path()
         
-        crypto = Crypto(self.security)
+        crypto = Crypto(self.operation_class)
         crypto.generate_and_save_to_config_path()
 
         if self.device_is_managed == True:

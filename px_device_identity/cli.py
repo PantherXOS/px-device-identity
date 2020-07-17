@@ -39,6 +39,8 @@ def get_cl_arguments():
             exit(ExitStatus.failure)
         else:
             key_type = args.keytype
+    
+    print(key_type)
 
     device_is_managed = False
     if args.operation == 'INIT':
