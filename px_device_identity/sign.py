@@ -1,30 +1,39 @@
 import subprocess
 
-from Cryptodome.PublicKey import RSA
-from Cryptodome.Signature import PKCS1_v1_5
+from Cryptodome.PublicKey import RSA, ECC
+from Cryptodome.Signature import PKCS1_v1_5, DSS
 from Cryptodome.Hash import SHA256
+from exitstatus import ExitStatus
 from tempfile import gettempdir
 from shutil import rmtree
 from os import mkdir, path, times
 
 from .filesystem import Filesystem
-from .util import KEY_DIR, CONFIG_DIR, b64encode
+from .util import KEY_DIR, CONFIG_DIR, b64encode, split_key_type
 from .log import Logger
 
 log = Logger('main')
 class Sign:
-    def __init__(self, security, message):
-        self.security = security
+    def __init__(self, operation_class, message, key_dir = KEY_DIR()):
+        self.security =  vars(operation_class)['security']
+        self.key_type =  vars(operation_class)['key_type']
         self.message = message
-        self.key_dir = KEY_DIR()
-        self.private_key_dir = KEY_DIR() + 'private.pem'
-        self.public_key_dir = KEY_DIR() + 'public.pem'
+        self.key_dir = key_dir
+        self.private_key_dir = key_dir + 'private.pem'
+        self.public_key_dir = key_dir + 'public.pem'
 
     def sign_with_rsa_signing_key(self, key):
         log.info("=> Signing {} RSA key".format(self.message))
         key = RSA.import_key(key)
         m = SHA256.new(self.message.encode('utf8'))
         return b64encode(PKCS1_v1_5.new(key).sign(m))
+
+    def sign_with_ecc_signign_key(self, key):
+        log.info("=> Signing with {} ECC key".format(self.message))
+        key = ECC.import_key(key)
+        m = SHA256.new(self.message.encode('utf8'))
+        signer = DSS.new(key, 'fips-186-3')
+        return b64encode(signer.sign(m))
 
     def remove_tmp_path(self, tmp_path):
         log.info("=> Removing temp directory")
@@ -75,10 +84,17 @@ class Sign:
         return False
 
     def sign(self):
+        key_cryptography = split_key_type(self.key_type)[0]
         log.info('=> Signing message with type {}'.format(self.security))
         if self.security == 'DEFAULT':
             fs = Filesystem(self.key_dir, 'private.pem', 'rb')
-            return self.sign_with_rsa_signing_key(fs.open_file())
+            if key_cryptography == 'RSA':
+                return self.sign_with_rsa_signing_key(fs.open_file())
+            elif key_cryptography == 'ECC':
+                return self.sign_with_ecc_signign_key(fs.open_file())
         if self.security == 'TPM':
+            if self.key_type != 'RSA:2048':
+                log.error('Unsupported.')
+                exit(ExitStatus.failure)
             return self.sign_with_rsa_tpm_signing_key()
         return False

@@ -53,7 +53,10 @@ class Filesystem():
     def open_file(self):
         log.info("=> Opening file at {}".format(self.file_path))
         if self.file_exists:
-            with open(self.file_path, self.mode, buffering=0) as reader:
+            buffering = 0
+            if self.mode == 'r':
+                buffering = 1
+            with open(self.file_path, self.mode, buffering) as reader:
                 try:
                     file_content = reader.read()
                     return file_content

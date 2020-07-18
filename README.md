@@ -1,8 +1,8 @@
 # PantherX Device Identity Manager
 
-- Generates RSA keypair
+- Generates ECC/RSA keypair
    - saves to file `~/.config/device` (`private.pem`, `public.pem`)
-   - via TPM (planned)
+   - via TPM2 (RSA only)
 - Generates and saves JWK from public key
    - saves to file `~/.config/device` (`public_jwk.json`)
 
@@ -14,9 +14,9 @@
 - [`tpm2-tss-engine`](https://github.com/tpm2-software/tpm2-tss-engine)
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
-pip install .
+$ python3 -m venv venv
+$ source venv/bin/activate
+$ pip install .
 ```
 
 ## Run
@@ -28,13 +28,19 @@ pip install .
 Defaults to _type_ `DESKTOP`:
 
 ```bash
-px-device-identity --operation INIT --security <DEFAULT|TPM>
+$ px-device-identity --operation INIT --security <DEFAULT|TPM>
 ```
 
 All options:
 
 ```bash
-px-device-identity --operation INIT --security <DEFAULT|TPM> --type <DESKTOP|SERVER|CLOUD|ENTERPRISE>
+$ px-device-identity --operation INIT --security <DEFAULT|TPM> --type <DESKTOP|SERVER|CLOUD|ENTERPRISE> --keytype <RSA:2048|RSA:3072|ECC:p256|ECC:p384|ECC:p521>
+```
+
+A good default for devices without TPM2 support is:
+
+```bash
+$ px-device-identity --operation INIT --security DEFAULT --type <DESKTOP|SERVER|CLOUD|ENTERPRISE> --keytype ECC:p256
 ```
 
 **Managed**
@@ -42,18 +48,18 @@ px-device-identity --operation INIT --security <DEFAULT|TPM> --type <DESKTOP|SER
 Defaults to _type_ `DESKTOP`:
 
 ```bash
-px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --security <DEFAULT|TPM> # --type <DESKTOP|SERVER|CLOUD|ENTERPRISE>
+$ px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --security <DEFAULT|TPM> # --type <DESKTOP|SERVER|CLOUD|ENTERPRISE>
 ```
 
-- `DEFAULT` - RSA 2048 bits
-- `TPM` - RSA 2048 bits (private key stored in TPM)
+- `DEFAULT` - private key stored as PEM file
+- `TPM` - private key stored in TPM
 
 This generates the following files:
 
 ```bash
 /etc/px-device-identity/device.yml
-~/.config/device/public.pem
-~/.config/device/private.pem
+/root/.config/device/public.pem
+/root/.config/device/private.pem
 ```
 
 The `device.yml` contains the device configuration:
@@ -62,7 +68,7 @@ The `device.yml` contains the device configuration:
 id: str # ['UUID4', 'NanoID']
 deviceType: str # ['DESKTOP', 'SERVER', 'CLOUD', 'ENTERPRISE']
 keySecurity: str # ['DEFAULT', 'TPM']
-keyType: str # ['RSA:bitrate', 'ECDSA:bitrate']
+keyType: str # ['RSA:bitrate', 'ECDSA:curve']
 isManaged: bool # [true, false]
 host: str # ['NONE', 'https://....']
 configVersion: str # ['*.*.*']
@@ -91,19 +97,19 @@ px-device-identity --operation INIT --security <DEFAULT|TPM> --force TRUE
 ### Get the JWK for the device public key
 
 ```bash
-px-device-identity --operation GET_JWK --security <DEFAULT|TPM>
+px-device-identity --operation GET_JWK
 ```
 
 ### Get the JWK as JWKS
 
 ```bash
-px-device-identity --operation GET_JWKS --security <DEFAULT|TPM>
+px-device-identity --operation GET_JWKS
 ```
 
 ### Sign a hash
 
 ```bash
-px-device-identity --operation SIGN --security <DEFAULT|TPM> --message <HASH>
+px-device-identity --operation SIGN --message <MESSAGE>
 ```
 
 returns `base64`
@@ -113,7 +119,7 @@ returns `base64`
 Request signature:
 
 ```bash
-px-device-identity --operation SIGN --security DEFAULT --message eyJhbGciOiAiUlMyNTYiLCAidHlwZSI6ICJKV1QifQ.eyJhcHBfaWQiOiAiYzNlZmMzYTYtZGE1MS00N2IwLWFiNTYtOTA4MjRkYTFmNDNmIn0
+px-device-identity --operation SIGN --message eyJhbGciOiAiUlMyNTYiLCAidHlwZSI6ICJKV1QifQ.eyJhcHBfaWQiOiAiYzNlZmMzYTYtZGE1MS00N2IwLWFiNTYtOTA4MjRkYTFmNDNmIn0
 ```
 
 Response:
@@ -122,13 +128,7 @@ Response:
 UWyxzPn_r9VAdKH0MKwHirI3saCn21IuHpYNxMMgzq0KQk1PK83MBYTxqhnEwpq17ruKwQehhXb5bPg4Z9XF6a_dotdyZ8gYlrOefyBPBD712k0gPFOmf0KtJn6jYaR10lPbRyKI-fo21sb-0COp7Sb62rwNPv43tABiFD5C7mltYlH2EF2lN58uDytQypUCToWSapcRgfO9L5NCGShsjubBKkoLjzrP4qPC-AB8-EQx8jCm2hzy0dPg0GtppG1ZnLzeB0g2Vt4dFH21bjVO4o97CNb95PP6pZhNdqOq5LjsTfS6CbFi3h5bXHQQN_VU2mjq_E_5_QDeH8SAAFW-2g
 ```
 
-### Debug Messages
-
-To show debug messages (default: False):
-
-```bash
---debug true
-```
+### Misc
 
 To output to a file, simply
 

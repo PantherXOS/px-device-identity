@@ -1,20 +1,42 @@
 from pathlib import Path
-from authlib.jose import jwk
+from authlib.jose import jwk, jwt
+from exitstatus import ExitStatus
 from json import dumps as json_dumps 
 
-from .util import KEY_DIR, CONFIG_DIR
+from .log import Logger
+from .util import KEY_DIR, CONFIG_DIR, split_key_type
+from .classes import RequestedOperation
+
+log = Logger('JWK')
 
 class JWK:
-    def __init__(self, security):
-        self.security = security
-        self.jwk_path = KEY_DIR() + 'public_jwk.json'
-        self.public_key_path = KEY_DIR() + 'public.pem'
+    def __init__(self, operation_class: RequestedOperation, key_dir = KEY_DIR()):
+        self.security = vars(operation_class)['security']
+        self.key_type = vars(operation_class)['key_type']
+        self.key_dir = key_dir
+        self.jwk_path = key_dir + 'public_jwk.json'
+        self.public_key_path = key_dir + 'public.pem'
 
     def generate(self):
+        key_cryptography = split_key_type(self.key_type)[0]
+
         with open(self.public_key_path, 'rb', buffering=0) as reader:
             file_content = reader.read()
-            key = jwk.dumps(file_content, kty='RSA')
-            key['alg'] = 'RS256'
+            if key_cryptography == 'RSA':
+                key = jwk.dumps(file_content, kty='RSA')
+            elif key_cryptography == 'ECC':
+                key = jwk.dumps(file_content, kty='EC')
+            if self.key_type == 'RSA:2048':
+                key['alg'] = 'RS256'
+            elif self.key_type == 'ECC:p256':
+                key['alg'] = 'ES256'
+            elif self.key_type == 'ECC:p384':
+                key['alg'] = 'ES384'
+            elif self.key_type == 'ECC:p521':
+                key['alg'] = 'ES521'
+            else:
+                log.error('Unsupported key type.')
+                exit(ExitStatus.failure)
             return key
 
     def save_to_key_path(self):

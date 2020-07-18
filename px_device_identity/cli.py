@@ -13,8 +13,11 @@ def get_cl_arguments():
         choices=['INIT', 'SIGN', 'GET_JWK', 'GET_JWKS'],
         help="Primary operations."),
     parser.add_argument("-s", "--security", type=str,
-        choices=['DEFAULT', 'TPM'], required=True,
+        choices=['DEFAULT', 'TPM'],
         help="Operating types: On supported hardware, the usage of TPM is encouraged.")
+    parser.add_argument("-k", "--keytype", required=False, default='RSA:2048',
+        choices=['RSA:2048', 'RSA:3072', 'ECC:p256','ECC:p384', 'ECC:p521'],
+        help="Key type and relative strength RSA:BITS / ECC:curve. Supported with TPM: ONLY RSA:2048 currently.")
     parser.add_argument("-t", "--type", type=str,
         choices=['DESKTOP', 'SERVER', 'CLOUD', 'ENTERPRISE'],
         help="Device type. Defaults to DESKTOP.")
@@ -29,8 +32,19 @@ def get_cl_arguments():
         help="Turn on debug messages")
     args = parser.parse_args()
 
+    key_type = 'RSA:2048'
+    if args.keytype is not None:
+        if  args.security == 'TPM' and args.keytype != 'RSA:2048':
+            log.error("Only RSA:2048 is currently supported with TPM.")
+            exit(ExitStatus.failure)
+        else:
+            key_type = args.keytype
+
     device_is_managed = False
     if args.operation == 'INIT':
+        if args.security is None:
+            log.error("You need to indicate the key security with --security <DEFAULT|TPM>.")
+            exit(ExitStatus.failure)
         if args.address is not None:
             device_is_managed = True
 
@@ -43,7 +57,7 @@ def get_cl_arguments():
             log.error("You need to pass a --message for signing.")
             exit(ExitStatus.failure)
 
-    operation = RequestedOperation(args.operation, args.security, args.force)
+    operation = RequestedOperation(args.operation, args.security, key_type, args.force)
 
     return {
         'operation': operation, # RequestedOperation

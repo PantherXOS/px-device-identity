@@ -10,6 +10,7 @@ from .cli import get_cl_arguments
 from .sign import Sign
 from .cm import CM
 from .log import Logger
+from .config import get_device_config
 
 log = Logger('MAIN')
 
@@ -33,7 +34,7 @@ def main():
         exit()
 
     cl_arguments = get_cl_arguments()
-    operation_dict: RequestedOperation = cl_arguments.get('operation')
+    operation_class = cl_arguments.get('operation')
     device_type: str = cl_arguments.get('device_type')
     device_is_managed: bool = cl_arguments.get('device_is_managed')
     message: str = cl_arguments.get('message')
@@ -41,29 +42,33 @@ def main():
 
     device_dict = DeviceClass(device_type, device_is_managed)
 
-    device_init_check = Device(operation_dict, device_dict)
+    device_init_check = Device(operation_class, device_dict)
     INITIATED = device_init_check.check_init()
 
-    if operation_dict.action != 'INIT' and INITIATED == False:
+    if operation_class.action != 'INIT' and INITIATED == False:
         log.error('Device is not initiated.')
         log.error('Initiate device with --operation INIT --type <DEFAULT|TPM>')
         exit(ExitStatus.failure)
 
-    if operation_dict.action == 'INIT':
-        device = Device(operation_dict, device_dict)
+    if operation_class.action == 'INIT':
+        device = Device(operation_class, device_dict)
         initiated = device.init(host)
         handle_result(initiated)
 
-    if operation_dict.action == 'GET_JWK':
-        jwk = JWK(operation_dict)
+    config = get_device_config()
+    operation_class.security = config.get('keySecurity')
+    operation_class.key_type = config.get('keyType')
+
+    if operation_class.action == 'GET_JWK':
+        jwk = JWK(operation_class)
         return json_dumps(jwk.get())
 
-    if operation_dict.action == 'GET_JWKS':
-        jwk = JWK(operation_dict)
+    if operation_class.action == 'GET_JWKS':
+        jwk = JWK(operation_class)
         return json_dumps(jwk.get_jwks())
 
-    if operation_dict.action == 'SIGN':
-        sign = Sign(operation_dict.security, message)
+    if operation_class.action == 'SIGN':
+        sign = Sign(operation_class, message)
         return sign.sign()
 
 if __name__ == '__main__':
