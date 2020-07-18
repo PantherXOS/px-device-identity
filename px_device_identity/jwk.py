@@ -1,5 +1,5 @@
 from pathlib import Path
-from authlib.jose import jwk
+from authlib.jose import jwk, jwt
 from exitstatus import ExitStatus
 from json import dumps as json_dumps 
 
@@ -23,10 +23,9 @@ class JWK:
         with open(self.public_key_path, 'rb', buffering=0) as reader:
             file_content = reader.read()
             if key_cryptography == 'RSA':
-                kty = 'RSA'
+                key = jwk.dumps(file_content, kty='RSA')
             elif key_cryptography == 'ECC':
-                kty = 'EC'
-            key = jwk.dumps(file_content, {'kty':kty})
+                key = jwk.dumps(file_content, kty='EC')
             if self.key_type == 'RSA:2048':
                 key['alg'] = 'RS256'
             elif self.key_type == 'ECC:p256':

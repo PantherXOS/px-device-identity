@@ -45,9 +45,6 @@ def main():
     device_init_check = Device(operation_class, device_dict)
     INITIATED = device_init_check.check_init()
 
-    print('--------------------------------------------------')
-    print(vars(operation_class))
-
     if operation_class.action != 'INIT' and INITIATED == False:
         log.error('Device is not initiated.')
         log.error('Initiate device with --operation INIT --type <DEFAULT|TPM>')
@@ -59,9 +56,8 @@ def main():
         handle_result(initiated)
 
     config = get_device_config()
-
-    if operation_class.key_type is None:
-        operation_class.key_type = config.get('keyType')
+    operation_class.security = config.get('keySecurity')
+    operation_class.key_type = config.get('keyType')
 
     if operation_class.action == 'GET_JWK':
         jwk = JWK(operation_class)

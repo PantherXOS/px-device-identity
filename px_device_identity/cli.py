@@ -13,7 +13,7 @@ def get_cl_arguments():
         choices=['INIT', 'SIGN', 'GET_JWK', 'GET_JWKS'],
         help="Primary operations."),
     parser.add_argument("-s", "--security", type=str,
-        choices=['DEFAULT', 'TPM'], required=True,
+        choices=['DEFAULT', 'TPM'],
         help="Operating types: On supported hardware, the usage of TPM is encouraged.")
     parser.add_argument("-k", "--keytype", required=False, default='RSA:2048',
         choices=['RSA:2048', 'RSA:3072', 'ECC:p256','ECC:p384', 'ECC:p521'],
@@ -39,11 +39,12 @@ def get_cl_arguments():
             exit(ExitStatus.failure)
         else:
             key_type = args.keytype
-    
-    print(key_type)
 
     device_is_managed = False
     if args.operation == 'INIT':
+        if args.security is None:
+            log.error("You need to indicate the key security with --security <DEFAULT|TPM>.")
+            exit(ExitStatus.failure)
         if args.address is not None:
             device_is_managed = True
 

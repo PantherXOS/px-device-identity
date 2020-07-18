@@ -58,8 +58,8 @@ This generates the following files:
 
 ```bash
 /etc/px-device-identity/device.yml
-~/.config/device/public.pem
-~/.config/device/private.pem
+/root/.config/device/public.pem
+/root/.config/device/private.pem
 ```
 
 The `device.yml` contains the device configuration:
@@ -97,19 +97,19 @@ px-device-identity --operation INIT --security <DEFAULT|TPM> --force TRUE
 ### Get the JWK for the device public key
 
 ```bash
-px-device-identity --operation GET_JWK --security <DEFAULT|TPM>
+px-device-identity --operation GET_JWK
 ```
 
 ### Get the JWK as JWKS
 
 ```bash
-px-device-identity --operation GET_JWKS --security <DEFAULT|TPM>
+px-device-identity --operation GET_JWKS
 ```
 
 ### Sign a hash
 
 ```bash
-px-device-identity --operation SIGN --security <DEFAULT|TPM> --message <MESSAGE>
+px-device-identity --operation SIGN --message <MESSAGE>
 ```
 
 returns `base64`
@@ -119,7 +119,7 @@ returns `base64`
 Request signature:
 
 ```bash
-px-device-identity --operation SIGN --security DEFAULT --message eyJhbGciOiAiUlMyNTYiLCAidHlwZSI6ICJKV1QifQ.eyJhcHBfaWQiOiAiYzNlZmMzYTYtZGE1MS00N2IwLWFiNTYtOTA4MjRkYTFmNDNmIn0
+px-device-identity --operation SIGN --message eyJhbGciOiAiUlMyNTYiLCAidHlwZSI6ICJKV1QifQ.eyJhcHBfaWQiOiAiYzNlZmMzYTYtZGE1MS00N2IwLWFiNTYtOTA4MjRkYTFmNDNmIn0
 ```
 
 Response:
@@ -128,13 +128,7 @@ Response:
 UWyxzPn_r9VAdKH0MKwHirI3saCn21IuHpYNxMMgzq0KQk1PK83MBYTxqhnEwpq17ruKwQehhXb5bPg4Z9XF6a_dotdyZ8gYlrOefyBPBD712k0gPFOmf0KtJn6jYaR10lPbRyKI-fo21sb-0COp7Sb62rwNPv43tABiFD5C7mltYlH2EF2lN58uDytQypUCToWSapcRgfO9L5NCGShsjubBKkoLjzrP4qPC-AB8-EQx8jCm2hzy0dPg0GtppG1ZnLzeB0g2Vt4dFH21bjVO4o97CNb95PP6pZhNdqOq5LjsTfS6CbFi3h5bXHQQN_VU2mjq_E_5_QDeH8SAAFW-2g
 ```
 
-### Debug Messages
-
-To show debug messages (default: False):
-
-```bash
---debug true
-```
+### Misc
 
 To output to a file, simply
 

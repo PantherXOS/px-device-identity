@@ -1,6 +1,6 @@
 #!/bin/sh
 # PantherX Device Init Test-Script
-# Version 0.0.1
+# Version 0.0.2
 # Author: Franz Geffke <franz@pantherx.org> | PantherX.DEV
 
 PROGNAME=$(basename $0)
@@ -12,15 +12,15 @@ error_exit()
 }
 
 function common {
-    px-device-identity --operation GET_JWK --security DEFAULT || error_exit
-    px-device-identity --operation GET_JWKS --security DEFAULT || error_exit
-    px-device-identity --operation SIGN --security DEFAULT --message ABC || error_exit
+    px-device-identity --operation GET_JWK || error_exit
+    px-device-identity --operation GET_JWKS || error_exit
+    px-device-identity --operation SIGN --message ABC || error_exit
 }
 
 function common_tpm {
-    px-device-identity --operation GET_JWK --security TPM || error_exit
-    px-device-identity --operation GET_JWKS --security TPM || error_exit
-    px-device-identity --operation SIGN --security TPM --message ABC || error_exit
+    px-device-identity --operation GET_JWK || error_exit
+    px-device-identity --operation GET_JWKS || error_exit
+    px-device-identity --operation SIGN --message ABC || error_exit
 }
 
 echo "###################"
