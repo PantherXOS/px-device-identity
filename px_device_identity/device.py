@@ -14,7 +14,7 @@ from .filesystem import Filesystem
 from .log import Logger
 from .cm import CM
 from .jwk import JWK
-from .util import KEY_DIR, CONFIG_DIR
+from .config import KEY_DIR, CONFIG_DIR
 
 log = Logger('DEVICE')
 

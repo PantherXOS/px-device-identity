@@ -1,9 +1,18 @@
 import yaml
+from pathlib import Path
+
 from .log import Logger
-from .util import CONFIG_DIR
 from .filesystem import Filesystem
 
 log = Logger('CONFIG')
+
+def KEY_DIR():
+    home_path = str(Path.home())
+    config_path = '/.config/device/'
+    return home_path + config_path
+
+def CONFIG_DIR():
+    return '/etc/px-device-identity/'
 
 def get_device_config():
     log.info('Loading device config from {}.'.format(CONFIG_DIR()))

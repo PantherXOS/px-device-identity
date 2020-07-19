@@ -4,7 +4,8 @@ from exitstatus import ExitStatus
 from json import dumps as json_dumps 
 
 from .log import Logger
-from .util import KEY_DIR, CONFIG_DIR, split_key_type
+from .config import KEY_DIR, CONFIG_DIR
+from .util import split_key_type
 from .classes import RequestedOperation
 
 log = Logger('JWK')

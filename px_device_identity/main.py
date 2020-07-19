@@ -8,7 +8,6 @@ from .device import Device
 from .jwk import JWK
 from .cli import get_cl_arguments
 from .sign import Sign
-from .cm import CM
 from .log import Logger
 from .config import get_device_config
 
@@ -58,6 +57,9 @@ def main():
     config = get_device_config()
     operation_class.security = config.get('keySecurity')
     operation_class.key_type = config.get('keyType')
+
+    log.info('DEVICE CONFIG')
+    log.info(config)
 
     if operation_class.action == 'GET_JWK':
         jwk = JWK(operation_class)

@@ -6,6 +6,26 @@
 - Generates and saves JWK from public key
    - saves to file `~/.config/device` (`public_jwk.json`)
 
+### Supported cryptography
+
+**RSA** with
+- 2048 bits `RSA:2048`
+- 3072 bits `RSA:3072`
+
+**ECC** with
+- p256 curve `ECC:p256`
+- p384 curve `ECC:p384`
+- p521 curve `ECC:p521`
+
+All supported options work for both file-based and TPM2-based key-pairs.
+
+### Supported devices
+
+File-based keys should work everywhere but we specifically test TPM2-support on the following devices:
+
+- ThinkPad T450, X1CG7
+- ThinkStation M625q
+
 ## Setup
 
 **Requirements**
@@ -48,11 +68,11 @@ $ px-device-identity --operation INIT --security DEFAULT --type <DESKTOP|SERVER|
 Defaults to _type_ `DESKTOP`:
 
 ```bash
-$ px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --security <DEFAULT|TPM> # --type <DESKTOP|SERVER|CLOUD|ENTERPRISE>
+$ px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --security <DEFAULT|TPM> --type <DESKTOP|SERVER|CLOUD|ENTERPRISE>
 ```
 
 - `DEFAULT` - private key stored as PEM file
-- `TPM` - private key stored in TPM
+- `TPM` - private key stored in TPM2
 
 This generates the following files:
 

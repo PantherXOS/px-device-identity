@@ -1,6 +1,6 @@
 #!/bin/sh
-# PantherX Device Init Test-Script
-# Version 0.0.2
+# PantherX Device Identity regularly tested features
+# Version 0.0.3
 # Author: Franz Geffke <franz@pantherx.org> | PantherX.DEV
 
 PROGNAME=$(basename $0)
@@ -13,14 +13,20 @@ error_exit()
 
 function common {
     px-device-identity --operation GET_JWK || error_exit
+    echo ""
     px-device-identity --operation GET_JWKS || error_exit
+    echo ""
     px-device-identity --operation SIGN --message ABC || error_exit
+    echo ""
 }
 
 function common_tpm {
     px-device-identity --operation GET_JWK || error_exit
+    echo ""
     px-device-identity --operation GET_JWKS || error_exit
+    echo ""
     px-device-identity --operation SIGN --message ABC || error_exit
+    echo ""
 }
 
 echo "###################"
@@ -35,3 +41,15 @@ echo "###################"
 echo "Test 3: ECC"
 px-device-identity --operation INIT --security DEFAULT --type DESKTOP --keytype ECC:p256 --force True
 common
+px-device-identity --operation INIT --security DEFAULT --type DESKTOP --keytype ECC:p384 --force True
+common
+px-device-identity --operation INIT --security DEFAULT --type DESKTOP --keytype ECC:p521 --force True
+common
+echo "###################"
+echo "Test 3: ECC with TPM"
+px-device-identity --operation INIT --security TPM --type DESKTOP --keytype ECC:p256 --force True
+common_tpm
+px-device-identity --operation INIT --security TPM --type DESKTOP --keytype ECC:p384 --force True
+common_tpm
+px-device-identity --operation INIT --security TPM --type DESKTOP --keytype ECC:p521 --force True
+common_tpm

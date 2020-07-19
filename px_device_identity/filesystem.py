@@ -1,5 +1,7 @@
 from sys import exit
-from os import mkdir, path, makedirs
+from shutil import rmtree
+from os import mkdir, path, times, makedirs
+from tempfile import gettempdir
 from exitstatus import ExitStatus
 
 from .log import Logger
@@ -63,3 +65,13 @@ class Filesystem():
                 except:
                     log.error("Could not open file at {}".format(self.file_path))
         return False
+
+def create_tmp_path():
+        tmp_path = path.join(gettempdir(), '.{}'.format(hash(times())))
+        log.info("=> Creating temp directory at {}".format(tmp_path))
+        mkdir(tmp_path)
+        return tmp_path
+
+def remove_tmp_path(tmp_path):
+    log.info("=> Removing temp directory at '{}'.".format(tmp_path))
+    rmtree(tmp_path, ignore_errors=True)

@@ -4,9 +4,10 @@ from Cryptodome.PublicKey import RSA, ECC
 from exitstatus import ExitStatus
 
 from .filesystem import Filesystem
-from .util import KEY_DIR, CONFIG_DIR, split_key_type
-from .log import Logger
 from .classes import RequestedOperation
+from .config import KEY_DIR, CONFIG_DIR
+from .util import split_key_type
+from .log import Logger
 
 import subprocess
 
@@ -22,24 +23,38 @@ class Crypto:
 
     def generate_private_key(self):
         key_cryptography, key_strength = split_key_type(self.key_type)
-        log.info('=> Generating new {} private key with. This might take a moment ...'.format(self.key_type))
+        log.info('=> Generating new {} private key. This might take a moment ...'.format(self.key_type))
         if self.security == 'DEFAULT':
             if key_cryptography == 'RSA':
                 return RSA.generate(bits=key_strength)
             elif key_cryptography == 'ECC':
                 return ECC.generate(curve=key_strength)
         elif self.security == 'TPM':
-            if self.key_type != 'RSA:2048':
-                log.error("Anything other than 'RSA:2048' is currently not supported with TPM2.")
-                exit(ExitStatus.failure)
-            try:
-                subprocess.run(["tpm2tss-genkey", "-a", "rsa", "-s", str(key_strength), self.private_key_path])
-                # TODO: Sanity check; look for response of process instead
-                if os.path.isfile(self.private_key_path):
-                    log.info('Saved private key.')
-                    return True
-            except EnvironmentError as e:
-                log.error(e)
+
+            if key_cryptography == 'RSA':
+                try:
+                    process_result = subprocess.run(["tpm2tss-genkey", "-a", "rsa", "-s", str(key_strength), self.private_key_path])
+                    # TODO: Sanity check; look for response of process instead
+                    if os.path.isfile(self.private_key_path):
+                        log.info('Saved private key.')
+                        return True
+                except EnvironmentError as e:
+                    log.error(e)
+
+            elif key_cryptography == 'ECC':
+                key_strength = 'nist_' + key_strength
+                try:
+                    process_result = subprocess.run(["tpm2tss-genkey", "-a", "ecdsa", "-c", str(key_strength), self.private_key_path])
+                    if process_result.returncode == 1:
+                        log.error('Could not get or save EC private key.')
+                        exit(ExitStatus)
+                    # TODO: Sanity check; look for response of process instead
+                    if os.path.isfile(self.private_key_path):
+                        log.info('Saved private key.')
+                        return True
+                except EnvironmentError as e:
+                    log.error(e)
+
         log.error('Could not generate TPM private key.')
         exit(ExitStatus.failure)
 
@@ -61,15 +76,26 @@ class Crypto:
             return key.public_key()
 
     def get_and_save_public_key_from_tpm_private_key(self):
-        log.info('=> Loading public key from TPM private key and saving as {}.'.format(self.public_key_path))
-        try:
-            subprocess.run(["openssl", "rsa", "-engine", "tpm2tss", "-inform", "engine", "-in", self.private_key_path, "-pubout", "-outform", "pem", "-out", self.public_key_path])
-            # TODO: Sanity check; look for response of process instead
-            if os.path.isfile(self.public_key_path):
-                log.info('Saved public key.')
-                return True
-        except:
-            pass
+        key_cryptography = split_key_type(self.key_type)[0]
+        log.info('=> Loading {} public key from TPM private key and saving as {}.'.format(key_cryptography, self.public_key_path))
+        if key_cryptography == 'RSA':
+            try:
+                subprocess.run(["openssl", "rsa", "-engine", "tpm2tss", "-inform", "engine", "-in", self.private_key_path, "-pubout", "-outform", "pem", "-out", self.public_key_path])
+                # TODO: Sanity check; look for response of process instead
+                if os.path.isfile(self.public_key_path):
+                    log.info('Saved public key.')
+                    return True
+            except:
+                pass
+        elif key_cryptography == 'ECC':
+            try:
+                subprocess.run(["openssl", "ec", "-engine", "tpm2tss", "-inform", "engine", "-in", self.private_key_path, "-pubout", "-outform", "pem", "-out", self.public_key_path])
+                # TODO: Sanity check; look for response of process instead
+                if os.path.isfile(self.public_key_path):
+                    log.info('Saved public key.')
+                    return True
+            except:
+                pass
         log.error('Could not save public key from TPM private key.')
         return False
 
