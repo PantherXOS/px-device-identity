@@ -8,8 +8,8 @@ log = Logger('CONFIG')
 
 def KEY_DIR():
     home_path = str(Path.home())
-    config_path = '/.config/device/'
-    return home_path + config_path
+    key_dir = '/.config/device/'
+    return home_path + key_dir
 
 def CONFIG_DIR():
     return '/etc/px-device-identity/'

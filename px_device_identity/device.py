@@ -14,7 +14,7 @@ from .filesystem import Filesystem
 from .log import Logger
 from .cm import CM
 from .jwk import JWK
-from .config import KEY_DIR, CONFIG_DIR
+from .config import KEY_DIR, CONFIG_DIR, get_device_config
 
 log = Logger('DEVICE')
 
@@ -31,7 +31,7 @@ class Device:
         self.device_config_dir = CONFIG_DIR()
         self.device_config_path = CONFIG_DIR() + 'device.yml'
 
-    def generate_random_device_name(self, host: str):
+    def generate_random_device_name(self, host: str) -> str:
         try:
             return 'Device-' + shortuuid.uuid(name=host)
         except:
@@ -40,44 +40,34 @@ class Device:
 
     def check_init(self) -> bool:
         try:
-            with open(self.device_config_path, 'r') as reader:
-                file_content = reader.read()
-                try:
-                    device_config = yaml.load(file_content, Loader=yaml.BaseLoader)
-                    if len(device_config.get('id')) == 21:
-                        log.info('Found Nano ID. Assuming MANAGED device.')
-                    else:
-                        UUID(device_config.get('id'), version=4)
-                    try:
-                        public_key_path = self.device_key_dir + 'public.pem'
-                        with open(public_key_path) as public_key_reader:
-                            public_key_reader.read()
-                        return True
-                    except FileNotFoundError:
-                        return False
-                except ValueError:
-                    return False
+            config = get_device_config()
+            if len(config.get('id')) == 21:
+                log.info('Found Nano ID. Assuming MANAGED device.')
+            else:
+                UUID(config.get('id'), version=4)
+            try:
+                public_key_path = self.device_key_dir + 'public.pem'
+                with open(public_key_path) as public_key_reader:
+                    public_key_reader.read()
+                return True
+            except FileNotFoundError:
+                return False
         except FileNotFoundError:
             return False
 
-    def check_is_managed(self):
-        log.info('=> Verifying whether device is Managed.')
+    def check_is_managed(self) -> bool:
+        log.info('=> Verifying whether device is part of an organization (MANAGED).')
         try:
-            with open(self.device_config_path, 'r') as reader:
-                file_content = reader.read()
-                try:
-                    device_config = yaml.load(file_content, Loader=yaml.BaseLoader)
-                    device_is_managed = device_config.get('isManaged')
-                    host = device_config.get('host')
-                    if host != 'NONE' and device_is_managed == True:
-                        return True
-                except:
-                    log.error('Could not find load yaml-formatted config from {}'.format(self.device_config_path))
+            config = get_device_config()
+            is_managed = config.get('isManaged')
+            host = config.get('host')
+            if host != 'NONE' and is_managed == True:
+                return True
         except:
             log.error('Could not read config file at {}'.format(self.device_config_path))
         return False
         
-    def init(self, host: str):
+    def init(self, host: str) -> bool:
         if self.check_init():
             if self.force_operation:
                 log.warning('Device has already been initiated.')
@@ -88,11 +78,11 @@ class Device:
                 exit(ExitStatus.failure)
         else:
             log.info("=> Initiating a new device")
-            fs = Filesystem(CONFIG_DIR(), 'device_id', 'r')
+            fs = Filesystem(CONFIG_DIR(), 'none', 'none')
             fs.create_path()
         
         crypto = Crypto(self.operation_class)
-        crypto.generate_and_save_to_config_path()
+        crypto.generate_and_save_to_key_path()
 
         if self.device_is_managed == True:
             log.info("This is a MANAGED device.")
@@ -112,7 +102,7 @@ class Device:
             device_id = self.id
 
         device_id_str = str(device_id)
-        cfg_device = {
+        config = {
             'id': device_id_str,
             'deviceType': self.device_type,
             'keySecurity': self.security,
@@ -126,13 +116,13 @@ class Device:
         if self.device_is_managed == True:
             log.info("=> Saving device identification as NanoID in {}".format(self.device_config_path))
         else:
-            cfg_device['host'] = 'NONE'
-            log.info('This is an UNAMANAGED device.')
+            config['host'] = 'NONE'
+            log.info('This device does not belong to any organization (UNMANAGED).')
             log.info("=> Saving device identification as uuid4 in {}".format(self.device_config_path))
 
         try:
             with open(self.device_config_path, 'w') as fs_device_writer:
-                fs_device_writer.write(yaml.dump(cfg_device))
+                fs_device_writer.write(yaml.dump(config))
         except:
             log.error("Could not write device configuration.")
             return False

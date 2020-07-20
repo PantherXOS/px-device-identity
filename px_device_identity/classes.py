@@ -1,24 +1,17 @@
-class TPM2KeyIdentity:
-    def __init__ (self, label, sopin, userpin, path):
-        self.label: str = label
-        self.sopin: str = sopin
-        self.userpin: str = userpin
-        self.path: str = path
-        
 class DeviceRegistration:
-    def __init__ (self, public_key, title, location):
+    def __init__ (self, public_key, title: str, location: str):
         self.public_key: str = public_key
         self.title: str = title
         self.location: str = location
 
 class RequestedOperation:
-    def __init__(self, action, security, key_type, force_operation):
+    def __init__(self, action: str, security: str, key_type: str, force_operation: bool = False):
         self.action = action
         self.security = security
         self.key_type = key_type
         self.force_operation = force_operation
 
 class DeviceClass:
-    def __init__(self, device_type, device_is_managed):
+    def __init__(self, device_type: str, device_is_managed: bool):
         self.device_type = device_type
         self.device_is_managed = device_is_managed

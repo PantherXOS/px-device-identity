@@ -40,12 +40,16 @@ class JWK:
                 exit(ExitStatus.failure)
             return key
 
-    def save_to_key_path(self):
+    def save_to_key_path(self) -> True:
         key = self.generate()
         formatted_key = bytearray(json_dumps(key, ensure_ascii=True).encode('utf8'))
-        with open(self.jwk_path, 'wb') as writer:
-            writer.write(formatted_key)
-            return True
+        try:
+            with open(self.jwk_path, 'wb') as writer:
+                writer.write(formatted_key)
+                return True
+        except:
+            log.error('Could not save JWK to {}'.format(jwk_path))
+            exit(ExitStatus.failure)
 
     def get(self):
         return self.generate()

@@ -1,4 +1,5 @@
 import subprocess
+from sys import exit
 
 from Cryptodome.PublicKey import RSA, ECC
 from Cryptodome.Signature import PKCS1_v1_5, DSS
@@ -21,13 +22,13 @@ class Sign:
         self.private_key_dir = key_dir + 'private.pem'
         self.public_key_dir = key_dir + 'public.pem'
 
-    def sign_with_rsa_signing_key(self, key):
+    def sign_with_rsa_signing_key(self, key) -> str:
         log.info("=> Signing '{}' with RSA key".format(self.message))
         key = RSA.import_key(key)
         m = SHA256.new(self.message.encode('utf8'))
         return b64encode(PKCS1_v1_5.new(key).sign(m))
 
-    def sign_with_ecc_signing_key(self, key):
+    def sign_with_ecc_signing_key(self, key) -> str:
         key_strength = split_key_type(self.key_type)[1]
         log.info("=> Signing '{}' with ECC key".format(self.message))
         m = ''
@@ -41,7 +42,7 @@ class Sign:
         signer = DSS.new(key, 'fips-186-3')
         return b64encode(signer.sign(m))
 
-    def write_message_to_temp_path(self, message, file_path):
+    def write_message_to_temp_path(self, message, file_path) -> bool:
         log.info("=> Writing message '{}' to {}".format(message, file_path))
         try:
             with open(file_path, 'wb') as message_writer:
@@ -59,7 +60,6 @@ class Sign:
             return b64encode(signature)
         except:
             log.error("Could not read signature from {}".format(file_path))
-            return False
 
     def sign_with_ecc_tpm_signing_key(self):
         key_strength = split_key_type(self.key_type)[1]

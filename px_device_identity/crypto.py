@@ -99,7 +99,7 @@ class Crypto:
         log.error('Could not save public key from TPM private key.')
         return False
 
-    def generate_and_save_to_config_path(self):
+    def generate_and_save_to_key_path(self) -> True:
         key_cryptography = split_key_type(self.key_type)[0]
         result_private_key = False
         result_public_key = False
