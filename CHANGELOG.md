@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.6.3]
+### Changed or Fixed
+
+- Fixed an error that would occur during enterprise device registration
+
 ## [0.6.2]
 ### Changed or Fixed
 

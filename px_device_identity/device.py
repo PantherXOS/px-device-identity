@@ -86,7 +86,7 @@ class Device:
 
         if self.device_is_managed == True:
             log.info("This is a MANAGED device.")
-            jwk = JWK(self.security)
+            jwk = JWK(self.operation_class)
             jwks = jwk.get_jwks()
             registration = {
                 "public_key": jwks,
