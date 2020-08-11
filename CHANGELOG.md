@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.6.4]
+### Changed or Fixed
+
+- Minor improvements logging
+- Better error handling in filesystem module
+
 ## [0.6.3]
 ### Changed or Fixed
 

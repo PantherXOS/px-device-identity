@@ -48,7 +48,7 @@ class JWK:
                 writer.write(formatted_key)
                 return True
         except:
-            log.error('Could not save JWK to {}'.format(jwk_path))
+            log.error('Could not save JWK to {}'.format(self.jwk_path))
             exit(ExitStatus.failure)
 
     def get(self):

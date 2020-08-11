@@ -15,7 +15,7 @@ def CONFIG_DIR():
     return '/etc/px-device-identity/'
 
 def get_device_config():
-    log.info('Loading device config from {}.'.format(CONFIG_DIR()))
+    log.info('=> Loading device config from {}.'.format(CONFIG_DIR()))
     fs = Filesystem(CONFIG_DIR(), 'device.yml', 'r')
     file = fs.open_file()
     config = yaml.load(file, Loader=yaml.BaseLoader)

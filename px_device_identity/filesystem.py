@@ -14,29 +14,28 @@ class Filesystem():
         self.file_path = file_dir + file_name
         self.mode = mode
 
-    def file_dir_exits(self):
+    def file_dir_exits(self) -> bool:
         try:
             return path.isdir(self.file_dir)
         except EnvironmentError:
             return False
 
-    def file_exists(self):
+    def file_exists(self) -> bool:
         try:
             return path.isfile(self.file_path)
-        except FileNotFoundError:
+        except:
             return False
 
-    def create_path(self):
+    def create_path(self) -> True:
         if self.file_dir_exits() == False:
             try:
                 makedirs(self.file_dir)
                 return True
-            except EnvironmentError:
+            except EnvironmentError as err:
                 log.error("Could not create path {}".format(self.file_dir))
-                exit(ExitStatus.failure)
-        return True
+                raise EnvironmentError(err)
     
-    def create_file(self, content):
+    def create_file(self, content) -> True:
         log.info("=> Creating file at {}".format(self.file_path))
         self.create_path()
         if self.mode == 'wb':
@@ -48,9 +47,9 @@ class Filesystem():
                 writer.write(formatted_content)
                 log.info("=> Created file.")
                 return True
-        except EnvironmentError:
+        except EnvironmentError as err:
             log.error("Could not create file {}".format(self.file_path))
-        return False
+            raise EnvironmentError(err)
     
     def open_file(self):
         log.info("=> Opening file at {}".format(self.file_path))
@@ -62,15 +61,20 @@ class Filesystem():
                 try:
                     file_content = reader.read()
                     return file_content
-                except:
-                    log.error("Could not open file at {}".format(self.file_path))
-        return False
+                except EnvironmentError as err:
+                    log.warn("Could not open file at {}".format(self.file_path))
+                    raise EnvironmentError(err)
 
-def create_tmp_path():
+def create_tmp_path() -> str:
         tmp_path = path.join(gettempdir(), '.{}'.format(hash(times())))
-        log.info("=> Creating temp directory at {}".format(tmp_path))
-        mkdir(tmp_path)
-        return tmp_path
+        try:
+            log.info("=> Creating temp directory at {}".format(tmp_path))
+            mkdir(tmp_path)
+        except EnvironmentError as err:
+            log.error("Could not create temp directory.")
+            raise EnvironmentError(err)
+        else:
+            return tmp_path
 
 def remove_tmp_path(tmp_path):
     log.info("=> Removing temp directory at '{}'.".format(tmp_path))
