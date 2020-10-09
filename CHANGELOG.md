@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.6.5]
+### Changed
+
+- Proper syslog logging for WARNING and ERROR
+
+### Added
+
+- CLI application outputs version in info log on run
+
 ## [0.6.4]
 ### Changed or Fixed
 

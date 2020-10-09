@@ -1,3 +1,5 @@
+import pkg_resources
+
 from sys import exit
 from exitstatus import ExitStatus
 from json import dumps as json_dumps
@@ -11,7 +13,10 @@ from .sign import Sign
 from .log import Logger
 from .config import get_device_config
 
+
 log = Logger('MAIN')
+version = pkg_resources.require("px_contacts_calendar")[0].version
+
 
 def handle_result(success):
     if success:
@@ -24,6 +29,7 @@ def handle_result(success):
 def main():
     log.info('------')
     log.info('Welcome to PantherX Device Identity Service')
+    log.info('v{}'.format(version))
     log.info('------')
 
     current_user = getuser()

@@ -155,3 +155,10 @@ To output to a file, simply
 ```bash
 > jwk.json
 ```
+
+Create a package to manually install `px-device-identity`:
+
+```bash
+python setup.py sdist --format=tar
+pip install px-device-identity-0.*.*.tar
+```
