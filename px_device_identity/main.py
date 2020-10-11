@@ -15,7 +15,7 @@ from .config import get_device_config
 
 
 log = Logger('MAIN')
-version = pkg_resources.require("px_contacts_calendar")[0].version
+version = pkg_resources.require("px_device_identity")[0].version
 
 
 def handle_result(success):

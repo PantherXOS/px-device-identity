@@ -4,8 +4,8 @@
 
 # GitLab provided templates
 include:
-  - template: SAST.gitlab-ci.yml
-  - template: Code-Quality.gitlab-ci.yml
+  # - template: SAST.gitlab-ci.yml
+  # - template: Code-Quality.gitlab-ci.yml
   - template: License-Scanning.gitlab-ci.yml
 
 # Git submodules
