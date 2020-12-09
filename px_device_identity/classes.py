@@ -1,6 +1,6 @@
 class DeviceRegistration:
     def __init__ (self, public_key, title: str, location: str):
-        self.public_key: str = public_key
+        self.publicKey: str = public_key
         self.title: str = title
         self.location: str = location
 
