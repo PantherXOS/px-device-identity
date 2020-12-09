@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.6.8]
+### Fixed
+
+- Found one more `public_key` in registration. Changed to `publicKey`.
+
 ## [0.6.7]
 ### Fixed
 

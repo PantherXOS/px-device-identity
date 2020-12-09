@@ -89,7 +89,7 @@ class Device:
             jwk = JWK(self.operation_class)
             jwks = jwk.get_jwks()
             registration = {
-                "public_key": jwks,
+                "publicKey": jwks,
                 "title": self.generate_random_device_name(host),
                 "location": "Unknown",
             }
