@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.6.9]
+### Fixed
+
+- Found another `app_id` in response `result_formatted["deviceId"]`
+
 ## [0.6.8]
 ### Fixed
 

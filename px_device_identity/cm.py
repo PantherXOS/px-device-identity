@@ -80,7 +80,7 @@ class CM:
                     return False
                 if status == 'accepted':
                     log.info("The device registration was accepted after {}s".format(waited_time_approx))
-                    app_id: str  = result_formatted["app_id"]
+                    app_id: str  = result_formatted["deviceId"]
                     return app_id
             else:
                 log.error("Request failed with status code {}".format(status_code))
