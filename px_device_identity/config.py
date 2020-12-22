@@ -1,15 +1,19 @@
 import yaml
 from pathlib import Path
+from appdirs import user_data_dir
 
 from .log import Logger
 from .filesystem import Filesystem
 
 log = Logger('CONFIG')
 
-def KEY_DIR():
+def KEY_DIR_LEGACY():
     home_path = str(Path.home())
     key_dir = '/.config/device/'
     return home_path + key_dir
+
+def KEY_DIR():
+    return user_data_dir("px-device-identity")
 
 def CONFIG_DIR():
     return '/etc/px-device-identity/'

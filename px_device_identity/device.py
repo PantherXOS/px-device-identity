@@ -7,6 +7,8 @@ from datetime import datetime
 from uuid import uuid4, UUID
 from exitstatus import ExitStatus
 from string import ascii_uppercase
+from shutil import rmtree
+from os.path import isdir
 
 from .classes import DeviceClass, RequestedOperation
 from .crypto import Crypto
@@ -14,12 +16,15 @@ from .filesystem import Filesystem
 from .log import Logger
 from .cm import CM
 from .jwk import JWK
-from .config import KEY_DIR, CONFIG_DIR, get_device_config
+from .config import KEY_DIR_LEGACY, CONFIG_DIR, KEY_DIR, get_device_config
+from .migration import first_migration_key_dir
 
 log = Logger('DEVICE')
 
 class Device:
     def __init__(self, operation_class, device_class: DeviceClass, key_dir = KEY_DIR()):
+        first_migration_key_dir(key_dir)
+
         self.operation_class = operation_class
         self.security = operation_class.security
         self.key_type = vars(operation_class)['key_type']
@@ -66,12 +71,21 @@ class Device:
         except:
             log.error('Could not read config file at {}'.format(self.device_config_path))
         return False
+
+    def destroy(self):
+        if isdir(self.device_key_dir):
+            log.info('=> Deleting {}'.format(self.device_key_dir))
+            rmtree(self.device_key_dir)
+        if isdir(self.device_config_dir):
+            log.info('=> Deleting {}'.format(self.device_config_dir))
+            rmtree(self.device_config_dir)
         
     def init(self, host: str) -> bool:
         if self.check_init():
             if self.force_operation:
                 log.warning('Device has already been initiated.')
                 log.warning("=> FORCE OVERWRITE")
+                self.destroy()
             else:
                 log.error('Device has already been initiated.')
                 log.error("Use '--force True' to overwrite. Use with caution!")

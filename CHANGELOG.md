@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.7.0]
+### Changed
+
+- Keys move from `/root/.config/device` to `/root/.local/share/px-device-identity`
+
+### Fixed
+
+- Fixed an issue where `--force` would fail
+
 ## [0.6.9]
 ### Fixed
 
