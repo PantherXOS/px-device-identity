@@ -1,10 +1,10 @@
 # PantherX Device Identity Manager
 
 - Generates ECC/RSA keypair
-   - saves to file `~/.config/device` (`private.pem`, `public.pem`)
+   - saves to file `/root/.local/share/px-device-identity/` (`private.pem`, `public.pem`)
    - via TPM2 (RSA only)
 - Generates and saves JWK from public key
-   - saves to file `~/.config/device` (`public_jwk.json`)
+   - saves to file `/root/.local/share/px-device-identity/` (`public_jwk.json`)
 
 ### Supported cryptography
 
@@ -25,6 +25,7 @@ File-based keys should work everywhere but we specifically test TPM2-support on 
 
 - ThinkPad T450, X1CG7
 - ThinkStation M625q
+- Camino Tiny
 
 ## Setup
 
@@ -78,8 +79,8 @@ This generates the following files:
 
 ```bash
 /etc/px-device-identity/device.yml
-/root/.config/device/public.pem
-/root/.config/device/private.pem
+/root/.local/share/px-device-identity/public.pem
+/root/.local/share/px-device-identity/private.pem
 ```
 
 The `device.yml` contains the device configuration:
