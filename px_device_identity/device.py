@@ -56,6 +56,7 @@ class Device:
                     public_key_reader.read()
                 return True
             except FileNotFoundError:
+                log.error('Could not find {}.'.format(public_key_path))
                 return False
         except FileNotFoundError:
             return False

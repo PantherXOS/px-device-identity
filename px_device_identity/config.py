@@ -13,7 +13,7 @@ def KEY_DIR_LEGACY():
     return home_path + key_dir
 
 def KEY_DIR():
-    return user_data_dir("px-device-identity")
+    return user_data_dir("px-device-identity") + '/'
 
 def CONFIG_DIR():
     return '/etc/px-device-identity/'
