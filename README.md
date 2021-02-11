@@ -92,6 +92,7 @@ keySecurity: str # ['DEFAULT', 'TPM']
 keyType: str # ['RSA:bitrate', 'ECDSA:curve']
 isManaged: bool # [true, false]
 host: str # ['NONE', 'https://....']
+domain: str # ['NONE', 'pantherx.org']
 configVersion: str # ['*.*.*']
 initiatedOn: dateTime # ['2020-07-03 23:02:36.733746']
 ```
@@ -105,6 +106,7 @@ host: NONE
 id: 99fa5f7e-e68d-4bf0-947d-8e4e485f61dd
 initiatedOn: '2020-07-03 23:07:41.008684'
 isManaged: false
+domain: NONE
 keySecurity: TPM
 keyType: RSA:2048
 ```

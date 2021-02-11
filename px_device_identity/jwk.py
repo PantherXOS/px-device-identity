@@ -1,7 +1,7 @@
 from pathlib import Path
+from json import dumps as json_dumps
 from authlib.jose import jwk, jwt
 from exitstatus import ExitStatus
-from json import dumps as json_dumps 
 
 from .log import Logger
 from .config import KEY_DIR, CONFIG_DIR

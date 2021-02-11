@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.7.3]
+### Changed
+
+- Initial adaptation to new CM
+- Add new migration for additional config field `domain`
+- Fixed some importat pylint erros
 
 ## [0.7.2]
 ### Fixed

@@ -1,11 +1,11 @@
+import sys
+from getpass import getuser
+from json import dumps as json_dumps
 import pkg_resources
 
-from sys import exit
 from exitstatus import ExitStatus
-from json import dumps as json_dumps
-from getpass import getuser
 
-from .classes import DeviceClass, RequestedOperation
+from .classes import DeviceClass
 from .device import Device
 from .jwk import JWK
 from .cli import get_cl_arguments
@@ -21,10 +21,10 @@ version = pkg_resources.require("px_device_identity")[0].version
 def handle_result(success):
     if success:
         log.info("We're done here.")
-        exit(ExitStatus.success)
+        sys.exit(ExitStatus.success)
     else:
         log.info("Something went wrong.")
-        exit(ExitStatus.failure)
+        sys.exit(ExitStatus.failure)
 
 def main():
     log.info('------')
@@ -36,7 +36,7 @@ def main():
     if current_user != 'root':
         log.warning('!!! This application is designed to run as root on the target device !!!')
         log.warning('!!! Current user: {}'.format(current_user))
-        exit()
+        sys.exit()
 
     cl_arguments = get_cl_arguments()
     operation_class = cl_arguments.get('operation')
@@ -44,20 +44,22 @@ def main():
     device_is_managed: bool = cl_arguments.get('device_is_managed')
     message: str = cl_arguments.get('message')
     host: str = cl_arguments.get('host')
+    domain: str = cl_arguments.get('domain')
+    location: str = cl_arguments.get('location')
 
     device_dict = DeviceClass(device_type, device_is_managed)
 
     device_init_check = Device(operation_class, device_dict)
     INITIATED = device_init_check.check_init()
 
-    if operation_class.action != 'INIT' and INITIATED == False:
+    if operation_class.action != 'INIT' and INITIATED is False:
         log.error('Device is not initiated.')
         log.error('Initiate device with --operation INIT --type <DEFAULT|TPM>')
-        exit(ExitStatus.failure)
+        sys.exit(ExitStatus.failure)
 
     if operation_class.action == 'INIT':
         device = Device(operation_class, device_dict)
-        initiated = device.init(host)
+        initiated = device.init(host, domain, location)
         handle_result(initiated)
 
     config = get_device_config()

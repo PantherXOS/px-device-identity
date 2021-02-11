@@ -1,8 +1,9 @@
 class DeviceRegistration:
-    def __init__ (self, public_key, title: str, location: str):
+    def __init__(self, public_key, title: str, location: str, domain: str):
         self.publicKey: str = public_key
         self.title: str = title
         self.location: str = location
+        self.domain: str = domain
 
 class RequestedOperation:
     def __init__(self, action: str, security: str, key_type: str, force_operation: bool = False):

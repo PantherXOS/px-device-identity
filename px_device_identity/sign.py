@@ -1,10 +1,8 @@
 import subprocess
-from sys import exit
 
 from Cryptodome.PublicKey import RSA, ECC
 from Cryptodome.Signature import PKCS1_v1_5, DSS
 from Cryptodome.Hash import SHA256, SHA384, SHA512
-from exitstatus import ExitStatus
 
 from .filesystem import Filesystem, create_tmp_path, remove_tmp_path
 from .config import KEY_DIR, CONFIG_DIR
@@ -14,9 +12,9 @@ from .log import Logger
 log = Logger('SIGN')
 
 class Sign:
-    def __init__(self, operation_class, message, key_dir = KEY_DIR()):
-        self.security =  vars(operation_class)['security']
-        self.key_type =  vars(operation_class)['key_type']
+    def __init__(self, operation_class, message, key_dir=KEY_DIR()):
+        self.security = vars(operation_class)['security']
+        self.key_type = vars(operation_class)['key_type']
         self.message = message
         self.key_dir = key_dir
         self.private_key_dir = key_dir + 'private.pem'
@@ -51,7 +49,7 @@ class Sign:
         except:
             log.error("Could not write message to {}".format(file_path))
             return False
-    
+
     def get_signature_from_temp_path(self, file_path):
         log.info("=> Reading signature from {}.".format(file_path))
         try:
@@ -119,7 +117,7 @@ class Sign:
 
         signature = self.get_signature_from_temp_path(signature_tmp_file)
         handle_result(signature, "Could not read signature from path.", tmp_path)
-        
+
         remove_tmp_path(tmp_path)
         return signature
 

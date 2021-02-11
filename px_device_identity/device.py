@@ -6,7 +6,6 @@ from sys import exit
 from datetime import datetime
 from uuid import uuid4, UUID
 from exitstatus import ExitStatus
-from string import ascii_uppercase
 from shutil import rmtree
 from os.path import isdir
 
@@ -17,13 +16,14 @@ from .log import Logger
 from .cm import CM
 from .jwk import JWK
 from .config import KEY_DIR_LEGACY, CONFIG_DIR, KEY_DIR, get_device_config
-from .migration import first_migration_key_dir
+from .migration import first_migration_key_dir, second_migration_add_config_key_domain
 
 log = Logger('DEVICE')
 
 class Device:
-    def __init__(self, operation_class, device_class: DeviceClass, key_dir = KEY_DIR()):
+    def __init__(self, operation_class, device_class: DeviceClass, key_dir=KEY_DIR()):
         first_migration_key_dir(key_dir)
+        second_migration_add_config_key_domain()
 
         self.operation_class = operation_class
         self.security = operation_class.security
@@ -67,7 +67,7 @@ class Device:
             config = get_device_config()
             is_managed = config.get('isManaged')
             host = config.get('host')
-            if host != 'NONE' and is_managed == True:
+            if host != 'NONE' and is_managed is True:
                 return True
         except:
             log.error('Could not read config file at {}'.format(self.device_config_path))
@@ -81,7 +81,7 @@ class Device:
             log.info('=> Deleting {}'.format(self.device_config_dir))
             rmtree(self.device_config_dir)
         
-    def init(self, host: str) -> bool:
+    def init(self, host: str, domain: str, location: str) -> bool:
         if self.check_init():
             if self.force_operation:
                 log.warning('Device has already been initiated.')
@@ -95,18 +95,24 @@ class Device:
             log.info("=> Initiating a new device")
             fs = Filesystem(CONFIG_DIR(), 'none', 'none')
             fs.create_path()
+
+        if location is None:
+            location = 'Undefined'
         
         crypto = Crypto(self.operation_class)
         crypto.generate_and_save_to_key_path()
 
         if self.device_is_managed == True:
             log.info("This is a MANAGED device.")
+            if domain is None:
+                raise ValueError('The domain needs to be defined for a managed device.')
             jwk = JWK(self.operation_class)
             jwks = jwk.get_jwks()
             registration = {
                 "publicKey": jwks,
                 "title": self.generate_random_device_name(host),
-                "location": "Unknown",
+                "location": location,
+                "domain": domain
             }
             cm = CM(registration, host)
             device_id = cm.register_device()
@@ -114,6 +120,7 @@ class Device:
                 log.error("Did not receive 'device_id' from remote server.")
                 exit(ExitStatus.failure)
         else:
+            domain = 'NONE'
             device_id = self.id
 
         device_id_str = str(device_id)
@@ -124,7 +131,8 @@ class Device:
             'keyType': str(self.key_type),
             'isManaged': self.device_is_managed,
             'host': str(host),
-            'configVersion': '0.0.1',
+            'domain': str(domain),
+            'configVersion': '0.0.2',
             'initiatedOn': str(datetime.now())
         }
 
