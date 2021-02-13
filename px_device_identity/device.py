@@ -16,18 +16,13 @@ from .filesystem import Filesystem
 from .log import Logger
 from .cm import CM
 from .jwk import JWK
-from .config import CONFIG_DIR, CONFIG_FILE, KEY_DIR, get_device_config
-from .migration import first_migration_key_dir, second_migration_add_config_key_domain
+from .config import CONFIG_DIR, CONFIG_FILE, KEY_DIR, DeviceConfig
 
 log = Logger(__name__)
-
 
 class Device:
     '''Handles configuration and keys'''
     def __init__(self, operation_class, device_class: DeviceClass, key_dir=KEY_DIR):
-        first_migration_key_dir(key_dir)
-        second_migration_add_config_key_domain()
-
         self.operation_class = operation_class
         self.security = operation_class.security
         self.key_type = vars(operation_class)['key_type']
@@ -38,6 +33,7 @@ class Device:
         self.device_key_dir = key_dir
         self.device_config_dir = CONFIG_DIR
         self.device_config_path = CONFIG_FILE
+        self.config = DeviceConfig()
 
     def generate_random_device_name(self, host: str) -> str:
         '''Generates a random device name'''
@@ -50,7 +46,7 @@ class Device:
     def check_init(self) -> bool:
         '''Checks whether the device has already been initiated'''
         try:
-            config = get_device_config()
+            config = self.config.get()
             if len(config.get('id')) == 21:
                 log.info('Found Nano ID. Assuming MANAGED device.')
             else:
@@ -70,7 +66,7 @@ class Device:
         '''Check whether the device is managed'''
         log.info('=> Verifying whether device is part of an organization (MANAGED).')
         try:
-            config = get_device_config()
+            config = config().get()
             is_managed = config.get('isManaged')
             host = config.get('host')
             if host != 'NONE' and is_managed is True:
@@ -95,6 +91,8 @@ class Device:
                 log.warning('Device has already been initiated.')
                 log.warning("=> FORCE OVERWRITE")
                 self.destroy()
+                fs = Filesystem(CONFIG_DIR, 'none', 'none')
+                fs.create_path()
             else:
                 log.error('Device has already been initiated.')
                 log.error("Use '--force True' to overwrite. Use with caution!")
@@ -158,7 +156,9 @@ class Device:
         try:
             with open(self.device_config_path, 'w') as fs_device_writer:
                 fs_device_writer.write(yaml.dump(config))
+            return True
+        except EnvironmentError as err:
+            log.error(err)
         except:
             log.error("Could not write device configuration.")
             return False
-        return True

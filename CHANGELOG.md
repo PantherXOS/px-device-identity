@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.8.1]
+### Fixed
+
+- Force overwrite deleted, but did not create a new config dir
+- Run migrations after explicit init check
+
 ## [0.8.0]
 ### Changed
 

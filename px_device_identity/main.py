@@ -11,7 +11,8 @@ from .jwk import JWK
 from .cli import get_cl_arguments
 from .sign import Sign
 from .log import Logger
-from .config import get_device_config
+from .config import DeviceConfig
+from .migration import first_migration_key_dir, second_migration_add_config_key_domain
 
 log = Logger(__name__)
 version = pkg_resources.require("px_device_identity")[0].version
@@ -48,8 +49,12 @@ def main():
 
     device_dict = DeviceClass(device_type, device_is_managed)
 
-    device_init_check = Device(operation_class, device_dict)
-    INITIATED = device_init_check.check_init()
+    device = Device(operation_class, device_dict)
+    INITIATED = device.check_init()
+    if INITIATED is True:
+        '''Run required migrations'''
+        first_migration_key_dir()
+        second_migration_add_config_key_domain()
 
     if operation_class.action != 'INIT' and INITIATED is False:
         log.error('Device is not initiated.')
@@ -57,11 +62,10 @@ def main():
         sys.exit(ExitStatus.failure)
 
     if operation_class.action == 'INIT':
-        device = Device(operation_class, device_dict)
         initiated = device.init(host, domain, location)
         handle_result(initiated)
 
-    config = get_device_config()
+    config = DeviceConfig().get()
     operation_class.security = config.get('keySecurity')
     operation_class.key_type = config.get('keyType')
 
