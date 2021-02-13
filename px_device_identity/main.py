@@ -13,8 +13,7 @@ from .sign import Sign
 from .log import Logger
 from .config import get_device_config
 
-
-log = Logger('MAIN')
+log = Logger(__name__)
 version = pkg_resources.require("px_device_identity")[0].version
 
 

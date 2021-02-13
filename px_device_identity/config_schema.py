@@ -1,3 +1,5 @@
+'''Configuration scheme by version'''
+
 CONFIG_SCHEMA = {
     '0.0.1': {
         'id': 'id',

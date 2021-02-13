@@ -1,19 +1,23 @@
+'''Central Management Module: Communication with identity server.'''
+
 from time import sleep
-from requests import post, get
 from json import loads as json_loads
+from requests import post, get
 
 from .classes import DeviceRegistration
-from .filesystem import Filesystem
 from .log import Logger
 
-log = Logger('CM')
+log = Logger(__name__)
+
 
 class CM:
+    '''Central Management communication'''
     def __init__(self, registration: DeviceRegistration, host: str):
         self.registration = registration
         self.host = host
 
-    def post_registration(self):
+    def _post_registration(self):
+        '''Post new device registration'''
         try:
             api_url = self.host +  '/device/registration'
             log.info("=> Posting registration to {}".format(api_url))
@@ -22,7 +26,6 @@ class CM:
             log.info(result)
             log.info(result.text)
             if result.status_code == 201:
-                # TODO: Probably going to fail
                 formatted_result = json_loads(result.text)
                 verification_code: str = formatted_result["verification_code"]
                 log.info("Received verification code: {}".format(verification_code))
@@ -36,6 +39,7 @@ class CM:
         return False
 
     def check_registration_result(self, verification_code: str):
+        '''Check device registration result'''
         try:
             api_url = self.host + '/device/registration/status/' + str(verification_code)
             return get(api_url)
@@ -43,26 +47,28 @@ class CM:
             log.error("Something went wrong checking for the registration result.")
         return False
 
-    def check_registration_result_retry(self, verification_code: str):
+    def _check_registration_result_retry(self, verification_code: str):
+        '''Check device registration result after 60 seconds'''
         wait_time = 60
         result = self.check_registration_result(verification_code)
-        if result != False:
+        if result is not False:
             return result
         else:
             log.warning("Will try one more time in {}s".format(wait_time))
             sleep(wait_time)
             return self.check_registration_result(verification_code)
 
-    def check_registration_result_loop(self, verification_code: str):
+    def _check_registration_result_loop(self, verification_code: str):
+        '''Loop to check device registration until definite result'''
         limit = 200
         wait_time = 10
-        # TODO: Very rudimentaty. Should be based on actual time run (and average time of each loop + wait_time)
+        # TODO: Very rudimentaty. Should be based on actual time run
         waited_time_approx = 0
         total_time_approx = limit * wait_time
         for i in range(limit):
             if i == limit:
                 log.warning('Last try!')
-            result = self.check_registration_result_retry(verification_code)
+            result = self._check_registration_result_retry(verification_code)
             if result is False:
                 return result
             status_code = result.status_code
@@ -74,7 +80,8 @@ class CM:
                 if status == 'pending':
                     timeout = total_time_approx - waited_time_approx
                     log.info(
-                        '=> Waiting for approval ... Going to sleep for {}s. Timeout in {}s.'.format(wait_time, timeout)
+                        '=> Waiting for approval ... Going to sleep for {}s. \
+                            Timeout in {}s.'.format(wait_time, timeout)
                     )
                     sleep(wait_time)
                 if status == 'rejected':
@@ -98,11 +105,12 @@ class CM:
         return False
 
     def register_device(self):
-        registration_result = self.post_registration()
+        '''Register the device'''
+        registration_result = self._post_registration()
         if registration_result is not False:
             verification_code: str = registration_result
-            registration_approval = self.check_registration_result_loop(verification_code)
-            if registration_approval != False:
+            registration_approval = self._check_registration_result_loop(verification_code)
+            if registration_approval is not False:
                 app_id: str = registration_approval
                 return str(app_id)
         return False

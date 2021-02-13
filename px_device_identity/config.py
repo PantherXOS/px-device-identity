@@ -1,3 +1,5 @@
+'''Configuration'''
+
 from pathlib import Path
 import yaml
 from appdirs import user_data_dir
@@ -5,24 +7,19 @@ from appdirs import user_data_dir
 from .log import Logger
 from .config_schema import CONFIG_SCHEMA
 
-log = Logger('CONFIG')
+log = Logger(__name__)
 
-def KEY_DIR_LEGACY():
-    home_path = str(Path.home())
-    key_dir = '/.config/device/'
-    return home_path + key_dir
-
-def KEY_DIR():
-    return user_data_dir("px-device-identity") + '/'
-
-def CONFIG_DIR():
-    return '/etc/px-device-identity/'
-
+KEY_DIR_LEGACY = str(Path.home()) + '/.config/device/'
+KEY_DIR = user_data_dir("px-device-identity") + '/'
+CONFIG_DIR = '/etc/px-device-identity/'
+CONFIG_FILE = CONFIG_DIR + 'device.yml'
 CONFIG_VERSION = '0.0.2'
 
+
 class DeviceConfig():
+    '''Primary configuration'''
     def __init__(self):
-        self.config_path = CONFIG_DIR() + 'config.yml'
+        self.config_path = CONFIG_FILE
         self.config_schema = CONFIG_SCHEMA
         self.latest_version = CONFIG_VERSION
 
@@ -48,6 +45,7 @@ class DeviceConfig():
             return yaml.load(file, Loader=yaml.BaseLoader)
 
     def migrate_config(self, from_version: str, to_version):
+        '''Migrate config between versions (UP only)'''
         config = self._load_yaml_from_file()
         device_config = self._get_config_from_dict(config, from_version)
 
@@ -58,7 +56,7 @@ class DeviceConfig():
                     'Config line |{}| is new in v{}. Please enter a value or leave empty. \
                         Proceed with [ENTER]'.format(value, self.latest_version)
                 )
-                user_input = input("Enter a {}: ".format(value)) 
+                user_input = input("Enter a {}: ".format(value))
                 device_config[value] = user_input
             elif key == 'configVersion':
                 device_config[value] = self.latest_version
@@ -68,9 +66,11 @@ class DeviceConfig():
         self._save_config_to_file(device_config)
 
     def get(self):
+        '''Get config'''
         config = self._load_yaml_from_file()
         return self._get_config_from_dict(config, config['configVersion'])
         # if self._is_latest_version(config):
 
 def get_device_config():
+    '''LEGACY! Get config'''
     return DeviceConfig().get()

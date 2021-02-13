@@ -10,10 +10,11 @@ from .config import KEY_DIR
 from .util import split_key_type
 from .log import Logger
 
-log = Logger('Crypto')
+log = Logger(__name__)
+
 
 class Crypto:
-    def __init__(self, operation_class: RequestedOperation, key_dir=KEY_DIR()):
+    def __init__(self, operation_class: RequestedOperation, key_dir=KEY_DIR):
         self.security = operation_class.security
         self.key_type = vars(operation_class)['key_type']
         self.key_dir = key_dir
@@ -34,9 +35,12 @@ class Crypto:
 
             if key_cryptography == 'RSA':
                 try:
-                    process_result = subprocess.run(
-                        ["tpm2tss-genkey", "-a", "rsa", "-s", str(key_strength), self.private_key_path]
-                    )
+                    process_result = subprocess.run([
+                        "tpm2tss-genkey",
+                        "-a", "rsa",
+                        "-s", str(key_strength),
+                        self.private_key_path
+                    ])
                     # TODO: Sanity check; look for response of process instead
                     if os.path.isfile(self.private_key_path):
                         log.info('Saved private key.')
@@ -47,9 +51,12 @@ class Crypto:
             elif key_cryptography == 'ECC':
                 key_strength = 'nist_' + key_strength
                 try:
-                    process_result = subprocess.run(
-                        ["tpm2tss-genkey", "-a", "ecdsa", "-c", str(key_strength), self.private_key_path]
-                    )
+                    process_result = subprocess.run([
+                        "tpm2tss-genkey",
+                        "-a", "ecdsa",
+                        "-c", str(key_strength),
+                        self.private_key_path
+                    ])
                     if process_result.returncode == 1:
                         log.error('Could not get or save EC private key.')
                         sys.exit(ExitStatus)
@@ -87,9 +94,14 @@ class Crypto:
         )
         if key_cryptography == 'RSA':
             try:
-                subprocess.run(
-                    ["openssl", "rsa", "-engine", "tpm2tss", "-inform", "engine", "-in", self.private_key_path, "-pubout", "-outform", "pem", "-out", self.public_key_path]
-                )
+                subprocess.run([
+                    "openssl", "rsa",
+                    "-engine", "tpm2tss",
+                    "-inform", "engine",
+                    "-in", self.private_key_path,
+                    "-pubout", "-outform", "pem",
+                    "-out", self.public_key_path
+                ])
                 # TODO: Sanity check; look for response of process instead
                 if os.path.isfile(self.public_key_path):
                     log.info('Saved public key.')
@@ -98,9 +110,14 @@ class Crypto:
                 pass
         elif key_cryptography == 'ECC':
             try:
-                subprocess.run(
-                    ["openssl", "ec", "-engine", "tpm2tss", "-inform", "engine", "-in", self.private_key_path, "-pubout", "-outform", "pem", "-out", self.public_key_path]
-                )
+                subprocess.run([
+                    "openssl", "ec",
+                    "-engine", "tpm2tss",
+                    "-inform", "engine",
+                    "-in", self.private_key_path,
+                    "-pubout", "-outform", "pem",
+                    "-out", self.public_key_path
+                ])
                 # TODO: Sanity check; look for response of process instead
                 if os.path.isfile(self.public_key_path):
                     log.info('Saved public key.')
@@ -129,7 +146,7 @@ class Crypto:
             result_private_key = fs_private_key.create_file(private_key_pem)
             result_public_key = fs_public_key.create_file(public_key_pem)
         elif self.security == "TPM":
-            result_private_key =  self.generate_private_key()
+            result_private_key = self.generate_private_key()
             result_public_key = self.get_and_save_public_key_from_tpm_private_key()
 
         if result_public_key is True and result_private_key is True:

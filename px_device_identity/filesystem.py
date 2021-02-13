@@ -1,12 +1,11 @@
-from sys import exit
 from shutil import rmtree
 from os import mkdir, path, times, makedirs
 from tempfile import gettempdir
-from exitstatus import ExitStatus
 
 from .log import Logger
+log = Logger(__name__)
 
-log = Logger('FILESYSTEM')
+
 class Filesystem():
     def __init__(self, file_dir, file_name, mode):
         self.file_dir = file_dir
@@ -27,14 +26,14 @@ class Filesystem():
             return False
 
     def create_path(self) -> True:
-        if self.file_dir_exits() == False:
+        if self.file_dir_exits() is False:
             try:
                 makedirs(self.file_dir)
                 return True
             except EnvironmentError as err:
                 log.error("Could not create path {}".format(self.file_dir))
                 raise EnvironmentError(err)
-    
+
     def create_file(self, content) -> True:
         log.info("=> Creating file at {}".format(self.file_path))
         self.create_path()
@@ -50,7 +49,7 @@ class Filesystem():
         except EnvironmentError as err:
             log.error("Could not create file {}".format(self.file_path))
             raise EnvironmentError(err)
-    
+
     def open_file(self):
         log.info("=> Opening file at {}".format(self.file_path))
         if self.file_exists:
@@ -62,19 +61,19 @@ class Filesystem():
                     file_content = reader.read()
                     return file_content
                 except EnvironmentError as err:
-                    log.warn("Could not open file at {}".format(self.file_path))
+                    log.warning("Could not open file at {}".format(self.file_path))
                     raise EnvironmentError(err)
 
 def create_tmp_path() -> str:
-        tmp_path = path.join(gettempdir(), '.{}'.format(hash(times())))
-        try:
-            log.info("=> Creating temp directory at {}".format(tmp_path))
-            mkdir(tmp_path)
-        except EnvironmentError as err:
-            log.error("Could not create temp directory.")
-            raise EnvironmentError(err)
-        else:
-            return tmp_path
+    tmp_path = path.join(gettempdir(), '.{}'.format(hash(times())))
+    try:
+        log.info("=> Creating temp directory at {}".format(tmp_path))
+        mkdir(tmp_path)
+    except EnvironmentError as err:
+        log.error("Could not create temp directory.")
+        raise EnvironmentError(err)
+    else:
+        return tmp_path
 
 def remove_tmp_path(tmp_path):
     log.info("=> Removing temp directory at '{}'.".format(tmp_path))

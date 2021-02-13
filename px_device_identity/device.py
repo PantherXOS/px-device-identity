@@ -1,27 +1,30 @@
+'''Device module for configuration and key handling'''
 
-import yaml
-import shortuuid
-
-from sys import exit
+import sys
 from datetime import datetime
 from uuid import uuid4, UUID
-from exitstatus import ExitStatus
 from shutil import rmtree
 from os.path import isdir
 
-from .classes import DeviceClass, RequestedOperation
+import yaml
+from exitstatus import ExitStatus
+import shortuuid
+
+from .classes import DeviceClass
 from .crypto import Crypto
 from .filesystem import Filesystem
 from .log import Logger
 from .cm import CM
 from .jwk import JWK
-from .config import KEY_DIR_LEGACY, CONFIG_DIR, KEY_DIR, get_device_config
+from .config import CONFIG_DIR, CONFIG_FILE, KEY_DIR, get_device_config
 from .migration import first_migration_key_dir, second_migration_add_config_key_domain
 
-log = Logger('DEVICE')
+log = Logger(__name__)
+
 
 class Device:
-    def __init__(self, operation_class, device_class: DeviceClass, key_dir=KEY_DIR()):
+    '''Handles configuration and keys'''
+    def __init__(self, operation_class, device_class: DeviceClass, key_dir=KEY_DIR):
         first_migration_key_dir(key_dir)
         second_migration_add_config_key_domain()
 
@@ -33,17 +36,19 @@ class Device:
         self.force_operation = vars(operation_class)['force_operation']
         self.id = uuid4()
         self.device_key_dir = key_dir
-        self.device_config_dir = CONFIG_DIR()
-        self.device_config_path = CONFIG_DIR() + 'device.yml'
+        self.device_config_dir = CONFIG_DIR
+        self.device_config_path = CONFIG_FILE
 
     def generate_random_device_name(self, host: str) -> str:
+        '''Generates a random device name'''
         try:
             return 'Device-' + shortuuid.uuid(name=host)
         except:
             log.error("Could not generate device ID with uuid.NAMESPACE_URL {}".format(host))
-            exit(ExitStatus.failure)
+            sys.exit(ExitStatus.failure)
 
     def check_init(self) -> bool:
+        '''Checks whether the device has already been initiated'''
         try:
             config = get_device_config()
             if len(config.get('id')) == 21:
@@ -62,6 +67,7 @@ class Device:
             return False
 
     def check_is_managed(self) -> bool:
+        '''Check whether the device is managed'''
         log.info('=> Verifying whether device is part of an organization (MANAGED).')
         try:
             config = get_device_config()
@@ -74,14 +80,16 @@ class Device:
         return False
 
     def destroy(self):
+        '''Delete device configuration and key(s)'''
         if isdir(self.device_key_dir):
             log.info('=> Deleting {}'.format(self.device_key_dir))
             rmtree(self.device_key_dir)
         if isdir(self.device_config_dir):
             log.info('=> Deleting {}'.format(self.device_config_dir))
             rmtree(self.device_config_dir)
-        
+
     def init(self, host: str, domain: str, location: str) -> bool:
+        '''Initiate the device'''
         if self.check_init():
             if self.force_operation:
                 log.warning('Device has already been initiated.')
@@ -90,19 +98,19 @@ class Device:
             else:
                 log.error('Device has already been initiated.')
                 log.error("Use '--force True' to overwrite. Use with caution!")
-                exit(ExitStatus.failure)
+                sys.exit(ExitStatus.failure)
         else:
             log.info("=> Initiating a new device")
-            fs = Filesystem(CONFIG_DIR(), 'none', 'none')
+            fs = Filesystem(CONFIG_DIR, 'none', 'none')
             fs.create_path()
 
         if location is None:
             location = 'Undefined'
-        
+
         crypto = Crypto(self.operation_class)
         crypto.generate_and_save_to_key_path()
 
-        if self.device_is_managed == True:
+        if self.device_is_managed is True:
             log.info("This is a MANAGED device.")
             if domain is None:
                 raise ValueError('The domain needs to be defined for a managed device.')
@@ -116,9 +124,9 @@ class Device:
             }
             cm = CM(registration, host)
             device_id = cm.register_device()
-            if device_id == False:
+            if device_id is False:
                 log.error("Did not receive 'device_id' from remote server.")
-                exit(ExitStatus.failure)
+                sys.exit(ExitStatus.failure)
         else:
             domain = 'NONE'
             device_id = self.id
@@ -136,12 +144,16 @@ class Device:
             'initiatedOn': str(datetime.now())
         }
 
-        if self.device_is_managed == True:
-            log.info("=> Saving device identification as NanoID in {}".format(self.device_config_path))
+        if self.device_is_managed is True:
+            log.info("=> Saving device identification as NanoID in {}".format(
+                self.device_config_path
+            ))
         else:
             config['host'] = 'NONE'
             log.info('This device does not belong to any organization (UNMANAGED).')
-            log.info("=> Saving device identification as uuid4 in {}".format(self.device_config_path))
+            log.info("=> Saving device identification as uuid4 in {}".format(
+                self.device_config_path
+            ))
 
         try:
             with open(self.device_config_path, 'w') as fs_device_writer:

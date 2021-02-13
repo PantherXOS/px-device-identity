@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.7.4]
+### Changed
+
+- General cleanup; more comments; alignments ...
+
 ## [0.7.3]
 ### Changed
 

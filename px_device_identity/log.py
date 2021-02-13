@@ -1,9 +1,9 @@
-import sys
 import syslog
 import logging
 from os import environ
 
 logging.basicConfig(level=environ.get("LOGLEVEL", "INFO"))
+
 
 class Logger:
     def __init__(self, context, application="px-device-identity"):

@@ -1,24 +1,26 @@
-from pathlib import Path
+import sys
 from json import dumps as json_dumps
-from authlib.jose import jwk, jwt
+from authlib.jose import jwk
 from exitstatus import ExitStatus
 
 from .log import Logger
-from .config import KEY_DIR, CONFIG_DIR
+from .config import KEY_DIR
 from .util import split_key_type
 from .classes import RequestedOperation
 
-log = Logger('JWK')
+log = Logger(__name__)
+
 
 class JWK:
-    def __init__(self, operation_class: RequestedOperation, key_dir = KEY_DIR()):
+    '''Working with JWK(S)'''
+    def __init__(self, operation_class: RequestedOperation, key_dir=KEY_DIR):
         self.security = vars(operation_class)['security']
         self.key_type = vars(operation_class)['key_type']
         self.key_dir = key_dir
         self.jwk_path = key_dir + 'public_jwk.json'
         self.public_key_path = key_dir + 'public.pem'
 
-    def generate(self):
+    def _generate(self):
         key_cryptography = split_key_type(self.key_type)[0]
 
         with open(self.public_key_path, 'rb', buffering=0) as reader:
@@ -37,11 +39,12 @@ class JWK:
                 key['alg'] = 'ES521'
             else:
                 log.error('Unsupported key type.')
-                exit(ExitStatus.failure)
+                sys.exit(ExitStatus.failure)
             return key
 
     def save_to_key_path(self) -> True:
-        key = self.generate()
+        '''Generates and saves JWK to the default path'''
+        key = self._generate()
         formatted_key = bytearray(json_dumps(key, ensure_ascii=True).encode('utf8'))
         try:
             with open(self.jwk_path, 'wb') as writer:
@@ -49,14 +52,16 @@ class JWK:
                 return True
         except:
             log.error('Could not save JWK to {}'.format(self.jwk_path))
-            exit(ExitStatus.failure)
+            sys.exit(ExitStatus.failure)
 
     def get(self):
-        return self.generate()
+        '''Generates and returns JWK'''
+        return self._generate()
 
     def get_jwks(self):
-        jwk = self.get()
+        '''Generates JWK and returns JWKS'''
+        key = self._generate()
         jwks = {
-            'keys': [jwk]
+            'keys': [key]
         }
         return jwks
