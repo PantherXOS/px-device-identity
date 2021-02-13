@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.8.0]
+### Changed
+
+- Bump
+
 ## [0.7.5]
 ### Changed
 
