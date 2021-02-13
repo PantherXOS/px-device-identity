@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.7.5]
+### Changed
+
+- Updated dependencies
+- Migrations: Updated notes to reflect removal at v1.0.0
+- Added some default exports (Device, Sign, Logger, DeviceConfig, ...)
+
 ## [0.7.4]
 ### Changed
 

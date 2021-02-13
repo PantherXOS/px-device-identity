@@ -42,7 +42,7 @@ def first_migration_key_dir(key_dir=KEY_DIR):
                         KEY_DIR_LEGACY
                     )
                 )
-        # From 0.9.0
+        # From 1.0.0
         # log.info('=> Removing {}'.format(KEY_DIR_LEGACY))
         # shutil.rmtree(KEY_DIR_LEGACY)
 
