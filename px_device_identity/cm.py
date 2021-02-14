@@ -19,7 +19,7 @@ class CM:
     def _post_registration(self):
         '''Post new device registration'''
         try:
-            api_url = self.host +  '/device/registration'
+            api_url = self.host +  '/devices/registration'
             log.info("=> Posting registration to {}".format(api_url))
             log.info(self.registration)
             result = post(api_url, json=self.registration)
@@ -41,7 +41,7 @@ class CM:
     def check_registration_result(self, verification_code: str):
         '''Check device registration result'''
         try:
-            api_url = self.host + '/device/registration/status/' + str(verification_code)
+            api_url = self.host + '/devices/registration/status/' + str(verification_code)
             return get(api_url)
         except:
             log.error("Something went wrong checking for the registration result.")

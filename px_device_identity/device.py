@@ -35,10 +35,10 @@ class Device:
         self.device_config_path = CONFIG_FILE
         self.config = DeviceConfig()
 
-    def generate_random_device_name(self, host: str) -> str:
+    def generate_random_device_name(self, domain: str) -> str:
         '''Generates a random device name'''
         try:
-            return 'Device-' + shortuuid.uuid(name=host)
+            return 'Device-' + shortuuid.uuid(name=domain)
         except:
             log.error("Could not generate device ID with uuid.NAMESPACE_URL {}".format(host))
             sys.exit(ExitStatus.failure)
@@ -116,7 +116,7 @@ class Device:
             jwks = jwk.get_jwks()
             registration = {
                 "publicKey": jwks,
-                "title": self.generate_random_device_name(host),
+                "title": self.generate_random_device_name(domain),
                 "location": location,
                 "domain": domain
             }
