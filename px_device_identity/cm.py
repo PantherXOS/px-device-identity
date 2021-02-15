@@ -93,7 +93,7 @@ class CM:
                     log.info(
                         "The device registration was approved after {}s".format(waited_time_approx)
                     )
-                    device_id: str = str(result_formatted["id"])
+                    device_id: str = str(result_formatted["deviceId"])
                     client_id: str = str(result_formatted["clientId"])
                     return device_id, client_id
                 if status == 'error':

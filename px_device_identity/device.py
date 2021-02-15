@@ -122,11 +122,11 @@ class Device:
             }
             cm = CM(registration, host)
             result = cm.register_device()
-            device_id = result[0]
-            client_id = result[1]
             if result is False:
                 log.error("Did not receive the expected response from remote server.")
                 sys.exit(ExitStatus.failure)
+            device_id = result[0]
+            client_id = result[1]
         else:
             domain = 'NONE'
             device_id = self.id

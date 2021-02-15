@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.8.5]
+### Fixed
+
+- Correctly look for `deviceId` instead of `id` in reg. response
+- Check whether result to CM has succeeded
 
 ## [0.8.4]
 ### Fixed

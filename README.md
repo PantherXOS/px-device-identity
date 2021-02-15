@@ -87,6 +87,7 @@ The `device.yml` contains the device configuration:
 
 ```yml
 id: str # ['UUID4', 'NanoID']
+clientId: str
 deviceType: str # ['DESKTOP', 'SERVER', 'CLOUD', 'ENTERPRISE']
 keySecurity: str # ['DEFAULT', 'TPM']
 keyType: str # ['RSA:bitrate', 'ECDSA:curve']
@@ -101,6 +102,7 @@ Here's an example for an unmanaged desktop (basically a home user):
 
 ```yml
 configVersion: 0.0.1
+clientId: NONE
 deviceType: DESKTOP
 host: NONE
 id: 99fa5f7e-e68d-4bf0-947d-8e4e485f61dd
