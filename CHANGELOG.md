@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
 
+## [0.8.4]
+### Fixed
+
+- Config schema; missing `,`
+
 ## [0.8.3]
 ### Fixed
 
