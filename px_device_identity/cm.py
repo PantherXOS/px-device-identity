@@ -93,8 +93,9 @@ class CM:
                     log.info(
                         "The device registration was approved after {}s".format(waited_time_approx)
                     )
-                    app_id: str = result_formatted["deviceId"]
-                    return app_id
+                    device_id: str = str(result_formatted["id"])
+                    client_id: str = str(result_formatted["clientId"])
+                    return device_id, client_id
                 if status == 'error':
                     log.error("Something went wrong during.")
                     return False
@@ -111,6 +112,6 @@ class CM:
             verification_code: str = registration_result
             registration_approval = self._check_registration_result_loop(verification_code)
             if registration_approval is not False:
-                app_id: str = registration_approval
-                return str(app_id)
+                device_id, client_id = registration_approval
+                return device_id, client_id
         return False

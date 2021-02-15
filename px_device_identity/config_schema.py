@@ -13,6 +13,7 @@ CONFIG_SCHEMA = {
     },
     '0.0.2': {
         'id': 'id',
+        'NONE': 'clientId'
         'deviceType': 'deviceType',
         'keySecurity': 'keySecurity',
         'keyType': 'keyType',

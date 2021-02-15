@@ -121,17 +121,22 @@ class Device:
                 "domain": domain
             }
             cm = CM(registration, host)
-            device_id = cm.register_device()
-            if device_id is False:
-                log.error("Did not receive 'device_id' from remote server.")
+            result = cm.register_device()
+            device_id = result[0]
+            client_id = result[1]
+            if result is False:
+                log.error("Did not receive the expected response from remote server.")
                 sys.exit(ExitStatus.failure)
         else:
             domain = 'NONE'
             device_id = self.id
+            client_id = ''
 
         device_id_str = str(device_id)
+        client_id_str = str(client_id)
         config = {
             'id': device_id_str,
+            'clientId': client_id_str,
             'deviceType': self.device_type,
             'keySecurity': self.security,
             'keyType': str(self.key_type),
