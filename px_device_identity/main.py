@@ -14,6 +14,9 @@ from .log import Logger
 from .config import DeviceConfig
 from .migration import first_migration_key_dir, second_migration_add_config_key_domain
 
+import platform
+opsys = platform.system()
+
 log = Logger(__name__)
 version = pkg_resources.require("px_device_identity")[0].version
 
@@ -32,11 +35,23 @@ def main():
     log.info('v{}'.format(version))
     log.info('------')
 
-    current_user = getuser()
-    if current_user != 'root':
-        log.warning('!!! This application is designed to run as root on the target device !!!')
-        log.warning('!!! Current user: {}'.format(current_user))
-        sys.exit()
+    if opsys == 'Linux':
+        current_user = getuser()
+        if current_user != 'root':
+            log.warning('!!! This application is designed to run as root on the target device !!!')
+            log.warning('!!! Current user: {}'.format(current_user))
+            sys.exit()
+    if opsys == 'Windows':
+        import ctypes
+        is_windows_admin = false
+        try:
+            is_windows_admin = ctypes.windll.shell32.IsUserAnAdmin() == 1
+        except:
+            log.warning('!!! Something went wrong checking if the current user is an administrator')
+        if not is_windows_admin:
+            log.warning('!!! This application is designed to run as administrator on the target device !!!')
+            # sys.exit()
+
 
     cl_arguments = get_cl_arguments()
     operation_class = cl_arguments.get('operation')

@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.8.7]
+### Fixed
+
+- Adapted root / administrator check to work on Windows
+
 ## [0.8.6]
 ### Fixed
 
