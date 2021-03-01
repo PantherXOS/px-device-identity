@@ -43,7 +43,7 @@ def main():
             sys.exit()
     if opsys == 'Windows':
         import ctypes
-        is_windows_admin = false
+        is_windows_admin = False
         try:
             is_windows_admin = ctypes.windll.shell32.IsUserAnAdmin() == 1
         except:
