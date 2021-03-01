@@ -2,17 +2,29 @@
 
 from pathlib import Path
 import yaml
-from appdirs import user_data_dir
+from appdirs import user_data_dir, user_config_dir
 
 from .log import Logger
 from .config_schema import CONFIG_SCHEMA
+
+import platform
+opsys = platform.system()
 
 log = Logger(__name__)
 
 KEY_DIR_LEGACY = str(Path.home()) + '/.config/device/'
 KEY_DIR = user_data_dir("px-device-identity") + '/'
+
+# Important note on CONFIG_DIR
+# On Linux we default to `/etc/px-devide-identity/device.yml`
+# On Windows we fall-back to whatever's the system default
+
 CONFIG_DIR = '/etc/px-device-identity/'
+if opsys == 'Windows':
+    CONFIG_DIR = user_config_dir("px-device-identity") + '/'
+
 CONFIG_FILE = CONFIG_DIR + 'device.yml'
+
 CONFIG_VERSION = '0.0.2'
 
 

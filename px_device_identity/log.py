@@ -1,6 +1,11 @@
-import syslog
 import logging
 from os import environ
+
+import platform
+opsys = platform.system()
+
+if opsys == 'Linux':
+    import syslog
 
 logging.basicConfig(level=environ.get("LOGLEVEL", "INFO"))
 
@@ -16,8 +21,10 @@ class Logger:
 
     def warning(self, message):
         self.log.warn(message)
-        syslog.syslog(syslog.LOG_WARNING, message)
+        if opsys == 'Linux':
+            syslog.syslog(syslog.LOG_WARNING, message)
 
     def error(self, message):
         self.log.error(message)
-        syslog.syslog(syslog.LOG_ERR, message)
+        if opsys == 'Linux':
+            syslog.syslog(syslog.LOG_ERR, message)
