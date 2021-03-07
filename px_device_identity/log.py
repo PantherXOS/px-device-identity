@@ -11,6 +11,7 @@ logging.basicConfig(level=environ.get("LOGLEVEL", "INFO"))
 
 
 class Logger:
+    '''Global logger'''
     def __init__(self, context, application="px-device-identity"):
         self.context = context
         self.name = application
@@ -20,7 +21,7 @@ class Logger:
         self.log.info(message)
 
     def warning(self, message):
-        self.log.warn(message)
+        self.log.exception(message)
         if opsys == 'Linux':
             syslog.syslog(syslog.LOG_WARNING, message)
 

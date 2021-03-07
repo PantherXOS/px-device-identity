@@ -4,8 +4,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.9.0]
+### Changed
+
+- Restructured application to be more clear
+- Added new data classes to cover operation and device logic and config
+
 ## [0.8.9]
-### Fixed
+### Changed
 
 - Bump
 

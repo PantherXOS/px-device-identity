@@ -1,6 +1,6 @@
 ##
 # Device Identity --- Initiate PantherX Devices
-# Copyright © 2020 Franz Geffke <franz@pantherx.org>
+# Copyright © 2020-2021 Franz Geffke <franz@pantherx.org>
 #
 # This file is part of PantherX OS
 #
@@ -22,7 +22,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.8.9'
+VERSION = '0.9.0'
 PACKAGE_NAME = 'px-device-identity'
 AUTHOR = 'Franz Geffke'
 AUTHOR_EMAIL = 'franz@pantherx.org'
@@ -40,7 +40,8 @@ INSTALL_REQUIRES = [
     'exitstatus>=2.0.1,<2.1',
     'shortuuid>=1.0.1,<1.1',
     'pyyaml>=5.3.1,<5.4',
-    'appdirs>=1.4.1,<1.5'
+    'appdirs>=1.4.1,<1.5',
+    'psutil>=5.7.2,<5.9'
 ]
 
 setup(
@@ -55,7 +56,7 @@ setup(
     url=URL,
     install_requires=INSTALL_REQUIRES,
     entry_points = {
-    'console_scripts': ['px-device-identity=px_device_identity.command_line:main'],
+        'console_scripts': ['px-device-identity=px_device_identity.command_line:main'],
     },
     packages=find_packages(),
     zip_safe=False

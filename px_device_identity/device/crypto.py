@@ -1,38 +1,44 @@
 import os.path
-import sys
 import subprocess
-from Cryptodome.PublicKey import RSA, ECC
+import sys
+
+from Cryptodome.PublicKey import ECC, RSA
 from exitstatus import ExitStatus
 
-from .filesystem import Filesystem
-from .classes import RequestedOperation
-from .config import KEY_DIR
+from px_device_identity.log import Logger
+
 from .util import split_key_type
-from .log import Logger
+from .filesystem import Filesystem
+
+from .config import KEY_DIR
+
 
 log = Logger(__name__)
 
 
 class Crypto:
-    def __init__(self, operation_class: RequestedOperation, key_dir=KEY_DIR):
-        self.security = operation_class.security
-        self.key_type = vars(operation_class)['key_type']
+    '''Handles RSA/ECC key generation'''
+    def __init__(self, device_properties: 'DeviceProperties', key_dir=KEY_DIR):
+        self.key_security = device_properties.key_security
+        self.key_type = device_properties.key_type
         self.key_dir = key_dir
         self.private_key_path = key_dir + 'private.pem'
         self.public_key_path = key_dir + 'public.pem'
+        print(self.key_security)
 
     def generate_private_key(self):
         key_cryptography, key_strength = split_key_type(self.key_type)
         log.info(
             '=> Generating new {} private key. This might take a moment ...'.format(self.key_type)
         )
-        if self.security == 'DEFAULT':
+        if self.key_security == 'default':
+            '''Generate file-based Key'''
             if key_cryptography == 'RSA':
                 return RSA.generate(bits=key_strength)
             elif key_cryptography == 'ECC':
                 return ECC.generate(curve=key_strength)
-        elif self.security == 'TPM':
-
+        elif self.key_security == 'tpm':
+            '''Generate TPM-based key'''
             if key_cryptography == 'RSA':
                 try:
                     process_result = subprocess.run([
@@ -45,8 +51,8 @@ class Crypto:
                     if os.path.isfile(self.private_key_path):
                         log.info('Saved private key.')
                         return True
-                except EnvironmentError as e:
-                    log.error(e)
+                except EnvironmentError as err:
+                    log.error(err)
 
             elif key_cryptography == 'ECC':
                 key_strength = 'nist_' + key_strength
@@ -132,7 +138,7 @@ class Crypto:
         result_private_key = False
         result_public_key = False
 
-        if self.security == "DEFAULT":
+        if self.key_security == "default":
             private_key = self.generate_private_key()
             public_key = self.get_public_key_from_private_key(private_key)
             fs_private_key = Filesystem(self.key_dir, 'private.pem', 'wb')
@@ -145,9 +151,15 @@ class Crypto:
                 public_key_pem = public_key.export_key(format='PEM').encode('utf8')
             result_private_key = fs_private_key.create_file(private_key_pem)
             result_public_key = fs_public_key.create_file(public_key_pem)
-        elif self.security == "TPM":
+        elif self.key_security == "tpm":
             result_private_key = self.generate_private_key()
             result_public_key = self.get_and_save_public_key_from_tpm_private_key()
+        else:
+            log.error(
+                'Invalid key security. Expected `default` or `tpm`. Found {}'.format(self.key_security)
+            )
+            sys.exit(ExitStatus.failure)
+            
 
         if result_public_key is True and result_private_key is True:
             return True

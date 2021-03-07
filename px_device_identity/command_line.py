@@ -2,12 +2,12 @@ from sys import stdout
 import px_device_identity
 
 def main():
-    r = px_device_identity.main()
+    res = px_device_identity.main()
     stdout.flush()
-    if isinstance(r, str):
-        stdout.write(r)
+    if isinstance(res, str):
+        stdout.write(res)
     else:
-        stdout.buffer.write(r)
+        stdout.buffer.write(res)
     stdout.flush()
 
 if __name__ == '__main__':

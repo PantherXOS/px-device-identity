@@ -22,5 +22,17 @@ CONFIG_SCHEMA = {
         'NONE': 'domain',
         'configVersion': 'configVersion',
         'initiatedOn': 'initiatedOn'
+    },
+    '0.0.3': {
+        'id': 'id',
+        'NONE': 'clientId',
+        'deviceType': 'role',
+        'keySecurity': 'keySecurity',
+        'keyType': 'keyType',
+        'isManaged': 'isManaged',
+        'host': 'host',
+        'NONE': 'domain',
+        'configVersion': 'configVersion',
+        'initiatedOn': 'initiatedOn'
     }
 }

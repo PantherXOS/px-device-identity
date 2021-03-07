@@ -2,7 +2,7 @@ from shutil import rmtree
 from os import mkdir, path, times, makedirs
 from tempfile import gettempdir
 
-from .log import Logger
+from px_device_identity.log import Logger
 log = Logger(__name__)
 
 
@@ -44,7 +44,6 @@ class Filesystem():
         try:
             with open(self.file_path, self.mode) as writer:
                 writer.write(formatted_content)
-                log.info("=> Created file.")
                 return True
         except EnvironmentError as err:
             log.error("Could not create file {}".format(self.file_path))

@@ -98,19 +98,21 @@ configVersion: str # ['*.*.*']
 initiatedOn: dateTime # ['2020-07-03 23:02:36.733746']
 ```
 
-Here's an example for an unmanaged desktop (basically a home user):
+Here's an example for a managed desktop):
 
 ```yml
-configVersion: 0.0.1
-clientId: NONE
-deviceType: DESKTOP
-host: NONE
-id: 99fa5f7e-e68d-4bf0-947d-8e4e485f61dd
-initiatedOn: '2020-07-03 23:07:41.008684'
-isManaged: false
-domain: NONE
-keySecurity: TPM
-keyType: RSA:2048
+client_id: d0da9a59-9f59-4f57-b9a9-1eb46bb68239
+config_version: 0.0.3
+domain: pantherx.org
+host: https://identity.pantherx.org
+id: b2dfd845-74eb-4674-8545-4da597e487ad
+initiated_on: '2021-03-06 21:31:14.567076'
+is_managed: true
+key_security: DEFAULT
+key_type: RSA:2048
+location: Here
+role: DESKTOP
+title: Device
 ```
 
 **To overwrite an existing device identification**, do:
@@ -164,6 +166,16 @@ To output to a file, simply
 Create a package to manually install `px-device-identity`:
 
 ```bash
-python setup.py sdist --format=tar
+python3 setup.py sdist --format=tar
 pip install px-device-identity-0.*.*.tar
+```
+
+Development
+
+```
+guix environment \
+--pure python \
+--ad-hoc python-idna python-requests python-authlib-0.14.3 python-exitstatus-2.0.1 \
+python-pycryptodomex python-jose python-pyyaml-v5.3.1 python-shortuuid-v1.0.1 \
+python-appdirs tpm2-tss tpm2-tss-engine python-setuptools python-psutil
 ```

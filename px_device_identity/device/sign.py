@@ -4,20 +4,23 @@ from Cryptodome.PublicKey import RSA, ECC
 from Cryptodome.Signature import PKCS1_v1_5, DSS
 from Cryptodome.Hash import SHA256, SHA384, SHA512
 
+from px_device_identity.log import Logger
+
 from .filesystem import Filesystem, create_tmp_path, remove_tmp_path
 from .config import KEY_DIR
 from .util import b64encode, split_key_type, handle_result
-from .log import Logger
 
 log = Logger(__name__)
 
 
 class Sign:
     '''Sign message using RSA/ECC keys'''
-    def __init__(self, operation_class, message, key_dir=KEY_DIR):
-        self.security = vars(operation_class)['security']
-        self.key_type = vars(operation_class)['key_type']
-        self.message = message
+    def __init__(
+        self, device_properties: 'DeviceProperties', message: str, key_dir=KEY_DIR
+    ):
+        self.key_security: str = device_properties.key_security
+        self.key_type: str = device_properties.key_type
+        self.message: str = message
         self.key_dir = key_dir
         self.private_key_dir = key_dir + 'private.pem'
         self.public_key_dir = key_dir + 'public.pem'
@@ -145,15 +148,16 @@ class Sign:
         return signature
 
     def sign(self):
+        '''Sign the message'''
         key_cryptography = split_key_type(self.key_type)[0]
-        log.info('=> Signing message with type {}'.format(self.security))
-        if self.security == 'DEFAULT':
+        log.info('=> Signing message with type {}'.format(self.key_security))
+        if self.key_security == 'default':
             fs = Filesystem(self.key_dir, 'private.pem', 'rb')
             if key_cryptography == 'RSA':
                 return self._sign_with_rsa_signing_key(fs.open_file())
             elif key_cryptography == 'ECC':
                 return self._sign_with_ecc_signing_key(fs.open_file())
-        if self.security == 'TPM':
+        if self.key_security == 'tpm':
             if key_cryptography == 'RSA':
                 return self._sign_with_rsa_tpm_signing_key()
             elif key_cryptography == 'ECC':

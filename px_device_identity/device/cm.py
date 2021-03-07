@@ -4,31 +4,51 @@ from time import sleep
 from json import loads as json_loads
 from requests import post, get
 
-from .classes import DeviceRegistration
-from .log import Logger
+from px_device_identity.log import Logger
+
+from .host import system_information
 
 log = Logger(__name__)
 
 
 class CM:
     '''Central Management communication'''
-    def __init__(self, registration: DeviceRegistration, host: str):
-        self.registration = registration
-        self.host = host
+    def __init__(self, registration: 'DeviceRegistrationProperties'):
+        self.public_key = registration.public_key
+        self.device_properties: 'DeviceProperties' = registration.device_properties
+
+        self.api_register = self.device_properties.host + '/devices/registration'
+        self.api_status = self.device_properties.host + '/devices/registration/status/'
+
+    def _registration_content(self):
+        system = system_information()
+        content = {
+            "publicKey": self.public_key,
+            "title": self.device_properties.title,
+            "location": self.device_properties.location,
+            "domain": self.device_properties.domain,
+            "role": self.device_properties.role,
+            "operatingSystem": system['operating_system'],
+            "operatingSystemRelease": system['operating_system_release'],
+            "systemArchitecture": system['system_architecture'],
+            "systemMemory": system['system_memory']
+        }
+        return content
 
     def _post_registration(self):
         '''Post new device registration'''
         try:
-            api_url = self.host +  '/devices/registration'
-            log.info("=> Posting registration to {}".format(api_url))
-            log.info(self.registration)
-            result = post(api_url, json=self.registration)
+            log.info("=> Posting registration to {}".format(self.api_register))
+            log.info(self._registration_content)
+            result = post(self.api_register, json=self._registration_content())
             log.info(result)
             log.info(result.text)
             if result.status_code == 201:
                 formatted_result = json_loads(result.text)
                 verification_code: str = formatted_result["verification_code"]
+                log.info("------")
                 log.info("Received verification code: {}".format(verification_code))
+                log.info("------")
                 return verification_code
             else:
                 log.error("Could not post device registration.")
@@ -41,7 +61,7 @@ class CM:
     def check_registration_result(self, verification_code: str):
         '''Check device registration result'''
         try:
-            api_url = self.host + '/devices/registration/status/' + str(verification_code)
+            api_url = self.api_status + str(verification_code)
             return get(api_url)
         except:
             log.error("Something went wrong checking for the registration result.")

@@ -1,10 +1,10 @@
+'''PantherX Device Identity'''
+
 from .main import main
-from .device import Device
-from .sign import Sign
-from .log import Logger
-from .classes import (
-    DeviceClass,
-    DeviceRegistration,
-    RequestedOperation
+from .device import (
+    Device,
+    DeviceProperties
 )
-from .config import DeviceConfig
+from .util import is_superuser_or_quit
+from .classes import OperationProperties
+from .log import Logger
