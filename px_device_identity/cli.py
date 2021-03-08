@@ -17,7 +17,7 @@ def get_cl_arguments():
     '''Command line arguments'''
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--operation", type=str, required=True,
-                        choices=['INIT', 'SIGN', 'GET_JWK', 'GET_JWKS'],
+                        choices=['INIT', 'SIGN', 'GET_JWK', 'GET_JWKS', 'GET_ACCESS_TOKEN'],
                         help="Primary operations."
                        )
     parser.add_argument("-s", "--security", type=str, default='DEFAULT',

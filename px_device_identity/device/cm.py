@@ -2,10 +2,12 @@
 
 from time import sleep
 from json import loads as json_loads
-from requests import post, get
+from requests import post, get, ConnectionError
 
 from px_device_identity.log import Logger
 
+
+from .jwt import get_unix_time_in_seconds
 from .host import system_information
 
 log = Logger(__name__)
@@ -13,17 +15,19 @@ log = Logger(__name__)
 
 class CM:
     '''Central Management communication'''
-    def __init__(self, registration: 'DeviceRegistrationProperties'):
-        self.public_key = registration.public_key
-        self.device_properties: 'DeviceProperties' = registration.device_properties
+    def __init__(self, device_properties: 'DeviceProperties'):
+        self.device_properties = device_properties
 
-        self.api_register = self.device_properties.host + '/devices/registration'
-        self.api_status = self.device_properties.host + '/devices/registration/status/'
+        self.api_register_url = self.device_properties.host + '/devices/registration'
+        self.api_status_url = self.device_properties.host + '/devices/registration/status/'
+        self.api_token_url = self.device_properties.host + '/oidc/token'
+        '''Set once the device registration has been posted'''
+        self.verification_code = None
 
-    def _registration_content(self):
+    def _registration_content(self, registration: 'DeviceRegistrationProperties'):
         system = system_information()
         content = {
-            "publicKey": self.public_key,
+            "publicKey": registration.public_key,
             "title": self.device_properties.title,
             "location": self.device_properties.location,
             "domain": self.device_properties.domain,
@@ -35,50 +39,49 @@ class CM:
         }
         return content
 
-    def _post_registration(self):
+    def _post_registration(self, registration: 'DeviceRegistrationProperties') -> str:
         '''Post new device registration'''
         try:
-            log.info("=> Posting registration to {}".format(self.api_register))
-            log.info(self._registration_content)
-            result = post(self.api_register, json=self._registration_content())
-            log.info(result)
-            log.info(result.text)
+            log.info("=> Posting registration to {}".format(self.api_register_url))
+            result = post(self.api_register_url, json=self._registration_content(registration))
             if result.status_code == 201:
                 formatted_result = json_loads(result.text)
                 verification_code: str = formatted_result["verification_code"]
                 log.info("------")
+                log.info("")
                 log.info("Received verification code: {}".format(verification_code))
+                log.info("")
                 log.info("------")
-                return verification_code
+                self.verification_code = verification_code
             else:
-                log.error("Could not post device registration.")
-                if result.content:
-                    log.error(result.content)
-        except:
-            log.error("Something went wrong posting the registration.")
-        return False
+                log.error("Could not post device registration. Status {}".format(result.status_code))
+        except ConnectionError:
+            log.error('Connection to {} failed. Please verify the address.'.format(self.api_register_url))
+            raise
+        except Exception as err:
+            raise err
 
-    def check_registration_result(self, verification_code: str):
+    def check_registration_result(self):
         '''Check device registration result'''
         try:
-            api_url = self.api_status + str(verification_code)
+            api_url = self.api_status_url + str(self.verification_code)
             return get(api_url)
-        except:
-            log.error("Something went wrong checking for the registration result.")
-        return False
+        except Exception as err:
+            log.error("Something went wrong checking for the registration result: {}".format(err))
+            raise err
 
-    def _check_registration_result_retry(self, verification_code: str):
+    def _check_registration_result_retry(self):
         '''Check device registration result after 60 seconds'''
         wait_time = 60
-        result = self.check_registration_result(verification_code)
+        result = self.check_registration_result()
         if result is not False:
             return result
         else:
             log.warning("Will try one more time in {}s".format(wait_time))
             sleep(wait_time)
-            return self.check_registration_result(verification_code)
+            return self.check_registration_result()
 
-    def _check_registration_result_loop(self, verification_code: str):
+    def _check_registration_result_loop(self):
         '''Loop to check device registration until definite result'''
         limit = 200
         wait_time = 10
@@ -88,7 +91,7 @@ class CM:
         for i in range(limit):
             if i == limit:
                 log.warning('Last try!')
-            result = self._check_registration_result_retry(verification_code)
+            result = self._check_registration_result_retry()
             if result is False:
                 return result
             status_code = result.status_code
@@ -117,21 +120,37 @@ class CM:
                     client_id: str = str(result_formatted["clientId"])
                     return device_id, client_id
                 if status == 'error':
-                    log.error("Something went wrong during.")
-                    return False
+                    raise Exception('Something went wrong: Received an error from the server.')
             else:
                 log.error("Request failed with status code {}".format(status_code))
                 if status_code == 404:
                     log.error("Cannot find pending registration. Did you register already?")
-        return False
+                if status_code == 500:
+                    log.error("Did not receive expected response from the server. Please contact the administrator.")
+                    raise Exception('Did not receive expected response from the server. Please contact the administrator.')
 
-    def register_device(self):
+    def register_device(self, registration: 'DeviceRegistrationProperties'):
         '''Register the device'''
-        registration_result = self._post_registration()
-        if registration_result is not False:
-            verification_code: str = registration_result
-            registration_approval = self._check_registration_result_loop(verification_code)
-            if registration_approval is not False:
-                device_id, client_id = registration_approval
-                return device_id, client_id
-        return False
+        self._post_registration(registration)
+        log.info('=> Initial request done. Checking for result ...')
+        device_id, client_id = self._check_registration_result_loop()
+        return device_id, client_id
+
+    def request_access_token(self, device_jwt: str):
+        form = {
+            'grant_type': 'client_credentials',
+            'client_id': self.device_properties.client_id,
+            'client_assertion_type': 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+            'client_assertion': device_jwt
+        }
+
+        response = post(self.api_token_url, form)
+        if response.status_code == 200:
+            response_content = response.json()
+            token_expiration = response_content['expires_in'] + get_unix_time_in_seconds()
+            return {
+                'access_token': response_content['access_token'],
+                'expires_at': token_expiration
+            }
+        if response.status_code == 401:
+            raise Error('Not authorized to request a new token.')

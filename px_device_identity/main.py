@@ -11,6 +11,7 @@ from .log import Logger
 from .util import is_superuser_or_quit
 from .classes import OperationProperties
 from .device import Device, DeviceProperties
+import json
 
 log = Logger(__name__)
 
@@ -64,6 +65,9 @@ def main():
 
     if operation.action == 'SIGN':
         return device.sign(message)
+
+    if operation.action == 'GET_ACCESS_TOKEN':
+        return json.dumps(device.get_access_token())
 
 if __name__ == '__main__':
     main()

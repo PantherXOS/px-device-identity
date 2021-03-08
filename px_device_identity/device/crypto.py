@@ -24,7 +24,6 @@ class Crypto:
         self.key_dir = key_dir
         self.private_key_path = key_dir + 'private.pem'
         self.public_key_path = key_dir + 'public.pem'
-        print(self.key_security)
 
     def generate_private_key(self):
         key_cryptography, key_strength = split_key_type(self.key_type)
@@ -53,6 +52,7 @@ class Crypto:
                         return True
                 except EnvironmentError as err:
                     log.error(err)
+                    raise err
 
             elif key_cryptography == 'ECC':
                 key_strength = 'nist_' + key_strength
@@ -72,6 +72,7 @@ class Crypto:
                         return True
                 except EnvironmentError as err:
                     log.error(err)
+                    raise err
 
         log.error('Could not generate TPM private key.')
         sys.exit(ExitStatus.failure)

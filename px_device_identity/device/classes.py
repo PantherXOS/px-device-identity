@@ -11,9 +11,9 @@ def generate_random_name(role: str, domain: str) -> str:
     '''Generates a random device name'''
     try:
         return role + '-' + shortuuid.uuid(name=domain)
-    except:
+    except Exception as e:
         log.error("Could not generate device ID with uuid.NAMESPACE_URL {}".format(domain))
-        sys.exit(ExitStatus.failure)
+        raise e
 
 
 @dataclass
@@ -36,6 +36,9 @@ class DeviceProperties:
 
         if self.domain is not None or self.domain == 'Undefined':
             self.is_managed = True
+
+        if self.location is None:
+            self.location = 'Undefined'
 
         self.role = self.role.lower()
         self.key_security = self.key_security.lower()

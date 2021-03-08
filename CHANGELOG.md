@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.9.1]
+### Added
+
+- Now supports fetching an access token `--operation GET_ACCESS_TOKEN`
+
 ## [0.9.0]
 ### Changed
 

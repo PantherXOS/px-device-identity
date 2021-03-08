@@ -12,6 +12,7 @@ from .config import DeviceConfig, CONFIG_DIR, CONFIG_FILE, KEY_DIR
 from .cm import CM
 from .crypto import Crypto
 from .sign import Sign
+from .jwt import generate_jwt_signature_content, get_device_token_jwt_claim
 
 log = Logger(__name__)
 
@@ -42,17 +43,15 @@ class Device:
         log.info("This is a MANAGED device.")
         public_key = JWK(properties).get_jwks()
         registration = DeviceRegistrationProperties(public_key, properties)
-        result = CM(registration).register_device()
-        if result is False:
-            log.error("Did not receive the expected response from remote server.")
-            sys.exit(ExitStatus.failure)
-        device_id = result[0]
-        client_id = result[1]
-
-        properties.id = device_id
-        properties.client_id = client_id
-
-        self.config.save(properties)
+        try:
+            result = CM(device_properties).register_device(registration)
+            properties.id = result[0] # device_id
+            properties.client_id = result[1] # client_id
+            self.config.save(properties)
+        except Exception as err:
+            log.error("Could not complete device registration.")
+            log.error(err)
+            raise err
 
     def _init_standalone(self, properties: 'DeviceProperties'):
         '''Initiate standalone device'''
@@ -75,14 +74,17 @@ class Device:
         else:
             log.info("=> Initiating a new device")
             self._recreate()
-        # log.info("Device has been initiated")
 
         create_keys(properties)
 
-        if is_managed:
-            self._init_managed(properties)
-        else:
-            self._init_standalone(properties)
+        try:
+            if is_managed:
+                self._init_managed(properties)
+            else:
+                self._init_standalone(properties)
+        except Exception as e:
+            log.info('=> Rolling back all changes.')
+            self.destroy()
 
     def destroy(self):
         '''Delete device configuration and key(s)'''
@@ -109,3 +111,15 @@ class Device:
     def sign(self, message: str):
         '''Sign the message'''
         return Sign(self.properties, message).sign()
+
+    def get_access_token(self):
+        '''Get Device access token and store it in data dir'''
+        device_token_jwt_claim = get_device_token_jwt_claim(self.properties)
+        signature_content = generate_jwt_signature_content(device_token_jwt_claim)
+        signature = Sign(self.properties, signature_content).sign()
+        device_jwt = "{}.{}".format(signature_content, signature)
+
+        response = CM(self.properties).request_access_token(device_jwt)
+        '''Response contains access_token, expires_at'''
+        return response
+

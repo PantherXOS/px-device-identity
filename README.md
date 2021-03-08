@@ -55,21 +55,21 @@ $ px-device-identity --operation INIT --security <DEFAULT|TPM>
 All options:
 
 ```bash
-$ px-device-identity --operation INIT --security <DEFAULT|TPM> --type <DESKTOP|SERVER|CLOUD|ENTERPRISE> --keytype <RSA:2048|RSA:3072|ECC:p256|ECC:p384|ECC:p521>
+$ px-device-identity --operation INIT --security <DEFAULT|TPM> --rike <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL> --keytype <RSA:2048|RSA:3072|ECC:p256|ECC:p384|ECC:p521>
 ```
 
 A good default for devices without TPM2 support is:
 
 ```bash
-$ px-device-identity --operation INIT --security DEFAULT --type <DESKTOP|SERVER|CLOUD|ENTERPRISE> --keytype ECC:p256
+$ px-device-identity --operation INIT --security DEFAULT --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL> --keytype ECC:p256
 ```
 
 **Managed**
 
-Defaults to _type_ `DESKTOP`:
+Defaults to _role_ `DESKTOP`:
 
 ```bash
-$ px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --security <DEFAULT|TPM> --type <DESKTOP|SERVER|CLOUD|ENTERPRISE>
+$ px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL>
 ```
 
 - `DEFAULT` - private key stored as PEM file
@@ -85,34 +85,21 @@ This generates the following files:
 
 The `device.yml` contains the device configuration:
 
-```yml
-id: str # ['UUID4', 'NanoID']
-clientId: str
-deviceType: str # ['DESKTOP', 'SERVER', 'CLOUD', 'ENTERPRISE']
-keySecurity: str # ['DEFAULT', 'TPM']
-keyType: str # ['RSA:bitrate', 'ECDSA:curve']
-isManaged: bool # [true, false]
-host: str # ['NONE', 'https://....']
-domain: str # ['NONE', 'pantherx.org']
-configVersion: str # ['*.*.*']
-initiatedOn: dateTime # ['2020-07-03 23:02:36.733746']
-```
-
-Here's an example for a managed desktop):
+Here's an example for a managed desktop:
 
 ```yml
-client_id: d0da9a59-9f59-4f57-b9a9-1eb46bb68239
+client_id: d5fe8500-6003-49fd-9b8f-7adaf102e9a3
 config_version: 0.0.3
 domain: pantherx.org
-host: https://identity.pantherx.org
-id: b2dfd845-74eb-4674-8545-4da597e487ad
-initiated_on: '2021-03-06 21:31:14.567076'
+host: http://127.0.0.1:4000
+id: 8b477978-c63d-46f5-9492-67fafdd0d68e
+initiated_on: '2021-03-08 15:22:00.816527'
 is_managed: true
-key_security: DEFAULT
+key_security: default
 key_type: RSA:2048
-location: Here
-role: DESKTOP
-title: Device
+location: undefined
+role: desktop
+title: DESKTOP-MkVLwku9JybTrq9MkgjeU2
 ```
 
 **To overwrite an existing device identification**, do:
@@ -140,6 +127,18 @@ px-device-identity --operation SIGN --message <MESSAGE>
 ```
 
 returns `base64`
+
+### Sign a hash
+
+```bash
+px-device-identity --operation GET_ACCESS_TOKEN
+```
+
+returns
+
+```json
+{"access_token": "_Y6E2rRFcQBGu6uRAlahCqw_5ChSLXtqoPUgy82Wbil", "expires_at": 1615231820}
+```
 
 #### Example for JWT
 
