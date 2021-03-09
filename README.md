@@ -128,7 +128,7 @@ px-device-identity --operation SIGN --message <MESSAGE>
 
 returns `base64`
 
-### Sign a hash
+### Get access token
 
 ```bash
 px-device-identity --operation GET_ACCESS_TOKEN
