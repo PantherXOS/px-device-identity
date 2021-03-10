@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.9.3]
+### Fixed
+
+- Variable error
+
+
 ## [0.9.2]
 ### Added
 

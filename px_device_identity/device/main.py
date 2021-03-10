@@ -44,7 +44,7 @@ class Device:
         public_key = JWK(properties).get_jwks()
         registration = DeviceRegistrationProperties(public_key, properties)
         try:
-            result = CM(device_properties).register_device(registration)
+            result = CM(properties).register_device(registration)
             properties.id = result[0] # device_id
             properties.client_id = result[1] # client_id
             self.config.save(properties)
