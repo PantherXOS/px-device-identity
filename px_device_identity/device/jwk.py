@@ -1,13 +1,14 @@
+import logging
 import sys
 from json import dumps as json_dumps
+
 from authlib.jose import jwk
 from exitstatus import ExitStatus
 
-from px_device_identity.log import Logger
-from .util import split_key_type
 from .config import KEY_DIR
+from .util import split_key_type
 
-log = Logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class JWK:

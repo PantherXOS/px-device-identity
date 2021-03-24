@@ -1,9 +1,9 @@
+import logging
+from os import makedirs, mkdir, path, times
 from shutil import rmtree
-from os import mkdir, path, times, makedirs
 from tempfile import gettempdir
 
-from px_device_identity.log import Logger
-log = Logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class Filesystem():
@@ -50,7 +50,7 @@ class Filesystem():
             raise EnvironmentError(err)
 
     def open_file(self):
-        log.info("=> Opening file at {}".format(self.file_path))
+        log.debug("=> Opening file at {}".format(self.file_path))
         if self.file_exists:
             buffering = 0
             if self.mode == 'r':
@@ -66,7 +66,7 @@ class Filesystem():
 def create_tmp_path() -> str:
     tmp_path = path.join(gettempdir(), '.{}'.format(hash(times())))
     try:
-        log.info("=> Creating temp directory at {}".format(tmp_path))
+        log.debug("=> Creating temp directory at {}".format(tmp_path))
         mkdir(tmp_path)
     except EnvironmentError as err:
         log.error("Could not create temp directory.")
@@ -75,5 +75,5 @@ def create_tmp_path() -> str:
         return tmp_path
 
 def remove_tmp_path(tmp_path):
-    log.info("=> Removing temp directory at '{}'.".format(tmp_path))
+    log.debug("=> Removing temp directory at '{}'.".format(tmp_path))
     rmtree(tmp_path, ignore_errors=True)

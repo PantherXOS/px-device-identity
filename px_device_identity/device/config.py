@@ -1,18 +1,18 @@
 '''Configuration'''
 
+import logging
 import platform
 from datetime import datetime
 from pathlib import Path
 
 import yaml
 from appdirs import user_config_dir, user_data_dir
-from px_device_identity.log import Logger
 
 from .classes import DeviceProperties
 from .config_schema import CONFIG_SCHEMA
 
-log = Logger(__name__)
-
+log = logging.getLogger(__name__)
+opsys = platform.system()
 
 KEY_DIR_LEGACY = str(Path.home()) + '/.config/device/'
 KEY_DIR = user_data_dir("px-device-identity") + '/'
@@ -21,15 +21,12 @@ KEY_DIR = user_data_dir("px-device-identity") + '/'
 # On Linux we default to `/etc/px-devide-identity/device.yml`
 # On Windows we fall-back to whatever's the system default
 
-opsys = platform.system()
-
 CONFIG_DIR = '/etc/px-device-identity/'
 if opsys == 'Windows':
     CONFIG_DIR = user_config_dir("px-device-identity") + '/'
 
 CONFIG_FILE = CONFIG_DIR + 'device.yml'
-
-CONFIG_VERSION = '0.0.2'
+CONFIG_VERSION = '0.0.3'
 
 
 class DeviceConfig():
@@ -43,12 +40,6 @@ class DeviceConfig():
         return self.latest_version == config['configVersion']
 
     def _get_config_from_dict(self, config: dict, version: str):
-        #device_config = {}
-        #for key in self.config_schema[version]:
-        #    device_config[
-        #        self.config_schema[version][key]
-        #    ] = config[self.config_schema[version][key]]
-        #return device_config
         device_properties = DeviceProperties(
             title=config['title'],
             location=config['location'],
@@ -71,7 +62,7 @@ class DeviceConfig():
             fs_device_writer.write(yaml.dump(config))
 
     def _load_yaml_from_file(self):
-        print('=> Loading device config from {}.'.format(self.config_path))
+        log.debug('=> Loading device config from {}.'.format(self.config_path))
         with open(self.config_path, 'r') as fs_reader:
             file = fs_reader.read()
             return yaml.load(file, Loader=yaml.BaseLoader)
@@ -110,12 +101,12 @@ class DeviceConfig():
                 'id': properties.id,
                 'client_id': properties.client_id,
                 'is_managed': properties.is_managed,
-                'config_version': '0.0.3',
+                'config_version': self.latest_version,
                 'initiated_on': str(datetime.now())
             }
             self._save_config_to_file(config)
         except Exception as err:
-            print(err)
+            log.warning(err)
             raise err
 
     def get(self):

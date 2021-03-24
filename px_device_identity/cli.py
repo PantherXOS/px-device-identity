@@ -1,16 +1,16 @@
 '''Command line interface'''
 
 import argparse
+import logging
 import sys
 
 from exitstatus import ExitStatus
 
-from .device import DeviceProperties
 from .classes import OperationProperties
-from .log import Logger
+from .device import DeviceProperties
 from .util import is_fqdn
 
-log = Logger(__name__)
+log = logging.getLogger(__name__)
 
 
 def get_cl_arguments():
@@ -85,8 +85,6 @@ def get_cl_arguments():
         args.domain,
         args.address
     )
-
-    print(device_properties)
 
     return {
         'operation': operation,

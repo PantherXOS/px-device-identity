@@ -1,16 +1,15 @@
 '''Central Management Module: Communication with identity server.'''
 
-from time import sleep
+import logging
 from json import loads as json_loads
-from requests import post, get, ConnectionError
+from time import sleep
 
-from px_device_identity.log import Logger
+from requests import ConnectionError, get, post
 
-
-from .jwt import get_unix_time_in_seconds
 from .host import system_information
+from .jwt import get_unix_time_in_seconds
 
-log = Logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class CM:
@@ -47,11 +46,10 @@ class CM:
             if result.status_code == 201:
                 formatted_result = json_loads(result.text)
                 verification_code: str = formatted_result["verification_code"]
-                log.info("------")
-                log.info("")
-                log.info("Received verification code: {}".format(verification_code))
-                log.info("")
-                log.info("------")
+                log.info("    ------------------")
+                log.info("    Received verification code: {}".format(verification_code))
+                log.info("    -> Awaiting confirmation from administrator.")
+                log.info("    ------")
                 self.verification_code = verification_code
             else:
                 log.error("Could not post device registration. Status {}".format(result.status_code))
@@ -99,7 +97,7 @@ class CM:
             if status_code == 200:
                 waited_time_approx += wait_time + 1
                 status = result_formatted["status"]
-                log.info('Request status: {}'.format(status))
+                log.debug('Request status: {}'.format(status))
                 if status == 'pending':
                     timeout = total_time_approx - waited_time_approx
                     log.info(
@@ -132,7 +130,7 @@ class CM:
     def register_device(self, registration: 'DeviceRegistrationProperties'):
         '''Register the device'''
         self._post_registration(registration)
-        log.info('=> Initial request done. Checking for result ...')
+        log.debug('=> Initial request done. Checking for result ...')
         device_id, client_id = self._check_registration_result_loop()
         return device_id, client_id
 

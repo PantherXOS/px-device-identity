@@ -1,21 +1,21 @@
 '''PantherX Device Identity'''
 
+import json
 import sys
-import pkg_resources
+import logging
 
+import pkg_resources
 from exitstatus import ExitStatus
 
-from .cli import get_cl_arguments
-from .log import Logger
-# from .migration import first_migration_key_dir, second_migration_add_config_key_domain
-from .util import is_superuser_or_quit
+from .log import *
 from .classes import OperationProperties
+from .cli import get_cl_arguments
 from .device import Device, DeviceProperties
-import json
-
-log = Logger(__name__)
+from .util import is_superuser_or_quit
 
 version = pkg_resources.require("px_device_identity")[0].version
+
+log = logging.getLogger(__name__)
 
 
 def main():
@@ -51,7 +51,7 @@ def main():
             device.init(device_properties)
         except:
             print(sys.exc_info()[0])
-            log.info("Something went wrong.")
+            log.error("Something went wrong.", )
             sys.exit(ExitStatus.failure)
 
         sys.exit(ExitStatus.success)

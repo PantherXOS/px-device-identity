@@ -1,10 +1,11 @@
+import logging
 import sys
-from dataclasses import dataclass
 import uuid
-import shortuuid
-from px_device_identity.log import Logger
+from dataclasses import dataclass
 
-log = Logger(__name__)
+import shortuuid
+
+log = logging.getLogger(__name__)
 
 
 def generate_random_name(role: str, domain: str) -> str:

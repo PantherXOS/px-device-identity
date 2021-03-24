@@ -1,11 +1,10 @@
+import logging
 import platform
 import re
 import sys
 from getpass import getuser
 
-from .log import Logger
-
-log = Logger(__name__)
+log = logging.getLogger(__name__)
 
 
 def is_fqdn(hostname: str) -> bool:

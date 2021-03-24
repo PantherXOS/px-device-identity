@@ -1,9 +1,9 @@
 import sys
+import logging
 from shutil import rmtree
 from os.path import isdir
 from json import dumps as json_dumps
 from exitstatus import ExitStatus
-from px_device_identity.log import Logger
 from .filesystem import Filesystem
 from .jwk import JWK
 from .util import is_initiated
@@ -14,7 +14,7 @@ from .crypto import Crypto
 from .sign import Sign
 from .jwt import generate_jwt_signature_content, get_device_token_jwt_claim
 
-log = Logger(__name__)
+log = logging.getLogger(__name__)
 
 
 def create_keys(properties: 'DeviceProperties'):
@@ -40,7 +40,7 @@ class Device:
 
     def _init_managed(self, properties: 'DeviceProperties'):
         '''Initiated managed device'''
-        log.info("This is a MANAGED device.")
+        log.debug("This is a MANAGED device.")
         public_key = JWK(properties).get_jwks()
         registration = DeviceRegistrationProperties(public_key, properties)
         try:
@@ -49,13 +49,12 @@ class Device:
             properties.client_id = result[1] # client_id
             self.config.save(properties)
         except Exception as err:
-            log.error("Could not complete device registration.")
-            log.error(err)
+            log.error("Could not complete device registration.", stack_info=err)
             raise err
 
     def _init_standalone(self, properties: 'DeviceProperties'):
         '''Initiate standalone device'''
-        log.info('This device does not belong to any organization (UNMANAGED).')
+        log.debug('This device does not belong to any organization (UNMANAGED).')
         self.config.save(properties)
 
     def init(self, properties: 'DeviceProperties') -> bool:
@@ -89,10 +88,10 @@ class Device:
     def destroy(self):
         '''Delete device configuration and key(s)'''
         if isdir(self.key_dir):
-            log.info('=> Deleting {}'.format(self.key_dir))
+            log.debug('=> Deleting {}'.format(self.key_dir))
             rmtree(self.key_dir)
         if isdir(self.config_dir):
-            log.info('=> Deleting {}'.format(self.config_dir))
+            log.debug('=> Deleting {}'.format(self.config_dir))
             rmtree(self.config_dir)
 
     def _recreate(self):

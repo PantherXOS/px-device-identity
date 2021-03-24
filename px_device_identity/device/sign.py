@@ -1,16 +1,15 @@
+import logging
 import subprocess
 
-from Cryptodome.PublicKey import RSA, ECC
-from Cryptodome.Signature import PKCS1_v1_5, DSS
 from Cryptodome.Hash import SHA256, SHA384, SHA512
+from Cryptodome.PublicKey import ECC, RSA
+from Cryptodome.Signature import DSS, PKCS1_v1_5
 
-from px_device_identity.log import Logger
-
-from .filesystem import Filesystem, create_tmp_path, remove_tmp_path
 from .config import KEY_DIR
-from .util import b64encode, split_key_type, handle_result
+from .filesystem import Filesystem, create_tmp_path, remove_tmp_path
+from .util import b64encode, handle_result, split_key_type
 
-log = Logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class Sign:
@@ -49,7 +48,7 @@ class Sign:
 
     def _write_message_to_temp_path(self, message, file_path) -> bool:
         '''Write message to file before signing'''
-        log.info("=> Writing message '{}' to {}".format(message, file_path))
+        log.debug("=> Writing message '{}' to {}".format(message, file_path))
         try:
             with open(file_path, 'wb') as message_writer:
                 message_writer.write(message)
@@ -60,7 +59,7 @@ class Sign:
 
     def _get_signature_from_temp_path(self, file_path):
         '''Get signature from file after signing'''
-        log.info("=> Reading signature from {}.".format(file_path))
+        log.debug("=> Reading signature from {}.".format(file_path))
         try:
             with open(file_path, 'rb', buffering=0) as signature_reader:
                 signature = signature_reader.read()
@@ -71,7 +70,7 @@ class Sign:
     def _sign_with_ecc_tpm_signing_key(self):
         '''Sign with ECC keys (TPM)'''
         key_strength = split_key_type(self.key_type)[1]
-        log.info("=> Signing '{}' with TPM ECC key".format(self.message))
+        log.debug("=> Signing '{}' with TPM ECC key".format(self.message))
         msg = ''
         digest = ''
         if key_strength == 'p256':
@@ -92,7 +91,7 @@ class Sign:
         result = self._write_message_to_temp_path(message_digest, message_tmp_file_path)
         handle_result(result, "Could not write message to path.", tmp_path)
 
-        log.info('=> Engaging openssl to sign message hash with ECC key.')
+        log.debug('=> Engaging openssl to sign message hash with ECC key.')
         try:
             digest = "digest:" + digest
             result = subprocess.run([
@@ -115,7 +114,7 @@ class Sign:
 
     def _sign_with_rsa_tpm_signing_key(self):
         '''Sign with RSA keys (TPM)'''
-        log.info("=> Signing '{}' with TPM RSA key".format(self.message))
+        log.debug("=> Signing '{}' with TPM RSA key".format(self.message))
         msg = SHA256.new(self.message.encode('utf8'))
         message_digest = msg.digest()
 
@@ -126,7 +125,7 @@ class Sign:
         result = self._write_message_to_temp_path(message_digest, message_tmp_file_path)
         handle_result(result, "Could not write message to path.", tmp_path)
 
-        log.info('=> Engaging openssl to sign message hash with RSA key.')
+        log.debug('=> Engaging openssl to sign message hash with RSA key.')
         try:
             result = subprocess.run([
                 "openssl", "pkeyutl",

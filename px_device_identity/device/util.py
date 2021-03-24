@@ -1,14 +1,14 @@
+import logging
 import sys
 from base64 import urlsafe_b64decode, urlsafe_b64encode
+
 from authlib.jose import jwk
 from exitstatus import ExitStatus
 
-from px_device_identity.log import Logger
+from .config import KEY_DIR, DeviceConfig
 from .filesystem import remove_tmp_path
 
-from .config import DeviceConfig, KEY_DIR
-
-log = Logger(__name__)
+log = logging.getLogger(__name__)
 
 
 def is_initiated() -> bool:
@@ -16,7 +16,7 @@ def is_initiated() -> bool:
     try:
         device_properties = DeviceConfig().get()
         if len(device_properties.id) == 21:
-            log.info('Found Nano ID. Assuming MANAGED device.')
+            log.debug('Found Nano ID. Assuming MANAGED device.')
         #else:
         #    UUID(device_properties.id, version=4)
         try:

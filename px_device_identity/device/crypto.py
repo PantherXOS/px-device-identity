@@ -1,3 +1,4 @@
+import logging
 import os.path
 import subprocess
 import sys
@@ -5,15 +6,11 @@ import sys
 from Cryptodome.PublicKey import ECC, RSA
 from exitstatus import ExitStatus
 
-from px_device_identity.log import Logger
-
-from .util import split_key_type
-from .filesystem import Filesystem
-
 from .config import KEY_DIR
+from .filesystem import Filesystem
+from .util import split_key_type
 
-
-log = Logger(__name__)
+log = logging.getLogger(__name__)
 
 
 class Crypto:
@@ -48,7 +45,7 @@ class Crypto:
                     ])
                     # TODO: Sanity check; look for response of process instead
                     if os.path.isfile(self.private_key_path):
-                        log.info('Saved private key.')
+                        log.info('Saved private key to {}'.format(self.private_key_path))
                         return True
                 except EnvironmentError as err:
                     log.error(err)
@@ -68,7 +65,7 @@ class Crypto:
                         sys.exit(ExitStatus)
                     # TODO: Sanity check; look for response of process instead
                     if os.path.isfile(self.private_key_path):
-                        log.info('Saved private key.')
+                        log.info('Saved private key {}'.format(self.private_key_path))
                         return True
                 except EnvironmentError as err:
                     log.error(err)
@@ -78,7 +75,7 @@ class Crypto:
         sys.exit(ExitStatus.failure)
 
     def get_private_key_from_file(self):
-        log.info('=> Loading private key from file')
+        log.debug('=> Loading private key from file')
         try:
             with open(self.private_key_path, 'rb', buffering=0) as reader:
                 return reader.read()
@@ -88,7 +85,7 @@ class Crypto:
 
     def get_public_key_from_private_key(self, key):
         key_cryptography = split_key_type(self.key_type)[0]
-        log.info('=> Loading {} public key from private key.'.format(key_cryptography))
+        log.debug('=> Loading {} public key from private key.'.format(key_cryptography))
         if key_cryptography == 'RSA':
             return key.publickey()
         elif key_cryptography == 'ECC':
@@ -111,7 +108,7 @@ class Crypto:
                 ])
                 # TODO: Sanity check; look for response of process instead
                 if os.path.isfile(self.public_key_path):
-                    log.info('Saved public key.')
+                    log.debug('Saved public key {}'.format(self.public_key_path))
                     return True
             except:
                 pass
@@ -127,7 +124,7 @@ class Crypto:
                 ])
                 # TODO: Sanity check; look for response of process instead
                 if os.path.isfile(self.public_key_path):
-                    log.info('Saved public key.')
+                    log.debug('Saved public key {}'.format(self.public_key_path))
                     return True
             except:
                 pass

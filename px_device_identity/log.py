@@ -1,31 +1,31 @@
-import logging
-from os import environ
 
-import platform
-opsys = platform.system()
+import logging
+from logging.handlers import SysLogHandler
+from platform import system
+opsys = system()
+
+
+log = logging.getLogger('px_device_identity')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+log.setLevel(logging.DEBUG)
 
 if opsys == 'Linux':
     import syslog
 
-logging.basicConfig(level=environ.get("LOGLEVEL", "INFO"))
+    # On Linux we log all events to file
+    fh = logging.FileHandler('/var/log/px-device-identity.log')
+    fh.setLevel(logging.INFO)
+    fh.setFormatter(formatter)
+    log.addHandler(fh)
 
+    #On Linux we engage syslog
+    sh = SysLogHandler()
+    sh.setLevel(logging.WARNING)
+    sh.setFormatter(formatter)
+    log.addHandler(sh)
 
-class Logger:
-    '''Global logger'''
-    def __init__(self, context, application="px-device-identity"):
-        self.context = context
-        self.name = application
-        self.log = logging.getLogger(self.name)
-
-    def info(self, message):
-        self.log.info(message)
-
-    def warning(self, message):
-        self.log.exception(message)
-        if opsys == 'Linux':
-            syslog.syslog(syslog.LOG_WARNING, message)
-
-    def error(self, message):
-        self.log.error(message)
-        if opsys == 'Linux':
-            syslog.syslog(syslog.LOG_ERR, message)
+ch = logging.StreamHandler()
+ch.setLevel(logging.INFO)
+ch.setFormatter(formatter)
+log.addHandler(ch)

@@ -7,4 +7,3 @@ from .device import (
 )
 from .util import is_superuser_or_quit
 from .classes import OperationProperties
-from .log import Logger

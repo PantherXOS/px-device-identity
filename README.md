@@ -55,13 +55,13 @@ $ px-device-identity --operation INIT --security <DEFAULT|TPM>
 All options:
 
 ```bash
-$ px-device-identity --operation INIT --security <DEFAULT|TPM> --rike <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL> --keytype <RSA:2048|RSA:3072|ECC:p256|ECC:p384|ECC:p521>
+$ px-device-identity --operation INIT --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER> --keytype <RSA:2048|RSA:3072|ECC:p256|ECC:p384|ECC:p521>
 ```
 
 A good default for devices without TPM2 support is:
 
 ```bash
-$ px-device-identity --operation INIT --security DEFAULT --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL> --keytype ECC:p256
+$ px-device-identity --operation INIT --security DEFAULT --role <PUBLIC|DESKTOP|SERVER> --keytype ECC:p256
 ```
 
 **Managed**
@@ -69,7 +69,13 @@ $ px-device-identity --operation INIT --security DEFAULT --role <PUBLIC|DESKTOP|
 Defaults to _role_ `DESKTOP`:
 
 ```bash
-$ px-device-identity --operation INIT --address https://idp.dev.pantherx.dev --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL>
+$ px-device-identity --operation INIT --address https://identity.pantherx.dev --domain pantherx.org --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL|REGISTRATION_TERMINAL>
+```
+
+All options:
+
+```bash
+$ px-device-identity --operation INIT --address https://identity.pantherx.dev --domain pantherx.org --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL|REGISTRATION_TERMINAL> --title SomePC --location "Head office"
 ```
 
 - `DEFAULT` - private key stored as PEM file
