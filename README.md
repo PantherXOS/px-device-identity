@@ -40,6 +40,12 @@ $ source venv/bin/activate
 $ pip install .
 ```
 
+### Install with pip package manager
+
+```bash
+pip3 install https://source-git-pantherx-org.s3.eu-central-1.amazonaws.com/px-device-identity_latest.tgz
+```
+
 ## Run
 
 ### Initiate device:
@@ -168,19 +174,25 @@ To output to a file, simply
 > jwk.json
 ```
 
-Create a package to manually install `px-device-identity`:
+## Troubleshooting
+
+Find logs at `/var/log/`
+
+## Development
+
+Create a guix environment like so:
 
 ```bash
-python3 setup.py sdist --format=tar
-pip install px-device-identity-0.*.*.tar
-```
-
-Development
-
-```
 guix environment \
 --pure python \
 --ad-hoc python-idna python-requests python-authlib-0.14.3 python-exitstatus-2.0.1 \
 python-pycryptodomex python-jose python-pyyaml-v5.3.1 python-shortuuid-v1.0.1 \
 python-appdirs tpm2-tss tpm2-tss-engine python-setuptools python-psutil
+```
+
+Create a package to manually install `px-device-identity`:
+
+```bash
+python3 setup.py sdist --format=tar
+pip install px-device-identity-0.*.*.tar
 ```

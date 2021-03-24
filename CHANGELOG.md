@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
 
+## [0.9.5]
+### Changed
+
+- Cleanup command line logs
+- More readable logging time format
+- Log rotation
+
 ## [0.9.4]
 ### Changed
 

@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 def main():
     log.info('------')
-    log.info('Welcome to PantherX Device Identity Service')
+    log.info('Welcome to PantherX Device Identity Service v{}'.format(version))
     log.info('v{}'.format(version))
     log.info('------')
 
