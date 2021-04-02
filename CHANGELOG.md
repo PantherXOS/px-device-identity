@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.9.6]
+### Fixed
+
+- TPM private key would not save if the data directory does not exist
 
 ## [0.9.5]
 ### Changed

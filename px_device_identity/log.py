@@ -20,7 +20,7 @@ if opsys == 'Linux':
     fh.setFormatter(formatter)
     log.addHandler(fh)
 
-    #On Linux we engage syslog
+    # On Linux we engage syslog
     sh = SysLogHandler()
     sh.setLevel(logging.WARNING)
     sh.setFormatter(formatter)

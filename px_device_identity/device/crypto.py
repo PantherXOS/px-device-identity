@@ -34,6 +34,8 @@ class Crypto:
             elif key_cryptography == 'ECC':
                 return ECC.generate(curve=key_strength)
         elif self.key_security == 'tpm':
+            if os.path.isdir(self.private_key_path) == False:
+                os.makedirs(self.private_key_path)
             '''Generate TPM-based key'''
             if key_cryptography == 'RSA':
                 try:

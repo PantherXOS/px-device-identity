@@ -1,18 +1,20 @@
-import sys
 import logging
-from shutil import rmtree
-from os.path import isdir
+import sys
 from json import dumps as json_dumps
+from os.path import isdir
+from shutil import rmtree
+
 from exitstatus import ExitStatus
+
+from .classes import DeviceRegistrationProperties
+from .cm import CM
+from .config import CONFIG_DIR, CONFIG_FILE, KEY_DIR, DeviceConfig
+from .crypto import Crypto
 from .filesystem import Filesystem
 from .jwk import JWK
-from .util import is_initiated
-from .classes import DeviceRegistrationProperties
-from .config import DeviceConfig, CONFIG_DIR, CONFIG_FILE, KEY_DIR
-from .cm import CM
-from .crypto import Crypto
-from .sign import Sign
 from .jwt import generate_jwt_signature_content, get_device_token_jwt_claim
+from .sign import Sign
+from .util import is_initiated
 
 log = logging.getLogger(__name__)
 
