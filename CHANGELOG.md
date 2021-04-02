@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.9.7]
+### Fixed
+
+- Fixed an issue where we'd create a path from filename instead of path
+
 ## [0.9.6]
 ### Fixed
 
