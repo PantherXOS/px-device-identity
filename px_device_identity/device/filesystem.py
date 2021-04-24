@@ -25,7 +25,7 @@ class Filesystem():
         except:
             return False
 
-    def create_path(self) -> True:
+    def create_path(self) -> bool:
         if self.file_dir_exits() is False:
             try:
                 makedirs(self.file_dir)
@@ -33,8 +33,10 @@ class Filesystem():
             except EnvironmentError as err:
                 log.error("Could not create path {}".format(self.file_dir))
                 raise EnvironmentError(err)
+        else:
+            return True
 
-    def create_file(self, content) -> True:
+    def create_file(self, content) -> bool:
         log.info("=> Creating file at {}".format(self.file_path))
         self.create_path()
         if self.mode == 'wb':

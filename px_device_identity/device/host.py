@@ -1,4 +1,5 @@
 import platform
+
 import psutil
 
 def system_information():

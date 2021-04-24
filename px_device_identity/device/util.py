@@ -2,7 +2,6 @@ import logging
 import sys
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 
-from authlib.jose import jwk
 from exitstatus import ExitStatus
 
 from .config import KEY_DIR, DeviceConfig
@@ -14,13 +13,10 @@ log = logging.getLogger(__name__)
 def is_initiated() -> bool:
     '''Checks whether the device has already been initiated'''
     try:
-        device_properties = DeviceConfig().get()
-        if len(device_properties.id) == 21:
-            log.debug('Found Nano ID. Assuming MANAGED device.')
-        #else:
-        #    UUID(device_properties.id, version=4)
+        # Here we try to load the config to see if it exists.
+        DeviceConfig().get()
         try:
-            public_key_path = KEY_DIR + 'public.pem'
+            public_key_path = str(KEY_DIR) + 'public.pem'
             with open(public_key_path) as public_key_reader:
                 public_key_reader.read()
             return True
@@ -76,4 +72,6 @@ def split_key_type(key: str):
         key_strength = int(key_array[1])
     elif key_cryptography == 'ECC':
         key_strength = key_array[1]
+    else:
+        raise Exception('Unexpected format.')
     return key_cryptography, key_strength

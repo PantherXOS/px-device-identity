@@ -1,18 +1,18 @@
-import logging
-import sys
 from json import dumps as json_dumps
+import logging
 from os.path import isdir
 from shutil import rmtree
+import sys
 
 from exitstatus import ExitStatus
 
-from .classes import DeviceRegistrationProperties
+from .classes import DeviceProperties, DeviceRegistrationProperties
 from .cm import CM
-from .config import CONFIG_DIR, CONFIG_FILE, KEY_DIR, DeviceConfig
+from .config import CONFIG_DIR, CONFIG_FILE, DeviceConfig, KEY_DIR
 from .crypto import Crypto
 from .filesystem import Filesystem
 from .jwk import JWK
-from .jwt import generate_jwt_signature_content, get_device_token_jwt_claim
+from .jwt import generate_signature_content_from_dict, get_device_jwt_content
 from .sign import Sign
 from .util import is_initiated
 
@@ -51,7 +51,7 @@ class Device:
             properties.client_id = result[1] # client_id
             self.config.save(properties)
         except Exception as err:
-            log.error("Could not complete device registration.", stack_info=err)
+            log.error("Could not complete device registration.", exc_info=err)
             raise err
 
     def _init_standalone(self, properties: 'DeviceProperties'):
@@ -59,7 +59,7 @@ class Device:
         log.debug('This device does not belong to any organization (UNMANAGED).')
         self.config.save(properties)
 
-    def init(self, properties: 'DeviceProperties') -> bool:
+    def init(self, properties: 'DeviceProperties'):
         '''Initiate the device'''
         is_managed = properties.is_managed
         if self.is_initiated:
@@ -83,8 +83,8 @@ class Device:
                 self._init_managed(properties)
             else:
                 self._init_standalone(properties)
-        except Exception as e:
-            log.info('=> Rolling back all changes.')
+        except Exception as err:
+            log.info('=> Rolling back all changes.', exc_info=err)
             self.destroy()
 
     def destroy(self):
@@ -103,24 +103,57 @@ class Device:
 
     def get_jwk(self):
         '''Generates and returns JWK'''
+        if self.properties is None: raise Exception('Device is not initiated.')
         return json_dumps(JWK(self.properties).get())
 
     def get_jwks(self):
         '''Generates JWK and returns JWKS'''
+        if self.properties is None: raise Exception('Device is not initiated.')
         return json_dumps(JWK(self.properties).get_jwks())
 
-    def sign(self, message: str):
-        '''Sign the message'''
-        return Sign(self.properties, message).sign()
+    def get_device_jwt(self):
+        '''
+        Generates and returns device JWT
 
-    def get_access_token(self):
-        '''Get Device access token and store it in data dir'''
-        device_token_jwt_claim = get_device_token_jwt_claim(self.properties)
-        signature_content = generate_jwt_signature_content(device_token_jwt_claim)
+            Returns: {
+                device_jwt,
+                iat: int,
+                exp: int
+            }
+        '''
+        if self.properties is None: raise Exception('Device is not initiated.')
+        device_token_jwt_claim = get_device_jwt_content(self.properties)
+        iat = device_token_jwt_claim['iat']
+        exp = device_token_jwt_claim['exp']
+        signature_content = generate_signature_content_from_dict(device_token_jwt_claim, iat, exp)
         signature = Sign(self.properties, signature_content).sign()
         device_jwt = "{}.{}".format(signature_content, signature)
 
-        response = CM(self.properties).request_access_token(device_jwt)
-        '''Response contains access_token, expires_at'''
-        return response
+        return {
+            'device_jwt': device_jwt,
+            'iat': iat,
+            'exp': exp
+        }
 
+    def sign(self, message: str):
+        '''
+        Sign the message
+        
+            Returns: str
+        '''
+        if self.properties is None: raise Exception('Device is not initiated.')
+        return Sign(self.properties, message).sign()
+
+    def get_access_token(self):
+        '''
+        Get Device access token and store it in data dir
+        
+            Returns: {
+                access_token: str,
+                expires_at: int
+            }
+        '''
+        if self.properties is None: raise Exception('Device is not initiated.')
+        device_jwt_props = self.get_device_jwt()
+
+        return CM(self.properties).request_access_token(device_jwt_props['device_jwt'])

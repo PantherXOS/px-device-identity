@@ -1,11 +1,12 @@
 import logging
-import os.path
+import os
 import subprocess
 import sys
 
 from Cryptodome.PublicKey import ECC, RSA
 from exitstatus import ExitStatus
 
+from .classes import DeviceProperties
 from .config import KEY_DIR
 from .filesystem import Filesystem
 from .util import split_key_type
@@ -56,7 +57,7 @@ class Crypto:
                     raise err
 
             elif key_cryptography == 'ECC':
-                key_strength = 'nist_' + key_strength
+                key_strength = 'nist_' + str(key_strength)
                 try:
                     process_result = subprocess.run([
                         "tpm2tss-genkey",

@@ -5,6 +5,7 @@ from Cryptodome.Hash import SHA256, SHA384, SHA512
 from Cryptodome.PublicKey import ECC, RSA
 from Cryptodome.Signature import DSS, PKCS1_v1_5
 
+from .classes import DeviceProperties
 from .config import KEY_DIR
 from .filesystem import Filesystem, create_tmp_path, remove_tmp_path
 from .util import b64encode, handle_result, split_key_type
@@ -37,12 +38,13 @@ class Sign:
         log.info("=> Signing '{}' with ECC key".format(self.message))
         msg = ''
         key = ECC.import_key(key)
-        if key_strength == 'p256':
-            msg = SHA256.new(self.message.encode('utf8'))
+        if key_strength == 'p521':
+            msg = SHA512.new(self.message.encode('utf8'))
         elif key_strength == 'p384':
             msg = SHA384.new(self.message.encode('utf8'))
-        elif key_strength == 'p521':
-            msg = SHA512.new(self.message.encode('utf8'))
+        else:
+            log.warn('Defaulting to SHA256')
+            msg = SHA256.new(self.message.encode('utf8'))
         signer = DSS.new(key, 'fips-186-3')
         return b64encode(signer.sign(msg))
 
@@ -71,17 +73,18 @@ class Sign:
         '''Sign with ECC keys (TPM)'''
         key_strength = split_key_type(self.key_type)[1]
         log.debug("=> Signing '{}' with TPM ECC key".format(self.message))
+
         msg = ''
         digest = ''
-        if key_strength == 'p256':
-            digest = 'sha256'
-            msg = SHA256.new(self.message.encode('utf8'))
+        if key_strength == 'p521':
+            digest = 'sha512'
+            msg = SHA512.new(self.message.encode('utf8'))
         elif key_strength == 'p385':
             digest = 'sha384'
             msg = SHA384.new(self.message.encode('utf8'))
-        elif key_strength == 'p521':
-            digest = 'sha512'
-            msg = SHA512.new(self.message.encode('utf8'))
+        else:
+            digest = 'sha256'
+            msg = SHA256.new(self.message.encode('utf8'))
         message_digest = msg.digest()
 
         tmp_path = create_tmp_path()
@@ -102,7 +105,6 @@ class Sign:
                 "-out", signature_tmp_file,
                 "-pkeyopt", digest
             ])
-            #handle_result(result, "Unknown error signing message hash with openssl application.", tmp_path)
         except:
             handle_result(False, "Could not sign message with TPM.", tmp_path)
 
@@ -136,7 +138,6 @@ class Sign:
                 "-out", signature_tmp_file,
                 "-pkeyopt", "digest:sha256"
             ])
-            #handle_result(result, "Unknown error signing message hash with openssl application.", tmp_path)
         except:
             handle_result(False, "Could not sign message with TPM.", tmp_path)
 

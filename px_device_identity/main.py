@@ -1,16 +1,16 @@
 '''PantherX Device Identity'''
 
 import json
-import sys
 import logging
+import sys
 
 import pkg_resources
 from exitstatus import ExitStatus
 
-from .log import *
 from .classes import OperationProperties
 from .cli import get_cl_arguments
 from .device import Device, DeviceProperties
+from .log import *
 from .util import is_superuser_or_quit
 
 version = pkg_resources.require("px_device_identity")[0].version

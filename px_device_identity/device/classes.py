@@ -1,5 +1,4 @@
 import logging
-import sys
 import uuid
 from dataclasses import dataclass
 
@@ -27,7 +26,7 @@ class DeviceProperties:
     key_type: str = 'RSA:2048'
     domain: str = 'Undefined'
     host: str = 'https://identity.pantherx.org'
-    id: str = uuid.uuid4()
+    id: str = str(uuid.uuid4())
     client_id: str = 'Undefined'
     is_managed: bool = False
 
@@ -48,5 +47,5 @@ class DeviceProperties:
 @dataclass
 class DeviceRegistrationProperties:
     '''Attributes related primarily to the registration'''
-    public_key: str
+    public_key: dict
     device_properties: DeviceProperties

@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.9.8]
+### Changed
+
+- No major changes or fixes; mostly some edge cases from static type checking
+
+### Added
+
+- Added some supporting features for `px-user-identity-service`
+
 ## [0.9.7]
 ### Fixed
 

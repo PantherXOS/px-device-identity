@@ -6,7 +6,7 @@ def main():
     stdout.flush()
     if isinstance(res, str):
         stdout.write(res)
-    else:
+    elif isinstance(res, bytes):
         stdout.buffer.write(res)
     stdout.flush()
 

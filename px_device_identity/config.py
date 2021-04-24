@@ -1,6 +1,7 @@
 '''Configuration'''
 
 from pathlib import Path
+
 from appdirs import user_data_dir
 
 

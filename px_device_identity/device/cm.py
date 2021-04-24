@@ -6,6 +6,7 @@ from time import sleep
 
 from requests import ConnectionError, get, post
 
+from .classes import DeviceProperties, DeviceRegistrationProperties
 from .host import system_information
 from .jwt import get_unix_time_in_seconds
 
@@ -38,7 +39,7 @@ class CM:
         }
         return content
 
-    def _post_registration(self, registration: 'DeviceRegistrationProperties') -> str:
+    def _post_registration(self, registration: 'DeviceRegistrationProperties'):
         '''Post new device registration'''
         try:
             log.info("=> Posting registration to {}".format(self.api_register_url))
@@ -91,7 +92,7 @@ class CM:
                 log.warning('Last try!')
             result = self._check_registration_result_retry()
             if result is False:
-                return result
+                raise Exception('Could not complete registration. Timeout exceeded.')
             status_code = result.status_code
             result_formatted = json_loads(result.text)
             if status_code == 200:
@@ -106,10 +107,7 @@ class CM:
                     )
                     sleep(wait_time)
                 if status == 'rejected':
-                    log.error(
-                        "The device registration was rejected after {}s.".format(waited_time_approx)
-                    )
-                    return False
+                    raise Exception("The device registration was rejected after {}s.".format(waited_time_approx))
                 if status == 'approved':
                     log.info(
                         "The device registration was approved after {}s".format(waited_time_approx)
@@ -151,4 +149,4 @@ class CM:
                 'expires_at': token_expiration
             }
         if response.status_code == 401:
-            raise Error('Not authorized to request a new token.')
+            raise Exception('Not authorized to request a new token.')
