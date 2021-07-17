@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.9.9]
+### Fixed
+
+- Bumped `pyyaml` package dependency to include support for `v5.*`
+
 ## [0.9.8]
 ### Changed
 

@@ -22,7 +22,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.9.8'
+VERSION = '0.9.9'
 PACKAGE_NAME = 'px-device-identity'
 AUTHOR = 'Franz Geffke'
 AUTHOR_EMAIL = 'franz@pantherx.org'
@@ -39,7 +39,7 @@ INSTALL_REQUIRES = [
     'pycryptodomex>=3.9.8,<3.10',
     'exitstatus>=2.0.1,<2.1',
     'shortuuid>=1.0.1,<1.1',
-    'pyyaml>=5.3.1,<5.4',
+    'pyyaml>=5.3.1,<5.5',
     'appdirs>=1.4.1,<1.5',
     'psutil>=5.7.2,<5.9'
 ]
