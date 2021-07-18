@@ -143,10 +143,9 @@ class CM:
         response = post(self.api_token_url, form)
         if response.status_code == 200:
             response_content = response.json()
-            token_expiration = response_content['expires_in'] + get_unix_time_in_seconds()
             return {
                 'access_token': response_content['access_token'],
-                'expires_at': token_expiration
+                'expires_at': response_content['expires_in']
             }
         if response.status_code == 401:
             raise Exception('Not authorized to request a new token.')
