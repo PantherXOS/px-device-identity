@@ -30,9 +30,11 @@ def get_device_access_token_cache():
 
 		current_time = time.time()
 		# We request a new key long before the old expires
-		expiration_time = access_token['expires_at'] - 1500
+		expiration_time = access_token['expires_at'] - 500
 		
 		if current_time > expiration_time:
+			log.info('current time: {}'.format(current_time))
+			log.info('expiration time: {}'.format(expiration_time))
 			log.info('Device access_token cache expired.')
 			return False
 		else:
