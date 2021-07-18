@@ -28,9 +28,8 @@ def get_device_access_token_cache():
 				'expires_at': int(content['expires_at']),
 			}
 
-		current_time = time.time()
-		# We request a new key long before the old expires
-		expiration_time = access_token['expires_at'] - 500
+		current_time = int(time.time())
+		expiration_time = access_token['expires_at'] - 100
 		
 		if current_time > expiration_time:
 			log.info('current time: {}'.format(current_time))
