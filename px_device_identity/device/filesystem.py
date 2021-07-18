@@ -62,8 +62,10 @@ class Filesystem():
                     file_content = reader.read()
                     return file_content
                 except EnvironmentError as err:
-                    log.warning("Could not open file at {}".format(self.file_path))
+                    log.warning(
+                        "Could not open file at {}".format(self.file_path))
                     raise EnvironmentError(err)
+
 
 def create_tmp_path() -> str:
     tmp_path = path.join(gettempdir(), '.{}'.format(hash(times())))
@@ -75,6 +77,7 @@ def create_tmp_path() -> str:
         raise EnvironmentError(err)
     else:
         return tmp_path
+
 
 def remove_tmp_path(tmp_path):
     log.debug("=> Removing temp directory at '{}'.".format(tmp_path))

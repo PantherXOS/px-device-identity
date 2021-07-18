@@ -15,6 +15,7 @@ from .jwk import JWK
 from .jwt import generate_signature_content_from_dict, get_device_jwt_content
 from .sign import Sign
 from .util import is_initiated
+from .cache import get_device_access_token_cache, set_device_access_token_cache
 
 log = logging.getLogger(__name__)
 
@@ -26,6 +27,7 @@ def create_keys(properties: 'DeviceProperties'):
 
 class Device:
     '''Handles configuration and keys'''
+
     def __init__(self, overwrite: bool = False, key_dir=KEY_DIR):
         # Paths and Config
         self.key_dir: str = key_dir
@@ -47,8 +49,8 @@ class Device:
         registration = DeviceRegistrationProperties(public_key, properties)
         try:
             result = CM(properties).register_device(registration)
-            properties.id = result[0] # device_id
-            properties.client_id = result[1] # client_id
+            properties.id = result[0]  # device_id
+            properties.client_id = result[1]  # client_id
             self.config.save(properties)
         except Exception as err:
             log.error("Could not complete device registration.", exc_info=err)
@@ -103,29 +105,35 @@ class Device:
 
     def get_jwk(self):
         '''Generates and returns JWK'''
-        if self.properties is None: raise Exception('Device is not initiated.')
+        if self.properties is None:
+            raise Exception('Device is not initiated.')
         return json_dumps(JWK(self.properties).get())
 
     def get_jwks(self):
         '''Generates JWK and returns JWKS'''
-        if self.properties is None: raise Exception('Device is not initiated.')
+        if self.properties is None:
+            raise Exception('Device is not initiated.')
         return json_dumps(JWK(self.properties).get_jwks())
 
     def get_device_jwt(self):
         '''
         Generates and returns device JWT
+        CACHED: Does not request new JWT if one exists and is valid
 
-            Returns: {
-                device_jwt,
-                iat: int,
-                exp: int
-            }
+                Returns: {
+                        device_jwt,
+                        iat: int,
+                        exp: int
+                }
         '''
-        if self.properties is None: raise Exception('Device is not initiated.')
+        if self.properties is None:
+            raise Exception('Device is not initiated.')
+
         device_token_jwt_claim = get_device_jwt_content(self.properties)
         iat = device_token_jwt_claim['iat']
         exp = device_token_jwt_claim['exp']
-        signature_content = generate_signature_content_from_dict(device_token_jwt_claim, iat, exp)
+        signature_content = generate_signature_content_from_dict(
+            device_token_jwt_claim, iat, exp)
         signature = Sign(self.properties, signature_content).sign()
         device_jwt = "{}.{}".format(signature_content, signature)
 
@@ -138,22 +146,30 @@ class Device:
     def sign(self, message: str):
         '''
         Sign the message
-        
-            Returns: str
+
+                Returns: str
         '''
-        if self.properties is None: raise Exception('Device is not initiated.')
+        if self.properties is None:
+            raise Exception('Device is not initiated.')
         return Sign(self.properties, message).sign()
 
     def get_access_token(self):
         '''
         Get Device access token and store it in data dir
-        
-            Returns: {
-                access_token: str,
-                expires_at: int
-            }
-        '''
-        if self.properties is None: raise Exception('Device is not initiated.')
-        device_jwt_props = self.get_device_jwt()
 
-        return CM(self.properties).request_access_token(device_jwt_props['device_jwt'])
+                Returns: {
+                        access_token: str,
+                        expires_at: int
+                }
+        '''
+        if self.properties is None:
+            raise Exception('Device is not initiated.')
+        cache = get_device_access_token_cache()
+        if cache:
+            return cache
+        else:
+            device_jwt_props = self.get_device_jwt()
+            response = CM(self.properties).request_access_token(
+                device_jwt_props['device_jwt'])
+            set_device_access_token_cache(response)
+            return response

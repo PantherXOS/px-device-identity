@@ -4,8 +4,8 @@ import json
 import logging
 import sys
 
-import pkg_resources
 from exitstatus import ExitStatus
+import pkg_resources
 
 from .classes import OperationProperties
 from .cli import get_cl_arguments
@@ -19,10 +19,7 @@ log = logging.getLogger(__name__)
 
 
 def main():
-    log.info('------')
     log.info('Welcome to PantherX Device Identity Service v{}'.format(version))
-    log.info('v{}'.format(version))
-    log.info('------')
 
     is_superuser_or_quit()
 
@@ -36,10 +33,10 @@ def main():
 
     is_initiated = device.is_initiated
     # if is_initiated is True:
-        # print('Supposed to run migration.')
-        # '''Run required migrations'''
-        # first_migration_key_dir()
-        # second_migration_add_config_key_domain()
+    # print('Supposed to run migration.')
+    # '''Run required migrations'''
+    # first_migration_key_dir()
+    # second_migration_add_config_key_domain()
 
     if operation.action != 'INIT' and is_initiated is False:
         log.error('Device is not initiated.')
@@ -68,6 +65,7 @@ def main():
 
     if operation.action == 'GET_ACCESS_TOKEN':
         return json.dumps(device.get_access_token())
+
 
 if __name__ == '__main__':
     main()

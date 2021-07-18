@@ -22,13 +22,13 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.9.9'
+VERSION = '0.9.10'
 PACKAGE_NAME = 'px-device-identity'
 AUTHOR = 'Franz Geffke'
 AUTHOR_EMAIL = 'franz@pantherx.org'
 URL = 'https://git.pantherx.org/development/applications/px-device-identity'
 
-LICENSE = ''
+LICENSE = 'GPLv3+'
 DESCRIPTION = 'Initiates device; provides JWK, JWKS and Signing Services'
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"

@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 
 class Sign:
     '''Sign message using RSA/ECC keys'''
+
     def __init__(
         self, device_properties: 'DeviceProperties', message: str, key_dir=KEY_DIR
     ):
@@ -27,7 +28,7 @@ class Sign:
 
     def _sign_with_rsa_signing_key(self, key) -> str:
         '''Sign with RSA keys (no TPM)'''
-        log.info("=> Signing '{}' with RSA key".format(self.message))
+        log.debug("=> Signing '{}' with RSA key".format(self.message))
         key = RSA.import_key(key)
         msg = SHA256.new(self.message.encode('utf8'))
         return b64encode(PKCS1_v1_5.new(key).sign(msg))
@@ -35,7 +36,7 @@ class Sign:
     def _sign_with_ecc_signing_key(self, key) -> str:
         '''Sign with ECC keys (no TPM)'''
         key_strength = split_key_type(self.key_type)[1]
-        log.info("=> Signing '{}' with ECC key".format(self.message))
+        log.debug("=> Signing '{}' with ECC key".format(self.message))
         msg = ''
         key = ECC.import_key(key)
         if key_strength == 'p521':
@@ -91,7 +92,8 @@ class Sign:
         message_tmp_file_path = tmp_path + '/message'
         signature_tmp_file = tmp_path + '/signature'
 
-        result = self._write_message_to_temp_path(message_digest, message_tmp_file_path)
+        result = self._write_message_to_temp_path(
+            message_digest, message_tmp_file_path)
         handle_result(result, "Could not write message to path.", tmp_path)
 
         log.debug('=> Engaging openssl to sign message hash with ECC key.')
@@ -109,7 +111,8 @@ class Sign:
             handle_result(False, "Could not sign message with TPM.", tmp_path)
 
         signature = self._get_signature_from_temp_path(signature_tmp_file)
-        handle_result(signature, "Could not read signature from path.", tmp_path)
+        handle_result(
+            signature, "Could not read signature from path.", tmp_path)
 
         remove_tmp_path(tmp_path)
         return signature
@@ -124,7 +127,8 @@ class Sign:
         message_tmp_file_path = tmp_path + '/message'
         signature_tmp_file = tmp_path + '/signature'
 
-        result = self._write_message_to_temp_path(message_digest, message_tmp_file_path)
+        result = self._write_message_to_temp_path(
+            message_digest, message_tmp_file_path)
         handle_result(result, "Could not write message to path.", tmp_path)
 
         log.debug('=> Engaging openssl to sign message hash with RSA key.')
@@ -142,7 +146,8 @@ class Sign:
             handle_result(False, "Could not sign message with TPM.", tmp_path)
 
         signature = self._get_signature_from_temp_path(signature_tmp_file)
-        handle_result(signature, "Could not read signature from path.", tmp_path)
+        handle_result(
+            signature, "Could not read signature from path.", tmp_path)
 
         remove_tmp_path(tmp_path)
         return signature
@@ -150,7 +155,7 @@ class Sign:
     def sign(self):
         '''Sign the message'''
         key_cryptography = split_key_type(self.key_type)[0]
-        log.info('=> Signing message with type {}'.format(self.key_security))
+        log.debug('=> Signing message with type {}'.format(self.key_security))
         if self.key_security == 'default':
             fs = Filesystem(self.key_dir, 'private.pem', 'rb')
             if key_cryptography == 'RSA':

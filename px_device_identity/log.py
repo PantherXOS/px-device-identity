@@ -5,14 +5,16 @@ from platform import system
 opsys = system()
 
 log = logging.getLogger('px_device_identity')
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s: %(message)s', "%Y-%m-%d %H:%M:%S")
+formatter = logging.Formatter(
+    '%(asctime)s - %(name)s - %(levelname)s: %(message)s', "%Y-%m-%d %H:%M:%S")
 formatter_cli = logging.Formatter('%(levelname)s: %(message)s')
 
 log.setLevel(logging.DEBUG)
 
 if opsys == 'Linux':
     # On Linux we log all events to file
-    fh = RotatingFileHandler('/var/log/px-device-identity.log', maxBytes=10000, backupCount=1)
+    fh = RotatingFileHandler(
+        '/var/log/px-device-identity.log', maxBytes=10000, backupCount=1)
     fh.setLevel(logging.INFO)
     fh.setFormatter(formatter)
     log.addHandler(fh)

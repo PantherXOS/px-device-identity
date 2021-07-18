@@ -196,3 +196,9 @@ Create a package to manually install `px-device-identity`:
 python3 setup.py sdist --format=tar
 pip install px-device-identity-0.*.*.tar
 ```
+
+### Tests
+
+```bash
+python3 -m unittest -v
+```

@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.9.10]
+### Changed
+
+- Turned some loggers to debug (less output)
+
+### Added
+
+- Device access token is now cached for 1500s
+- A few, rudimentary tests have been added
+
 ## [0.9.9]
 ### Fixed
 
