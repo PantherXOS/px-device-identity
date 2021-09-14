@@ -44,7 +44,7 @@ def get_cl_arguments():
                         help="Device location: An optional label for easier recognition."
                        )
     parser.add_argument("-r", "--role", type=str, default='DESKTOP',
-                        choices=['PUBLIC', 'DESKTOP', 'SERVER', 'ADMIN_TERMINAL', 'REGISTRATION_TERMINAL', 'OTHER'],
+                        choices=['PUBLIC', 'DESKTOP', 'SERVER', 'ADMIN_TERMINAL', 'REGISTRATION_TERMINAL', 'OTHER', 'SELF'],
                         help="Device role. Defaults to DESKTOP."
                        )
     parser.add_argument("-f", "--force", type=bool, default=False,

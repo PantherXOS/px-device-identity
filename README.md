@@ -1,18 +1,20 @@
 # PantherX Device Identity Manager
 
 - Generates ECC/RSA keypair
-   - saves to file `/root/.local/share/px-device-identity/` (`private.pem`, `public.pem`)
-   - via TPM2 (RSA only)
+  - saves to file `/root/.local/share/px-device-identity/` (`private.pem`, `public.pem`)
+  - via TPM2 (RSA only)
 - Generates and saves JWK from public key
-   - saves to file `/root/.local/share/px-device-identity/` (`public_jwk.json`)
+  - saves to file `/root/.local/share/px-device-identity/` (`public_jwk.json`)
 
 ### Supported cryptography
 
 **RSA** with
+
 - 2048 bits `RSA:2048`
 - 3072 bits `RSA:3072`
 
 **ECC** with
+
 - p256 curve `ECC:p256`
 - p384 curve `ECC:p384`
 - p521 curve `ECC:p521`
@@ -75,13 +77,13 @@ $ px-device-identity --operation INIT --security DEFAULT --role <PUBLIC|DESKTOP|
 Defaults to _role_ `DESKTOP`:
 
 ```bash
-$ px-device-identity --operation INIT --address https://identity.pantherx.dev --domain pantherx.org --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL|REGISTRATION_TERMINAL>
+$ px-device-identity --operation INIT --address https://identity.pantherx.dev --domain pantherx.org --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL|REGISTRATION_TERMINAL|SELF>
 ```
 
 All options:
 
 ```bash
-$ px-device-identity --operation INIT --address https://identity.pantherx.dev --domain pantherx.org --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL|REGISTRATION_TERMINAL> --title SomePC --location "Head office"
+$ px-device-identity --operation INIT --address https://identity.pantherx.dev --domain pantherx.org --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL|REGISTRATION_TERMINAL|SELF> --title "Marketing-01 PC" --location "Head office"
 ```
 
 - `DEFAULT` - private key stored as PEM file
@@ -105,7 +107,7 @@ config_version: 0.0.3
 domain: pantherx.org
 host: http://127.0.0.1:4000
 id: 8b477978-c63d-46f5-9492-67fafdd0d68e
-initiated_on: '2021-03-08 15:22:00.816527'
+initiated_on: "2021-03-08 15:22:00.816527"
 is_managed: true
 key_security: default
 key_type: RSA:2048
@@ -149,7 +151,10 @@ px-device-identity --operation GET_ACCESS_TOKEN
 returns
 
 ```json
-{"access_token": "_Y6E2rRFcQBGu6uRAlahCqw_5ChSLXtqoPUgy82Wbil", "expires_at": 1615231820}
+{
+  "access_token": "_Y6E2rRFcQBGu6uRAlahCqw_5ChSLXtqoPUgy82Wbil",
+  "expires_at": 1615231820
+}
 ```
 
 #### Example for JWT

@@ -22,7 +22,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = '0.9.10'
+VERSION = '0.9.11'
 PACKAGE_NAME = 'px-device-identity'
 AUTHOR = 'Franz Geffke'
 AUTHOR_EMAIL = 'franz@pantherx.org'
@@ -55,7 +55,7 @@ setup(
     author_email=AUTHOR_EMAIL,
     url=URL,
     install_requires=INSTALL_REQUIRES,
-    entry_points = {
+    entry_points={
         'console_scripts': ['px-device-identity=px_device_identity.command_line:main'],
     },
     packages=find_packages(),
