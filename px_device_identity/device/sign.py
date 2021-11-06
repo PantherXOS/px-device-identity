@@ -1,4 +1,5 @@
 import logging
+from px_device_identity.errors import SigningError
 import subprocess
 
 from Cryptodome.Hash import SHA256, SHA384, SHA512
@@ -7,8 +8,8 @@ from Cryptodome.Signature import DSS, PKCS1_v1_5
 
 from .classes import DeviceProperties
 from .config import KEY_DIR
-from .filesystem import Filesystem, create_tmp_path, remove_tmp_path
-from .util import b64encode, handle_result, split_key_type
+from .filesystem import create_tmp_dir, remove_tmp_dir
+from .util import b64encode, split_key_type
 
 log = logging.getLogger(__name__)
 
@@ -26,49 +27,51 @@ class Sign:
         self.private_key_dir = key_dir + 'private.pem'
         self.public_key_dir = key_dir + 'public.pem'
 
-    def _sign_with_rsa_signing_key(self, key) -> str:
+    def _sign_with_rsa_signing_key(self, key_content: str) -> str:
         '''Sign with RSA keys (no TPM)'''
         log.debug("=> Signing '{}' with RSA key".format(self.message))
-        key = RSA.import_key(key)
+        key = RSA.import_key(key_content)
         msg = SHA256.new(self.message.encode('utf8'))
         return b64encode(PKCS1_v1_5.new(key).sign(msg))
 
-    def _sign_with_ecc_signing_key(self, key) -> str:
+    def _sign_with_ecc_signing_key(self, key_content: str) -> str:
         '''Sign with ECC keys (no TPM)'''
         key_strength = split_key_type(self.key_type)[1]
         log.debug("=> Signing '{}' with ECC key".format(self.message))
         msg = ''
-        key = ECC.import_key(key)
+        key = ECC.import_key(key_content)
         if key_strength == 'p521':
             msg = SHA512.new(self.message.encode('utf8'))
         elif key_strength == 'p384':
             msg = SHA384.new(self.message.encode('utf8'))
         else:
-            log.warn('Defaulting to SHA256')
+            log.info('Defaulting to SHA256.')
             msg = SHA256.new(self.message.encode('utf8'))
         signer = DSS.new(key, 'fips-186-3')
         return b64encode(signer.sign(msg))
 
-    def _write_message_to_temp_path(self, message, file_path) -> bool:
+    def _write_message_to_temp_path(self, message: bytes, file_path: str):
         '''Write message to file before signing'''
         log.debug("=> Writing message '{}' to {}".format(message, file_path))
         try:
             with open(file_path, 'wb') as message_writer:
                 message_writer.write(message)
-            return True
         except:
             log.error("Could not write message to {}".format(file_path))
-            return False
+            raise
 
     def _get_signature_from_temp_path(self, file_path):
         '''Get signature from file after signing'''
         log.debug("=> Reading signature from {}.".format(file_path))
         try:
+            signature = ''
             with open(file_path, 'rb', buffering=0) as signature_reader:
                 signature = signature_reader.read()
+
             return b64encode(signature)
         except:
             log.error("Could not read signature from {}".format(file_path))
+            raise
 
     def _sign_with_ecc_tpm_signing_key(self):
         '''Sign with ECC keys (TPM)'''
@@ -88,48 +91,56 @@ class Sign:
             msg = SHA256.new(self.message.encode('utf8'))
         message_digest = msg.digest()
 
-        tmp_path = create_tmp_path()
-        message_tmp_file_path = tmp_path + '/message'
-        signature_tmp_file = tmp_path + '/signature'
+        tmp_dir = create_tmp_dir()
+        message_tmp_file_path = tmp_dir + '/message'
+        signature_tmp_file = tmp_dir + '/signature'
 
-        result = self._write_message_to_temp_path(
-            message_digest, message_tmp_file_path)
-        handle_result(result, "Could not write message to path.", tmp_path)
+        self._write_message_to_temp_path(
+            message_digest, message_tmp_file_path
+        )
 
         log.debug('=> Engaging openssl to sign message hash with ECC key.')
         try:
             digest = "digest:" + digest
             result = subprocess.run([
-                "openssl", "pkeyutl", "-engine", "tpm2tss",
+                "openssl", "pkeyutl",
+                "-engine", "tpm2tss",
                 "-keyform", "engine",
                 "-inkey", self.private_key_dir,
                 "-sign", "-in", message_tmp_file_path,
                 "-out", signature_tmp_file,
                 "-pkeyopt", digest
             ])
-        except:
-            handle_result(False, "Could not sign message with TPM.", tmp_path)
+
+            log.info(result)
+            if result.stderr:
+                log.error(result.stderr)
+                raise SigningError('Failed to sign with TPM ECC key')
+        except Exception as err:
+            remove_tmp_dir(tmp_dir)
+            raise err
 
         signature = self._get_signature_from_temp_path(signature_tmp_file)
-        handle_result(
-            signature, "Could not read signature from path.", tmp_path)
 
-        remove_tmp_path(tmp_path)
+        remove_tmp_dir(tmp_dir)
         return signature
 
     def _sign_with_rsa_tpm_signing_key(self):
-        '''Sign with RSA keys (TPM)'''
+        '''Sign with RSA keys (TPM)
+
+            raises: SigningError
+        '''
         log.debug("=> Signing '{}' with TPM RSA key".format(self.message))
         msg = SHA256.new(self.message.encode('utf8'))
         message_digest = msg.digest()
 
-        tmp_path = create_tmp_path()
-        message_tmp_file_path = tmp_path + '/message'
-        signature_tmp_file = tmp_path + '/signature'
+        tmp_dir = create_tmp_dir()
+        message_tmp_file_path = tmp_dir + '/message'
+        signature_tmp_file = tmp_dir + '/signature'
 
-        result = self._write_message_to_temp_path(
-            message_digest, message_tmp_file_path)
-        handle_result(result, "Could not write message to path.", tmp_path)
+        self._write_message_to_temp_path(
+            message_digest, message_tmp_file_path
+        )
 
         log.debug('=> Engaging openssl to sign message hash with RSA key.')
         try:
@@ -142,26 +153,38 @@ class Sign:
                 "-out", signature_tmp_file,
                 "-pkeyopt", "digest:sha256"
             ])
-        except:
-            handle_result(False, "Could not sign message with TPM.", tmp_path)
+
+            log.info(result)
+            if result.stderr:
+                log.error(result.stderr)
+                raise SigningError('Failed to sign with TPM RSA key.')
+        except Exception as err:
+            remove_tmp_dir(tmp_dir)
+            raise err
 
         signature = self._get_signature_from_temp_path(signature_tmp_file)
-        handle_result(
-            signature, "Could not read signature from path.", tmp_path)
 
-        remove_tmp_path(tmp_path)
+        remove_tmp_dir(tmp_dir)
         return signature
 
     def sign(self):
-        '''Sign the message'''
+        '''Sign the message
+
+            raises: SigningError (child)
+        '''
         key_cryptography = split_key_type(self.key_type)[0]
         log.debug('=> Signing message with type {}'.format(self.key_security))
         if self.key_security == 'default':
-            fs = Filesystem(self.key_dir, 'private.pem', 'rb')
+            with open('{}/private.pem'.format(self.key_dir)) as reader:
+                key_content = reader.read()
+                if not key_content:
+                    raise IOError(
+                        'The private key private.pem could not be found.'
+                    )
             if key_cryptography == 'RSA':
-                return self._sign_with_rsa_signing_key(fs.open_file())
+                return self._sign_with_rsa_signing_key(key_content)
             elif key_cryptography == 'ECC':
-                return self._sign_with_ecc_signing_key(fs.open_file())
+                return self._sign_with_ecc_signing_key(key_content)
         if self.key_security == 'tpm':
             if key_cryptography == 'RSA':
                 return self._sign_with_rsa_tpm_signing_key()

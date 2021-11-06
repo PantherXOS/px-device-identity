@@ -4,7 +4,6 @@ import json
 import logging
 import sys
 
-from exitstatus import ExitStatus
 import pkg_resources
 
 from .classes import OperationProperties
@@ -41,7 +40,7 @@ def main():
     if operation.action != 'INIT' and is_initiated is False:
         log.error('Device is not initiated.')
         log.error('Initiate device with --operation INIT --type <DEFAULT|TPM>')
-        sys.exit(ExitStatus.failure)
+        sys.exit(1)
 
     if operation.action == 'INIT':
         try:
@@ -49,9 +48,9 @@ def main():
         except:
             print(sys.exc_info()[0])
             log.error("Something went wrong.", )
-            sys.exit(ExitStatus.failure)
+            sys.exit(1)
 
-        sys.exit(ExitStatus.success)
+        sys.exit(1)
 
     # Here we initiate the device properties from config, since we are not initiating
     if operation.action == 'GET_JWK':
@@ -64,7 +63,10 @@ def main():
         return device.sign(message)
 
     if operation.action == 'GET_ACCESS_TOKEN':
-        return json.dumps(device.get_access_token())
+        access_token = device.get_access_token()
+        if not access_token:
+            print('Could not get access token')
+        return json.dumps(access_token)
 
 
 if __name__ == '__main__':

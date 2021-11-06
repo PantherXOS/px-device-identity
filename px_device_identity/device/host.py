@@ -2,6 +2,7 @@ import platform
 
 import psutil
 
+
 def system_information():
     uname = platform.uname()
     memory = psutil.virtual_memory()[0]

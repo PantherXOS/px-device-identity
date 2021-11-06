@@ -191,7 +191,7 @@ Create a guix environment like so:
 guix environment \
 --pure python \
 --ad-hoc python-idna python-requests python-authlib-0.14.3 python-exitstatus-2.0.1 \
-python-pycryptodomex python-jose python-pyyaml-v5.3.1 python-shortuuid-v1.0.1 \
+python-pycryptodomex python-jose python-pyyaml python-shortuuid-v1.0.1 \
 python-appdirs tpm2-tss tpm2-tss-engine python-setuptools python-psutil
 ```
 
@@ -203,6 +203,19 @@ pip install px-device-identity-0.*.*.tar
 ```
 
 ### Tests
+
+_These paths will change..._
+
+```bash
+cat /gnu/store/4x16529cla7q1lyja98mj0y9zblzdr1p-px-device-identity-0.9.13/bin/px-device-identity
+export OPENSSL_CONF="/gnu/store/j7621xv8vj50qj6ppzpw2vl0b9x67m7w-tpm2-tss-engine-1.1.0/etc/openssl-tss2.conf${OPENSSL_CONF:+:}$OPENSSL_CONF"
+export PATH="/gnu/store/j7621xv8vj50qj6ppzpw2vl0b9x67m7w-tpm2-tss-engine-1.1.0/bin/${PATH:+:}$PATH"
+export PATH="/gnu/store/jfs1nf7zyqgiy9zmcg2aj95ify9phw3v-openssl-1.1.1l/bin/${PATH:+:}$PATH"
+export TPM2TSSENGINE_TCTI="/gnu/store/ff27h7b02h5xdm4n6618v6js32gcwirc-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TSSENGINE_TCTI:+:}$TPM2TSSENGINE_TCTI"
+export TPM2TOOLS_TCTI="/gnu/store/ff27h7b02h5xdm4n6618v6js32gcwirc-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TOOLS_TCTI:+:}$TPM2TOOLS_TCTI"
+```
+
+Run tests:
 
 ```bash
 python3 -m unittest -v

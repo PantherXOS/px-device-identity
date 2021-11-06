@@ -33,7 +33,7 @@ def get_device_jwt_content(device_properties: 'DeviceProperties') -> dict:
 def get_jwt_header(alg: str, iat: int, exp: int) -> dict:
     nbf = iat - 5
     header = {
-        'alg': 'RS256',
+        'alg': alg,
         'typ': 'JWT',
         'exp': exp,
         'nbf': nbf,
@@ -57,4 +57,3 @@ def generate_signature_content_from_dict(content: dict, iat: int = None, exp: in
     encoded_payload = base64UrlEncode(stringified_payload)
 
     return "{}.{}".format(encoded_header, encoded_payload)
-

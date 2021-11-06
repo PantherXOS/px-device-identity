@@ -1,33 +1,28 @@
 import logging
-import sys
 from base64 import urlsafe_b64decode, urlsafe_b64encode
+from typing import Union
 
-from exitstatus import ExitStatus
+from px_device_identity.errors import NotInitiated
 
-from .config import KEY_DIR, DeviceConfig
-from .filesystem import remove_tmp_path
+import os
+from .config import CONFIG_FILE, KEY_DIR, DeviceConfig
 
 log = logging.getLogger(__name__)
 
 
-def is_initiated() -> bool:
-    '''Checks whether the device has already been initiated'''
+def is_initiated(key_dir: str = KEY_DIR, config_path: str = CONFIG_FILE) -> bool:
+    '''Checks whether the device has already been initiated
+        returns: bool
+    '''
     try:
         # Here we try to load the config to see if it exists.
-        DeviceConfig().get()
-        try:
-            public_key_path = str(KEY_DIR) + 'public.pem'
-            with open(public_key_path) as public_key_reader:
-                public_key_reader.read()
-            return True
-        except FileNotFoundError:
-            log.error('Could not find {}.'.format(public_key_path))
-            return False
-    except FileNotFoundError:
-        return False
-
-    except KeyError:
-        log.error('The configuration appears to be invalid.')
+        DeviceConfig(config_path=config_path).get()
+        public_key_path = str(key_dir) + 'public.pem'
+        if not os.path.isfile:
+            raise IOError('Could not find {}.'.format(public_key_path))
+        return True
+    except Exception as err:
+        log.error(err)
         return False
 
 
@@ -45,27 +40,10 @@ def b64decode(string: str) -> bytes:
     return urlsafe_b64decode(s_bin)
 
 
-def handle_error(error: str):
-    log.error(error)
-    sys.exit(ExitStatus.failure)
-
-
-def handle_result(result, error: str, tmp_path: str = None):
-    if isinstance(result, bool):
-        if result is False:
-            if tmp_path is not None:
-                remove_tmp_path(tmp_path)
-            handle_error(error)
-    else:
-        has_return_code = 'returncode' in result
-        if has_return_code and result.get('returncode') == 1:
-            if tmp_path is not None:
-                remove_tmp_path(tmp_path)
-            handle_error(error)
-
-
 def split_key_type(key: str):
-    '''Split string'''
+    '''Split key string
+        raise: ValueError
+    '''
     key_array = key.split(":")
     key_cryptography = key_array[0]
     if key_cryptography == 'RSA':
@@ -73,5 +51,5 @@ def split_key_type(key: str):
     elif key_cryptography == 'ECC':
         key_strength = key_array[1]
     else:
-        raise Exception('Unexpected format.')
+        raise ValueError('Unexpected key format.')
     return key_cryptography, key_strength

@@ -31,8 +31,9 @@ CONFIG_VERSION = '0.0.3'
 
 class DeviceConfig():
     '''Primary configuration'''
-    def __init__(self):
-        self.config_path = CONFIG_FILE
+
+    def __init__(self, config_path: str = CONFIG_FILE):
+        self.config_path = config_path
         self.config_schema = CONFIG_SCHEMA
         self.latest_version = CONFIG_VERSION
 
@@ -92,6 +93,7 @@ class DeviceConfig():
         '''Get config'''
         config = self._load_yaml_from_file()
         return self._get_config_from_dict(config, config['config_version'])
+
 
 def get_device_config():
     '''LEGACY! Get config'''

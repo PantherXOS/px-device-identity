@@ -67,7 +67,7 @@ class Filesystem():
                     raise EnvironmentError(err)
 
 
-def create_tmp_path() -> str:
+def create_tmp_dir() -> str:
     tmp_path = path.join(gettempdir(), '.{}'.format(hash(times())))
     try:
         log.debug("=> Creating temp directory at {}".format(tmp_path))
@@ -79,6 +79,6 @@ def create_tmp_path() -> str:
         return tmp_path
 
 
-def remove_tmp_path(tmp_path):
+def remove_tmp_dir(tmp_path):
     log.debug("=> Removing temp directory at '{}'.".format(tmp_path))
     rmtree(tmp_path, ignore_errors=True)

@@ -1,6 +1,7 @@
 import logging
 import platform
 import re
+import subprocess
 import sys
 from getpass import getuser
 
@@ -47,3 +48,26 @@ def is_superuser_or_quit():
                 'IMPORTANT: This application is designed to run as administrator on the target device.'
             )
             # sys.exit()
+
+
+def list_of_commands_to_string(command: list):
+    final = ''
+    total = len(command)
+    count = 1
+    for item in command:
+        if count == total:
+            final += item
+        else:
+            final += "{} ".format(item)
+        count += 1
+    return final
+
+
+def run_commands(commands: list):
+    commands_string = list_of_commands_to_string(commands)
+    result = subprocess.run(commands_string, capture_output=True, shell=True)
+    if result.returncode == 1:
+        log.error(result.stderr)
+        raise subprocess.CalledProcessError(
+            result.returncode, commands, result.stderr
+        )

@@ -10,10 +10,14 @@ log = logging.getLogger(__name__)
 def generate_random_name(role: str, domain: str) -> str:
     '''Generates a random device name'''
     try:
+        print('----')
+        print(role)
+        print(domain)
         return role + '-' + shortuuid.uuid(name=domain)
-    except Exception as e:
-        log.error("Could not generate device ID with uuid.NAMESPACE_URL {}".format(domain))
-        raise e
+    except Exception as err:
+        log.error(
+            "Could not generate device ID with uuid.NAMESPACE_URL {}".format(domain))
+        raise err
 
 
 @dataclass
@@ -31,7 +35,7 @@ class DeviceProperties:
     is_managed: bool = False
 
     def __post_init__(self):
-        if self.title is None:
+        if self.title is None or self.title == 'Undefined':
             self.title = generate_random_name(self.role, self.domain)
 
         if self.domain is not None or self.domain == 'Undefined':

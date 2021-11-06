@@ -1,9 +1,8 @@
-from json import dumps as json_dumps
 import logging
 import sys
+from json import dumps as json_dumps
 
 from authlib.jose import jwk
-from exitstatus import ExitStatus
 
 from .classes import DeviceProperties
 from .config import KEY_DIR
@@ -14,6 +13,7 @@ log = logging.getLogger(__name__)
 
 class JWK:
     '''Working with JWK(S)'''
+
     def __init__(self, device_properties: 'DeviceProperties', key_dir=KEY_DIR):
         self.key_security = device_properties.key_security
         self.key_type = device_properties.key_type
@@ -33,7 +33,11 @@ class JWK:
             elif key_cryptography == 'ECC':
                 key = jwk.dumps(file_content, kty='EC')
             else:
-                raise Exception('Unexpected key cryptography: {}. Supported: RSA, ECC'.format(key_cryptography))
+                raise Exception(
+                    'Unexpected key cryptography: {}. Supported: RSA, ECC'.format(
+                        key_cryptography
+                    )
+                )
             if self.key_type == 'RSA:2048':
                 key['alg'] = 'RS256'
             elif self.key_type == 'ECC:p256':
@@ -44,19 +48,20 @@ class JWK:
                 key['alg'] = 'ES521'
             else:
                 log.error('Unsupported key type.')
-                sys.exit(ExitStatus.failure)
+                sys.exit(1)
             return key
 
     def save_to_key_path(self) -> bool:
         '''Generates and saves JWK to the default path'''
-        formatted_key = bytearray(json_dumps(self.key, ensure_ascii=True).encode('utf8'))
+        formatted_key = bytearray(json_dumps(
+            self.key, ensure_ascii=True).encode('utf8'))
         try:
             with open(self.jwk_path, 'wb') as writer:
                 writer.write(formatted_key)
             return True
         except:
             log.error('Could not save JWK to {}'.format(self.jwk_path))
-            sys.exit(ExitStatus.failure)
+            sys.exit(1)
 
     def get(self):
         '''Generates and returns JWK'''
