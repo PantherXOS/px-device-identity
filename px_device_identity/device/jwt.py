@@ -16,13 +16,17 @@ def get_unix_time_in_seconds():
     return calendar.timegm(time.gmtime())
 
 
-def get_device_jwt_content(device_properties: 'DeviceProperties') -> dict:
-    '''Get device JWT content primarily for access_token request'''
+def get_device_jwt_content(device_properties: 'DeviceProperties', aud: str = '/oidc/token') -> dict:
+    '''
+        Get device JWT content primarily for 
+        - access_token request: /oidc/token
+        - token introspection: /oidc/token/introspection
+    '''
     iat = get_unix_time_in_seconds()
     device_token_jwt_claim = {
         'iss': device_properties.client_id,
         'sub': device_properties.client_id,
-        'aud': device_properties.host + '/oidc/token',
+        'aud': device_properties.host + aud,
         'jti': str(uuid.uuid4()),
         'iat': iat,
         'exp': iat + 300,

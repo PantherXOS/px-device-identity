@@ -114,10 +114,13 @@ class Device:
             raise NotInitiated()
         return json_dumps(JWK(self.properties, key_dir=self.key_dir).get_jwks())
 
-    def get_device_jwt(self):
+    def get_device_jwt(self, aud: str = '/oidc/token'):
         '''
         Generates and returns device JWT
         CACHED: Does not request new JWT if one exists and is valid
+
+            Params:
+                aud: usually either '/oidc/token' (default) or '/oidc/token/introspection'
 
             Returns: {
                     device_jwt,
@@ -130,7 +133,7 @@ class Device:
         if self.properties is None:
             raise NotInitiated()
 
-        device_token_jwt_claim = get_device_jwt_content(self.properties)
+        device_token_jwt_claim = get_device_jwt_content(self.properties, aud)
         iat = device_token_jwt_claim['iat']
         exp = device_token_jwt_claim['exp']
         signature_content = generate_signature_content_from_dict(
@@ -154,7 +157,7 @@ class Device:
         '''
         Sign the message
 
-                Returns: str
+            Returns: str
         '''
         if self.properties is None:
             raise NotInitiated()
@@ -164,10 +167,10 @@ class Device:
         '''
         Get Device access token and store it in data dir
 
-                Returns: {
-                        access_token: str,
-                        expires_at: int
-                }
+            Returns: {
+                    access_token: str,
+                    expires_at: int
+            }
         '''
         if self.properties is None:
             raise NotInitiated()
