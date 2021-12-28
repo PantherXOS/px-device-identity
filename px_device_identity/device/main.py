@@ -163,7 +163,7 @@ class Device:
             raise NotInitiated()
         return Sign(self.properties, message).sign()
 
-    def get_access_token(self):
+    def get_access_token(self, aud: str = '/oidc/token'):
         '''
         Get Device access token and store it in data dir
 
@@ -177,7 +177,7 @@ class Device:
 
         '''(1) Try the cache'''
         try:
-            cache = get_device_access_token_cache()
+            cache = get_device_access_token_cache(aud=aud)
         except Exception as err:
             log.info(err)
         else:
@@ -186,7 +186,7 @@ class Device:
         '''(2) Get new device JWT'''
         device_jwt = None
         try:
-            device_jwt_props = self.get_device_jwt()
+            device_jwt_props = self.get_device_jwt(aud)
         except Exception as err:
             log.error('Could not get device JWT')
             raise
@@ -198,9 +198,42 @@ class Device:
             response = CM(self.properties).request_access_token(
                 device_jwt
             )
-            set_device_access_token_cache(response)
+            if response is None:
+                raise ValueError('Access token request response is empty.')
+            set_device_access_token_cache(response, aud=aud)
         except:
             log.error('Could not get access token')
             raise
         else:
             return response
+
+    def token_introspection(self, user_access_token):
+        '''
+        Introspection to validate a user access token
+
+            returns {
+                active,
+                client_id
+                sub,
+                exp,
+                iat,
+                iss,
+                jti,
+                scope,
+                token_type
+            }
+        '''
+        if self.properties is None:
+            raise NotInitiated()
+
+        device_access_token_dict = self.get_access_token(
+            aud='/oidc/token/introspection'
+        )
+        try:
+            response = CM(self.properties).token_introspection(
+                user_access_token, device_access_token_dict['access_token']
+            )
+            return response
+        except:
+            log.error('Token introspection failed.')
+            raise

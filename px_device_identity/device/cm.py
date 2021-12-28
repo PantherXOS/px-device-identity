@@ -23,6 +23,7 @@ class CM:
         self.api_register_url = self.device_properties.host + '/devices/registration'
         self.api_status_url = self.device_properties.host + '/devices/registration/status/'
         self.api_token_url = self.device_properties.host + '/oidc/token'
+        self.api_token_introspection = self.device_properties.host = '/oidc/token/introspection'
         '''Set once the device registration has been posted'''
         self.verification_code = None
 
@@ -175,3 +176,15 @@ class CM:
             raise CMServerError()
 
         response.raise_for_status()
+
+    def token_introspection(self, user_access_token: str, device_access_token: str):
+        form = {
+            'token': user_access_token,
+            'client_id': self.device_properties.client_id,
+            'client_assertion_type': 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer',
+            'client_assertion': device_access_token
+        }
+
+        response = post(self.api_token_introspection, form)
+        response.raise_for_status()
+        return response

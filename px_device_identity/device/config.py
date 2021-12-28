@@ -28,6 +28,9 @@ if opsys == 'Windows':
 CONFIG_FILE = CONFIG_DIR + 'device.yml'
 CONFIG_VERSION = '0.0.3'
 
+# for device.cache
+ACCESS_TOKEN_CACHE = KEY_DIR + 'device_access_token'
+
 
 class DeviceConfig():
     '''Primary configuration'''
