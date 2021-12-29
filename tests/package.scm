@@ -60,7 +60,6 @@
       ("python-requests" ,python-requests)
       ("python-falcon" ,python-falcon)
       ("python-authlib-0.14.3" ,python-authlib-0.14.3)
-      ("python-exitstatus-2.0.1" ,python-exitstatus-2.0.1)
       ("python-pycryptodomex" ,python-pycryptodomex)
       ("python-jose" ,python-jose)
       ("python-pyyaml" ,python-pyyaml)

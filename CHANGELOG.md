@@ -9,10 +9,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 ### Added
 
 - `Device.get_device_jwt` supports an optional `aud` param
+- Token introspection
+
+### Fixed
+
+- Remove version fix for `pycryptodomex`
 
 ### Changed
 
 - Switch to MIT license
+- Removed `exitstatus` dependency
 
 ## [0.9.11]
 

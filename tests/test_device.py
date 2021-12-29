@@ -69,3 +69,7 @@ class TestRegistration(unittest.TestCase):
         message = 'Test'
         signed = Device().sign(message)
         self.assertIsNotNone(signed)
+
+    # def test_introspection(self):
+    # 	user_access_token = ''
+    # 	device = Device().token_introspection(user_access_token)

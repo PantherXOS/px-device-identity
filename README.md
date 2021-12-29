@@ -187,36 +187,51 @@ Find logs at `/var/log/`
 
 Create a guix environment like so:
 
-```bash
-guix environment \
---pure python \
---ad-hoc python-idna python-requests python-authlib-0.14.3 python-exitstatus-2.0.1 \
-python-pycryptodomex python-jose python-pyyaml python-shortuuid-v1.0.1 \
-python-appdirs tpm2-tss tpm2-tss-engine python-setuptools python-psutil
-```
+(1) Switch to root `su - root`
 
-Create a package to manually install `px-device-identity`:
+(2) Spawn a guix environment:
 
 ```bash
-python3 setup.py sdist --format=tar
-pip install px-device-identity-0.*.*.tar
+guix environment --pure \
+--ad-hoc python python-idna python-requests python-authlib-0.14.3 \
+python-jose python-pyyaml python-shortuuid-v1.0.1 \
+python-appdirs tpm2-tss tpm2-tss-engine python-setuptools python-psutil coreutils bash
 ```
+
+_Use the helper script `dev_environment.sh` or continue with (3)._
+
+(3) Open the repo; create a new virtual env `python3 -m venv venv`
+
+(4) Install dependencies with `pip3 install .`
 
 ### Tests
 
 _These paths will change..._
 
+Follow "Development" setup
+
+1. `ls /gnu/store | grep px-device-identity-0.10.2`
+2. `cat /gnu/store/4cx57qhzx1h0yg2frajhsz8j6bp8vvpw-px-device-identity-0.10.2/bin/px-device-identity`
+
 ```bash
-cat /gnu/store/4x16529cla7q1lyja98mj0y9zblzdr1p-px-device-identity-0.9.13/bin/px-device-identity
-export OPENSSL_CONF="/gnu/store/j7621xv8vj50qj6ppzpw2vl0b9x67m7w-tpm2-tss-engine-1.1.0/etc/openssl-tss2.conf${OPENSSL_CONF:+:}$OPENSSL_CONF"
-export PATH="/gnu/store/j7621xv8vj50qj6ppzpw2vl0b9x67m7w-tpm2-tss-engine-1.1.0/bin/${PATH:+:}$PATH"
-export PATH="/gnu/store/jfs1nf7zyqgiy9zmcg2aj95ify9phw3v-openssl-1.1.1l/bin/${PATH:+:}$PATH"
-export TPM2TSSENGINE_TCTI="/gnu/store/ff27h7b02h5xdm4n6618v6js32gcwirc-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TSSENGINE_TCTI:+:}$TPM2TSSENGINE_TCTI"
-export TPM2TOOLS_TCTI="/gnu/store/ff27h7b02h5xdm4n6618v6js32gcwirc-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TOOLS_TCTI:+:}$TPM2TOOLS_TCTI"
+export OPENSSL_CONF="/gnu/store/r1cad9m26xncpj8jb907mc2g8zw1vfvz-tpm2-tss-engine-1.1.0/etc/openssl-tss2.conf${OPENSSL_CONF:+:}$OPENSSL_CONF"
+export PATH="/gnu/store/r1cad9m26xncpj8jb907mc2g8zw1vfvz-tpm2-tss-engine-1.1.0/bin/${PATH:+:}$PATH"
+export PATH="/gnu/store/cs1kihs34ccqhc69yx0c4kaf3rkiwyyy-openssl-1.1.1l/bin/${PATH:+:}$PATH"
+export TPM2TSSENGINE_TCTI="/gnu/store/1a0qagvjvapk252q798w5d899is5p059-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TSSENGINE_TCTI:+:}$TPM2TSSENGINE_TCTI"
+export TPM2TOOLS_TCTI="/gnu/store/1a0qagvjvapk252q798w5d899is5p059-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TOOLS_TCTI:+:}$TPM2TOOLS_TCTI"
 ```
 
 Run tests:
 
 ```bash
 python3 -m unittest -v
+```
+
+### Misc
+
+Create a package to manually install `px-device-identity`:
+
+```bash
+python3 setup.py sdist --format=tar
+pip install px-device-identity-0.*.*.tar
 ```
