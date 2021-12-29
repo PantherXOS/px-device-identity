@@ -226,12 +226,11 @@ class Device:
         if self.properties is None:
             raise NotInitiated()
 
-        device_access_token_dict = self.get_access_token(
-            aud='/oidc/token/introspection'
-        )
+        # aud='/oidc/token/introspection'
+        device_jwt_dict = self.get_device_jwt(aud='/oidc/token/introspection')
         try:
             response = CM(self.properties).token_introspection(
-                user_access_token, device_access_token_dict['access_token']
+                user_access_token, device_jwt_dict['device_jwt']
             )
             return response
         except:

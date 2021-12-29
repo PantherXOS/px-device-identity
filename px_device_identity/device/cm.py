@@ -23,7 +23,8 @@ class CM:
         self.api_register_url = self.device_properties.host + '/devices/registration'
         self.api_status_url = self.device_properties.host + '/devices/registration/status/'
         self.api_token_url = self.device_properties.host + '/oidc/token'
-        self.api_token_introspection = self.device_properties.host = '/oidc/token/introspection'
+        self.api_token_introspection = self.device_properties.host + \
+            '/oidc/token/introspection'
         '''Set once the device registration has been posted'''
         self.verification_code = None
 
@@ -187,4 +188,4 @@ class CM:
 
         response = post(self.api_token_introspection, form)
         response.raise_for_status()
-        return response
+        return response.json()

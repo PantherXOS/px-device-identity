@@ -198,20 +198,21 @@ python-jose python-pyyaml python-shortuuid-v1.0.1 \
 python-appdirs tpm2-tss tpm2-tss-engine python-setuptools python-psutil coreutils bash
 ```
 
-_Use the helper script `dev_environment.sh` or continue with (3)._
-
 (3) Open the repo; create a new virtual env `python3 -m venv venv`
 
-(4) Install dependencies with `pip3 install .`
+(4) Activate the environment `source venv/bin/activate`
+
+(5) Install dependencies with `pip3 install .`
 
 ### Tests
 
 _These paths will change..._
 
-Follow "Development" setup
+Follow "Development" setup, then set environment variables:
 
-1. `ls /gnu/store | grep px-device-identity-0.10.2`
-2. `cat /gnu/store/4cx57qhzx1h0yg2frajhsz8j6bp8vvpw-px-device-identity-0.10.2/bin/px-device-identity`
+(1) `ls /gnu/store | grep px-device-identity-0.10.2`
+
+(2) `cat /gnu/store/4cx57qhzx1h0yg2frajhsz8j6bp8vvpw-px-device-identity-0.10.2/bin/px-device-identity`
 
 ```bash
 export OPENSSL_CONF="/gnu/store/r1cad9m26xncpj8jb907mc2g8zw1vfvz-tpm2-tss-engine-1.1.0/etc/openssl-tss2.conf${OPENSSL_CONF:+:}$OPENSSL_CONF"
@@ -221,10 +222,19 @@ export TPM2TSSENGINE_TCTI="/gnu/store/1a0qagvjvapk252q798w5d899is5p059-tpm2-tss-
 export TPM2TOOLS_TCTI="/gnu/store/1a0qagvjvapk252q798w5d899is5p059-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TOOLS_TCTI:+:}$TPM2TOOLS_TCTI"
 ```
 
+(3) Set a valid, active access token for introspection test:
+
+```
+export PX_DEVICE_IDENTITY_INTROSPECTION_TEST_TOKEN=HGIvr8n-MHN8bQcPUPqIztW6FRSUJ_Nvz0gf0L074kU
+```
+
 Run tests:
 
 ```bash
-python3 -m unittest -v
+$ python3 -m unittest -v
+
+----------------------------------------------------------------------
+Ran 27 tests in 92.461s
 ```
 
 ### Misc

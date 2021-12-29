@@ -1,6 +1,7 @@
 import unittest
 import time
 import os
+import json
 from px_device_identity.device import Device
 from px_device_identity.device.cache import ACCESS_TOKEN_CACHE
 
@@ -70,6 +71,21 @@ class TestRegistration(unittest.TestCase):
         signed = Device().sign(message)
         self.assertIsNotNone(signed)
 
-    # def test_introspection(self):
-    # 	user_access_token = ''
-    # 	device = Device().token_introspection(user_access_token)
+    def test_introspection(self):
+        user_access_token = os.environ['PX_DEVICE_IDENTITY_INTROSPECTION_TEST_TOKEN']
+        result = Device().token_introspection(user_access_token)
+        try:
+            self.assertEqual(
+                result['active'], True
+            )
+        except:
+            self.fail(
+                'It looks like the PX_DEVICE_IDENTITY_INTROSPECTION_TEST_TOKEN has expired.'
+            )
+
+    def test_introspection_fail(self):
+        user_access_token = 'HGIvr8n-MHN8bQcPUPqIztW6FRSUJ_Nvz0gf0L074kU'
+        result = Device().token_introspection(user_access_token)
+        self.assertEqual(
+            result['active'], False
+        )
