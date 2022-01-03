@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.10.5]
+
+### Added
+
+- Option to disable file-logging for non-root modules accessing classes
+
 ## [0.10.4]
 
 ### Added

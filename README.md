@@ -179,6 +179,16 @@ To output to a file, simply
 > jwk.json
 ```
 
+## Use in a non-root module
+
+Set process environment variable:
+
+```
+PX_DEVICE_IDENTITY_FILE_LOGGER=DISABLED
+```
+
+**Important**: This is mostly to access stuff like `DeviceProperties`. Most features are designed to be run as `root` user.
+
 ## Troubleshooting
 
 Find logs at `/var/log/`
