@@ -52,7 +52,7 @@ pip3 install https://source-git-pantherx-org.s3.eu-central-1.amazonaws.com/px-de
 
 ### Initiate device:
 
-**Unmanaged**
+#### Unmanaged
 
 Defaults to _type_ `DESKTOP`:
 
@@ -72,7 +72,15 @@ A good default for devices without TPM2 support is:
 $ px-device-identity --operation INIT --security DEFAULT --role <PUBLIC|DESKTOP|SERVER> --keytype ECC:p256
 ```
 
-**Managed**
+#### Managed
+
+Registering a device with role `SERVER`, `ADMIN_TERMINAL` or `REGISTRATION_TERMINAL` automatically creatres a new, related application.
+
+| device role           | application type |
+| --------------------- | ---------------- |
+| ADMIN_TERMINAL        | CLIENT           |
+| REGISTRATION_TERMINAL | CLIENT_KYC       |
+| SERVER                | SERVER           |
 
 Defaults to _role_ `DESKTOP`:
 
@@ -88,6 +96,8 @@ $ px-device-identity --operation INIT --address https://identity.pantherx.dev --
 
 - `DEFAULT` - private key stored as PEM file
 - `TPM` - private key stored in TPM2
+
+**TIP** Registering a device with role `SERVER`, `ADMIN_TERMINAL` or `REGISTRATION_TERMINAL` automatically creatres a new, related application. Additionally, a device with role `SERVER` that contains `Matrix` in it's title will specifically create an applicate an
 
 This generates the following files:
 
@@ -214,15 +224,17 @@ python-appdirs tpm2-tss tpm2-tss-engine python-setuptools python-psutil coreutil
 
 (5) Install dependencies with `pip3 install .`
 
+_If you're getting errors in the virtual environment: `exit; rm -rf venv` and resume at (2)._
+
 ### Tests
 
 _These paths will change..._
 
 Follow "Development" setup, then set environment variables:
 
-(1) `ls /gnu/store | grep px-device-identity-0.10.2`
+(1) `ls /gnu/store | grep px-device-identity-0.10.5`
 
-(2) `cat /gnu/store/4cx57qhzx1h0yg2frajhsz8j6bp8vvpw-px-device-identity-0.10.2/bin/px-device-identity`
+(2) `cat /gnu/store/4cx57qhzx1h0yg2frajhsz8j6bp8vvpw-px-device-identity-0.10.5/bin/px-device-identity`
 
 ```bash
 export OPENSSL_CONF="/gnu/store/r1cad9m26xncpj8jb907mc2g8zw1vfvz-tpm2-tss-engine-1.1.0/etc/openssl-tss2.conf${OPENSSL_CONF:+:}$OPENSSL_CONF"
@@ -232,7 +244,7 @@ export TPM2TSSENGINE_TCTI="/gnu/store/1a0qagvjvapk252q798w5d899is5p059-tpm2-tss-
 export TPM2TOOLS_TCTI="/gnu/store/1a0qagvjvapk252q798w5d899is5p059-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TOOLS_TCTI:+:}$TPM2TOOLS_TCTI"
 ```
 
-(3) Set a valid, active access token for introspection test:
+(3) Set a active access token (for ex. `master` user) for introspection test:
 
 ```
 export PX_DEVICE_IDENTITY_INTROSPECTION_TEST_TOKEN=HGIvr8n-MHN8bQcPUPqIztW6FRSUJ_Nvz0gf0L074kU
@@ -244,7 +256,7 @@ Run tests:
 $ python3 -m unittest -v
 
 ----------------------------------------------------------------------
-Ran 27 tests in 92.461s
+Ran 28 tests in 43.059s
 ```
 
 ### Misc

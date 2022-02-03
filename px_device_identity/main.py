@@ -41,12 +41,16 @@ def main():
         log.error('Device is not initiated.')
         log.error('Initiate device with --operation INIT --type <DEFAULT|TPM>')
         sys.exit(1)
+    elif operation.action == 'INIT' and is_initiated and operation.force_operation != True:
+        log.error('Device has already been initiated.')
+        log.error("Use '--force True' to overwrite. Use with caution!")
+        sys.exit(1)
 
     if operation.action == 'INIT':
         try:
             device.init(device_properties)
         except:
-            print(sys.exc_info()[0])
+            print(sys.exc_info())
             log.error("Something went wrong.", )
             sys.exit(1)
 

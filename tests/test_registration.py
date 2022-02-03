@@ -1,3 +1,4 @@
+from px_device_identity.device.config import DeviceConfig
 import unittest
 import time
 import os
@@ -64,3 +65,11 @@ class TestDevice(unittest.TestCase):
         # we add a second, just to be sure
         current_time = int(time.time()) + 10
         self.assertGreater(jwt['exp'], current_time)
+
+        device_config = DeviceConfig(config_path).get()
+
+        self.assertEqual(device_config.title, properties.title)
+        self.assertEqual(device_config.location, properties.location)
+        self.assertEqual(device_config.role, properties.role)
+        self.assertEqual(device_config.domain, properties.domain)
+        self.assertEqual(device_config.host, properties.host)

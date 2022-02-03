@@ -73,7 +73,7 @@ class Device:
             else:
                 log.error('Device has already been initiated.')
                 log.error("Use '--force True' to overwrite. Use with caution!")
-                sys.exit(1)
+                raise EnvironmentError('Device has already been initiated.')
         else:
             log.info("=> Initiating a new device")
             self._recreate()

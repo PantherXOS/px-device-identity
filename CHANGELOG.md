@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.10.6]
+
+### Added
+
+- Expanded tests
+
+### Changed
+
+- Cleaned-up some code; docs; no functional change
+
 ## [0.10.5]
 
 ### Added

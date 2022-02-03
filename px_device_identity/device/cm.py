@@ -20,11 +20,14 @@ class CM:
     def __init__(self, device_properties: 'DeviceProperties'):
         self.device_properties = device_properties
 
-        self.api_register_url = self.device_properties.host + '/devices/registration'
-        self.api_status_url = self.device_properties.host + '/devices/registration/status/'
-        self.api_token_url = self.device_properties.host + '/oidc/token'
-        self.api_token_introspection = self.device_properties.host + \
-            '/oidc/token/introspection'
+        self.api_register_url = '{}/devices/registration'.format(
+            self.device_properties.host)
+        self.api_status_url = '{}/devices/registration/status/'.format(
+            self.device_properties.host)
+        self.api_token_url = '{}/oidc/token'.format(
+            self.device_properties.host)
+        self.api_token_introspection = '{}/oidc/token/introspection'.format(
+            self.device_properties.host)
         '''Set once the device registration has been posted'''
         self.verification_code = None
 
