@@ -45,7 +45,7 @@ $ pip install .
 ### Install with pip package manager
 
 ```bash
-pip3 install https://source-git-pantherx-org.s3.eu-central-1.amazonaws.com/px-device-identity_latest.tgz
+pip3 install https://source.pantherx.org/px-device-identity_latest.tgz
 ```
 
 ## Run
@@ -130,6 +130,20 @@ title: DESKTOP-MkVLwku9JybTrq9MkgjeU2
 
 ```bash
 px-device-identity --operation INIT --security <DEFAULT|TPM> --force TRUE
+```
+
+#### Managed, Automated
+
+If you installed the device from a enterprise configuration, chances are that you have a `/etc/config.json`. If that's the case, you can register the device as follows:
+
+```
+px-device-identity --operation INIT_FROM_CONFIG
+```
+
+or if necessary:
+
+```
+px-device-identity --operation INIT_FROM_CONFIG --force TRUE
 ```
 
 ### Get the JWK for the device public key

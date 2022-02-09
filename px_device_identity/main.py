@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 
 def main():
-    log.info('Welcome to PantherX Device Identity Service v{}'.format(version))
+    log.info('Welcome to PantherX Device Identity v{}'.format(version))
 
     is_superuser_or_quit()
 

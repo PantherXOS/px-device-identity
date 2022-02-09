@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.10.7]
+
+### Added
+
+- Automatically register device from enterprise configuration `--operation INIT_FROM_CONFIG`
+
 ## [0.10.6]
 
 ### Added

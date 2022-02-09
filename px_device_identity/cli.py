@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+from px_device_identity.config import load_json_setup_config
 import sys
 
 from .classes import OperationProperties
@@ -15,7 +16,7 @@ def get_cl_arguments():
     '''Command line arguments'''
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--operation", type=str, required=True,
-                        choices=['INIT', 'SIGN', 'GET_JWK',
+                        choices=['INIT', 'INIT_FROM_CONFIG', 'SIGN', 'GET_JWK',
                                  'GET_JWKS', 'GET_ACCESS_TOKEN'],
                         help="Primary operations."
                         )
@@ -56,7 +57,7 @@ def get_cl_arguments():
                         help="Turn on debug messages"
                         )
     args = parser.parse_args()
-    operation = args.operation
+    operation: str = args.operation
 
     if operation == 'INIT' and args.address is not None:
         if args.domain is None:
@@ -72,24 +73,51 @@ def get_cl_arguments():
             sys.exit(1)
 
     '''Operation'''
-    operation = OperationProperties(
-        operation,
-        args.force
-    )
+    operation_properties = None
+    device_properties = None
 
-    '''Device'''
-    device_properties = DeviceProperties(
-        args.title,
-        args.location,
-        args.role,
-        args.security,
-        args.keytype,
-        args.domain,
-        args.address
-    )
+    if operation == 'INIT_FROM_CONFIG':
+        setup_config_path = '/etc/config.json'
+        setup_config = load_json_setup_config(setup_config_path)
+        if setup_config:
+            '''Device'''
+            device_properties = DeviceProperties(
+                setup_config['title'],
+                setup_config['location'],
+                setup_config['role'],
+                setup_config['key_security'],
+                setup_config['key_type'],
+                setup_config['domain'],
+                setup_config['host']
+            )
+
+            operation_properties = OperationProperties(
+                'INIT',
+                args.force
+            )
+        else:
+            raise Exception(
+                'Could not load config from {}'.format(setup_config_path)
+            )
+    else:
+        '''Device'''
+        device_properties = DeviceProperties(
+            args.title,
+            args.location,
+            args.role,
+            args.security,
+            args.keytype,
+            args.domain,
+            args.address
+        )
+
+        operation_properties = OperationProperties(
+            operation,
+            args.force
+        )
 
     return {
-        'operation': operation,
+        'operation': operation_properties,
         'device_properties': device_properties,
         'message': args.message,
         'debug': args.debug,
