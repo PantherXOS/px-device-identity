@@ -29,7 +29,7 @@
 (define-public px-device-identity
   (package
    (name "px-device-identity")
-   (version "0.10.0")
+   (version "0.10.8")
    (source (local-file (canonicalize-path ".")
                         #:recursive? #t))
    (build-system python-build-system)

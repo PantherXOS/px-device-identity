@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.10.9]
+
+### Added
+
+- CLI tests to cover different input params
+
 ## [0.10.8]
 
 ### Added

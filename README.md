@@ -268,7 +268,7 @@ Run tests:
 $ python3 -m unittest -v
 
 ----------------------------------------------------------------------
-Ran 28 tests in 43.059s
+Ran 31 tests in 56.183s
 ```
 
 ### Misc

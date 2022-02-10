@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+from typing import List, Union
 from px_device_identity.config import load_json_setup_config
 import sys
 
@@ -12,8 +13,10 @@ from .util import is_fqdn
 log = logging.getLogger(__name__)
 
 
-def get_cl_arguments():
-    '''Command line arguments'''
+def get_cl(args: Union[List, None] = None):
+    '''
+    Build command line interface and parse input
+    '''
     parser = argparse.ArgumentParser()
     parser.add_argument("-o", "--operation", type=str, required=True,
                         choices=['INIT', 'INIT_FROM_CONFIG', 'SIGN', 'GET_JWK',
@@ -56,7 +59,14 @@ def get_cl_arguments():
     parser.add_argument("-d", "--debug", type=bool, default=False,
                         help="Turn on debug messages"
                         )
-    args = parser.parse_args()
+
+    return parser.parse_args(args) if args else parser.parse_args()
+
+
+def get_cl_arguments(parsed_args=None, setup_config_path: str = '/etc/config.json'):
+    '''Command line arguments'''
+    args = parsed_args or get_cl()
+
     operation: str = args.operation
 
     if operation == 'INIT' and args.address is not None:
@@ -77,7 +87,6 @@ def get_cl_arguments():
     device_properties = None
 
     if operation == 'INIT_FROM_CONFIG':
-        setup_config_path = '/etc/config.json'
         setup_config = load_json_setup_config(setup_config_path)
         if setup_config:
             '''Device'''
