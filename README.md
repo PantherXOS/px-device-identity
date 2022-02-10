@@ -227,9 +227,7 @@ Create a guix environment like so:
 
 ```bash
 guix environment --pure \
---ad-hoc python python-idna python-requests python-authlib-0.14.3 \
-python-jose python-pyyaml python-shortuuid-v1.0.1 \
-python-appdirs tpm2-tss tpm2-tss-engine python-setuptools python-psutil coreutils bash
+--ad-hoc python tpm2-tss tpm2-tss-engine python-setuptools python-psutil coreutils bash
 ```
 
 (3) Open the repo; create a new virtual env `python3 -m venv venv`

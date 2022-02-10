@@ -3,6 +3,7 @@
 import json
 import logging
 import sys
+from typing import Union
 
 import pkg_resources
 
@@ -17,12 +18,16 @@ version = pkg_resources.require("px_device_identity")[0].version
 log = logging.getLogger(__name__)
 
 
-def main():
+def main(cl_arguments_overwrite: Union[dict, None] = None):
     log.info('Welcome to PantherX Device Identity v{}'.format(version))
 
     is_superuser_or_quit()
 
-    cl_arguments = get_cl_arguments()
+    cl_arguments = None
+    if cl_arguments_overwrite:
+        cl_arguments = cl_arguments_overwrite
+    else:
+        cl_arguments = get_cl_arguments()
     operation: OperationProperties = cl_arguments['operation']
     device_properties: DeviceProperties = cl_arguments['device_properties']
     message: str = cl_arguments['message']
@@ -31,11 +36,6 @@ def main():
     device = Device(operation.force_operation)
 
     is_initiated = device.is_initiated
-    # if is_initiated is True:
-    # print('Supposed to run migration.')
-    # '''Run required migrations'''
-    # first_migration_key_dir()
-    # second_migration_add_config_key_domain()
 
     if operation.action != 'INIT' and is_initiated is False:
         log.error('Device is not initiated.')
@@ -49,8 +49,8 @@ def main():
     if operation.action == 'INIT':
         try:
             device.init(device_properties)
-        except:
-            print(sys.exc_info())
+        except Exception as err:
+            print(err)
             log.error("Something went wrong.", )
             sys.exit(1)
 

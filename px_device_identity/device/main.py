@@ -1,5 +1,4 @@
 import logging
-import sys
 from json import dumps as json_dumps
 from os import mkdir
 from os.path import isdir
@@ -35,11 +34,16 @@ class Device:
         self.config_path = config_path
         # Device
         self.config = DeviceConfig(config_path=config_path)
-        self.is_initiated: bool = is_initiated(config_path=config_path)
-        properties = None
-        if self.is_initiated and overwrite is False:
-            properties = self.config.get()
-        self.properties = properties
+        self.is_initiated = False
+        self.properties = None
+        if not overwrite:
+            '''If we are not overwriting with --force, check if device is initiated'''
+            initiated = is_initiated(config_path=config_path)
+            if initiated:
+                '''If the device is initiated'''
+                self.is_initiated = initiated
+                self.properties = self.config.get()
+
         self.overwrite = overwrite
 
     def _init_managed(self, properties: 'DeviceProperties'):
@@ -69,14 +73,14 @@ class Device:
                 log.warning('Device has already been initiated.')
                 log.warning("=> FORCE OVERWRITE")
                 self.destroy()
-                self._recreate()
+                self._recreate_config_dir()
             else:
                 log.error('Device has already been initiated.')
                 log.error("Use '--force True' to overwrite. Use with caution!")
                 raise EnvironmentError('Device has already been initiated.')
         else:
             log.info("=> Initiating a new device")
-            self._recreate()
+            self._recreate_config_dir()
 
         create_keys(properties, key_dir=self.key_dir)
 
@@ -98,9 +102,15 @@ class Device:
             log.debug('=> Deleting {}'.format(self.config_dir))
             rmtree(self.config_dir)
 
-    def _recreate(self):
+    def _recreate_config_dir(self):
         '''Create config dir'''
-        mkdir(self.config_dir)
+        if not isdir(self.config_dir):
+            mkdir(self.config_dir)
+        else:
+            log.warning(
+                'Config dir already exists {}. Skipping ...'.format(
+                    self.config_dir)
+            )
 
     def get_jwk(self):
         '''Generates and returns JWK'''

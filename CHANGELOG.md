@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.10.8]
+
+### Added
+
+- More tests to verify `main` and check various `Device` states
+
+### Fixed
+
+- Actually check if device config exists before trying to load the config
+
+### Changed
+
+- Last except statement now properly prints exception instead of some traceback
+
 ## [0.10.7]
 
 ### Added

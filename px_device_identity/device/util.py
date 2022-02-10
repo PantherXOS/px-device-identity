@@ -15,12 +15,14 @@ def is_initiated(key_dir: str = KEY_DIR, config_path: str = CONFIG_FILE) -> bool
         returns: bool
     '''
     try:
-        # Here we try to load the config to see if it exists.
-        DeviceConfig(config_path=config_path).get()
-        public_key_path = str(key_dir) + 'public.pem'
-        if not os.path.isfile:
-            raise IOError('Could not find {}.'.format(public_key_path))
-        return True
+        if os.path.isfile(config_path):
+            # If config exists, try to initiate it
+            DeviceConfig(config_path=config_path).get()
+            return True
+        else:
+            log.info('No device configuration found at {}.'.format(config_path))
+
+        return False
     except Exception as err:
         log.error(err)
         return False
