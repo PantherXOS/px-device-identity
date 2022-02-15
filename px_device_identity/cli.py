@@ -49,7 +49,7 @@ def get_cl(args: Union[List, None] = None):
                         )
     parser.add_argument("-r", "--role", type=str, default='DESKTOP',
                         choices=['PUBLIC', 'DESKTOP', 'SERVER', 'ADMIN_TERMINAL',
-                                 'REGISTRATION_TERMINAL', 'OTHER', 'SELF'],
+                                 'REGISTRATION_TERMINAL', 'IOT_GATEWAY', 'OTHER', 'SELF'],
                         help="Device role. Defaults to DESKTOP."
                         )
     parser.add_argument("-f", "--force", type=bool, default=False,

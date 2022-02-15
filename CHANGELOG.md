@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 ### Added
 
 - CLI tests to cover different input params
+- Support for `iot_gateway` role
 
 ## [0.10.8]
 
