@@ -271,6 +271,10 @@ $ python3 -m unittest -v
 Ran 31 tests in 56.183s
 ```
 
+```
+# pycryptodomex==3.9.8 exitstatus==2.0.1
+```
+
 ### Misc
 
 Create a package to manually install `px-device-identity`:

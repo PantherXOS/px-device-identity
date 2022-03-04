@@ -11,6 +11,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 - CLI tests to cover different input params
 - Support for `iot_gateway` role
 
+### Changed
+
+- Dependency versions not set in setup.py
+
 ## [0.10.8]
 
 ### Added
