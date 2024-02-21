@@ -18,8 +18,8 @@ class JWK:
         self.key_security = device_properties.key_security
         self.key_type = device_properties.key_type
         self.key_dir = key_dir
-        self.jwk_path = key_dir + 'public_jwk.json'
-        self.public_key_path = key_dir + 'public.pem'
+        self.jwk_path = key_dir + "/" + "public_jwk.json"
+        self.public_key_path = key_dir + "/" + "public.pem"
         '''The key is generated automatically'''
         self.key = self._generate()
 

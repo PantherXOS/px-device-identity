@@ -9,7 +9,7 @@ from px_device_identity.errors import NotInitiated
 from .cache import get_device_access_token_cache, set_device_access_token_cache
 from .classes import DeviceProperties, DeviceRegistrationProperties
 from .cm import CM
-from .config import CONFIG_DIR, CONFIG_FILE, KEY_DIR, DeviceConfig
+from .config import CONFIG_DIR, CONFIG_FILE_NAME, KEY_DIR, DeviceConfig
 from .crypto import Crypto
 from .jwk import JWK
 from .jwt import generate_signature_content_from_dict, get_device_jwt_content
@@ -19,7 +19,7 @@ from .util import is_initiated
 log = logging.getLogger(__name__)
 
 
-def create_keys(properties: 'DeviceProperties', key_dir=KEY_DIR):
+def create_keys(properties: "DeviceProperties", key_dir: str):
     crypto = Crypto(properties, key_dir)
     crypto.generate_and_save_to_key_path()
 
@@ -27,18 +27,18 @@ def create_keys(properties: 'DeviceProperties', key_dir=KEY_DIR):
 class Device:
     '''Handles configuration and keys'''
 
-    def __init__(self, overwrite: bool = False, key_dir=KEY_DIR, config_dir=CONFIG_DIR, config_path=CONFIG_FILE):
+    def __init__(self, overwrite: bool = False, key_dir=KEY_DIR, config_dir=CONFIG_DIR):
         # Paths and Config
         self.key_dir: str = key_dir
         self.config_dir = config_dir
-        self.config_path = config_path
+        self.config_path = config_dir + "/" + CONFIG_FILE_NAME
         # Device
-        self.config = DeviceConfig(config_path=config_path)
+        self.config = DeviceConfig(config_path=self.config_path)
         self.is_initiated = False
         self.properties = None
         if not overwrite:
             '''If we are not overwriting with --force, check if device is initiated'''
-            initiated = is_initiated(config_path=config_path)
+            initiated = is_initiated(config_dir=self.config_dir)
             if initiated:
                 '''If the device is initiated'''
                 self.is_initiated = initiated
@@ -198,7 +198,7 @@ class Device:
         try:
             device_jwt_props = self.get_device_jwt(aud)
         except Exception as err:
-            log.error('Could not get device JWT')
+            log.error("Could not get device JWT %s", err)
             raise
         else:
             device_jwt = device_jwt_props['device_jwt']

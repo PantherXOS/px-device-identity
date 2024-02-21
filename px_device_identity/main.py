@@ -30,10 +30,12 @@ def main(cl_arguments_overwrite: Union[dict, None] = None):
         cl_arguments = get_cl_arguments()
     operation: OperationProperties = cl_arguments['operation']
     device_properties: DeviceProperties = cl_arguments['device_properties']
+    key_dir = cl_arguments["key_dir"]
+    config_dir = cl_arguments["config_dir"]
     message: str = cl_arguments['message']
     # debug: bool = cl_arguments['debug']
 
-    device = Device(operation.force_operation)
+    device = Device(operation.force_operation, key_dir=key_dir, config_dir=config_dir)
 
     is_initiated = device.is_initiated
 

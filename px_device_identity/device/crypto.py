@@ -15,12 +15,12 @@ log = logging.getLogger(__name__)
 class Crypto:
     '''Handles RSA/ECC key generation'''
 
-    def __init__(self, device_properties: 'DeviceProperties', key_dir=KEY_DIR):
+    def __init__(self, device_properties: "DeviceProperties", key_dir: str):
         self.key_security = device_properties.key_security
         self.key_type = device_properties.key_type
         self.key_dir = key_dir
-        self.private_key_path = key_dir + 'private.pem'
-        self.public_key_path = key_dir + 'public.pem'
+        self.private_key_path = key_dir + "/" + "private.pem"
+        self.public_key_path = key_dir + "/" + "public.pem"
 
     def generate_private_key(self):
         '''Generate private key
@@ -119,6 +119,7 @@ class Crypto:
                 key_cryptography, self.public_key_path)
         )
         if key_cryptography == 'RSA':
+            log.info("=> Generating RSA public key from TPM private key.")
             try:
                 commands = [
                     "openssl", "rsa",
@@ -133,10 +134,12 @@ class Crypto:
                     self.public_key_path)
                 )
             except:
+                log.error("Could not save public key from RSA TPM private key.")
                 raise CryptoGenError(
                     'Could not save public key from RSA TPM private key.'
                 )
         elif key_cryptography == 'ECC':
+            log.info("=> Generating ECC public key from TPM private key.")
             try:
                 commands = [
                     "openssl", "ec",
@@ -151,6 +154,7 @@ class Crypto:
                     self.public_key_path)
                 )
             except:
+                log.error("Could not save public key from ECC TPM private key.")
                 raise CryptoGenError(
                     'Could not save public key from RSA TPM private key.'
                 )

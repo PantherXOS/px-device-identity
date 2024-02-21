@@ -1,26 +1,26 @@
 import logging
 from base64 import urlsafe_b64decode, urlsafe_b64encode
-from typing import Union
-
 from px_device_identity.errors import NotInitiated
 
 import os
-from .config import CONFIG_FILE, KEY_DIR, DeviceConfig
+from .config import CONFIG_DIR, CONFIG_FILE_NAME, KEY_DIR, DeviceConfig
 
 log = logging.getLogger(__name__)
 
 
-def is_initiated(key_dir: str = KEY_DIR, config_path: str = CONFIG_FILE) -> bool:
+def is_initiated(key_dir: str = KEY_DIR, config_dir: str = CONFIG_DIR) -> bool:
     '''Checks whether the device has already been initiated
         returns: bool
     '''
+    config_file = config_dir + "/" + CONFIG_FILE_NAME
+
     try:
-        if os.path.isfile(config_path):
+        if os.path.isfile(config_file):
             # If config exists, try to initiate it
-            DeviceConfig(config_path=config_path).get()
+            DeviceConfig(config_path=config_file).get()
             return True
-        else:
-            log.info('No device configuration found at {}.'.format(config_path))
+
+        log.info("No device configuration found at {}.".format(config_file))
 
         return False
     except Exception as err:

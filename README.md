@@ -29,6 +29,11 @@ File-based keys should work everywhere but we specifically test TPM2-support on 
 - ThinkStation M625q
 - Camino Tiny
 
+#### Tested OS
+
+- Officially supported: PantherX OS
+- Tested (`0.10.9`) Debian, Ubuntu, Fedora, Windows Server 2012, Windows 7, Windows 10
+
 ## Setup
 
 **Requirements**
@@ -63,13 +68,25 @@ $ px-device-identity --operation INIT --security <DEFAULT|TPM>
 All options:
 
 ```bash
-$ px-device-identity --operation INIT --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER> --keytype <RSA:2048|RSA:3072|ECC:p256|ECC:p384|ECC:p521>
+$ px-device-identity 
+  --operation INIT \
+  --security <DEFAULT|TPM> \
+  --role <PUBLIC|DESKTOP|SERVER> \
+  --keytype <RSA:2048|RSA:3072|ECC:p256|ECC:p384|ECC:p521> \
+  --title "Marketing-01 PC" \
+  --location "Head office" \
+  --key-dir /path/to/store/keys \
+  --config-dir /path/to/store/config
 ```
 
 A good default for devices without TPM2 support is:
 
 ```bash
-$ px-device-identity --operation INIT --security DEFAULT --role <PUBLIC|DESKTOP|SERVER> --keytype ECC:p256
+$ px-device-identity  \
+  --operation INIT  \
+  --security DEFAULT  \
+  --role <PUBLIC|DESKTOP|SERVER>  \
+  --keytype ECC:p256
 ```
 
 #### Managed
@@ -85,13 +102,25 @@ Registering a device with role `SERVER`, `ADMIN_TERMINAL` or `REGISTRATION_TERMI
 Defaults to _role_ `DESKTOP`:
 
 ```bash
-$ px-device-identity --operation INIT --address https://identity.pantherx.dev --domain pantherx.org --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL|REGISTRATION_TERMINAL|SELF>
+$ px-device-identity  \
+  --operation INIT  \
+  --address https://identity.pantherx.dev  \
+  --domain pantherx.org  \
+  --security <DEFAULT|TPM>  \
+  --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL|REGISTRATION_TERMINAL|SELF>
 ```
 
 All options:
 
 ```bash
-$ px-device-identity --operation INIT --address https://identity.pantherx.dev --domain pantherx.org --security <DEFAULT|TPM> --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL|REGISTRATION_TERMINAL|SELF> --title "Marketing-01 PC" --location "Head office"
+$ px-device-identity  \
+  --operation INIT  \
+  --address https://identity.pantherx.dev  \
+  --domain pantherx.org  \
+  --security <DEFAULT|TPM>  \
+  --role <PUBLIC|DESKTOP|SERVER|ADMIN_TERMINAL|REGISTRATION_TERMINAL|SELF>  \
+  --title "Marketing-01 PC"  \
+  --location "Head office"
 ```
 
 - `DEFAULT` - private key stored as PEM file
@@ -129,7 +158,10 @@ title: DESKTOP-MkVLwku9JybTrq9MkgjeU2
 **To overwrite an existing device identification**, do:
 
 ```bash
-px-device-identity --operation INIT --security <DEFAULT|TPM> --force TRUE
+px-device-identity  \
+  --operation INIT  \
+  --security <DEFAULT|TPM>  \
+  --force TRUE
 ```
 
 #### Managed, Automated
@@ -226,8 +258,7 @@ Create a guix environment like so:
 (2) Spawn a guix environment:
 
 ```bash
-guix environment --pure \
---ad-hoc python tpm2-tss tpm2-tss-engine python-setuptools python-psutil coreutils bash
+guix shell python openssl tpm2-tss tpm2-tss-engine python-setuptools python-psutil coreutils bash
 ```
 
 (3) Open the repo; create a new virtual env `python3 -m venv venv`
@@ -244,21 +275,19 @@ _These paths will change..._
 
 Follow "Development" setup, then set environment variables:
 
-(1) `ls /gnu/store | grep px-device-identity-0.10.5`
-
-(2) `cat /gnu/store/4cx57qhzx1h0yg2frajhsz8j6bp8vvpw-px-device-identity-0.10.5/bin/px-device-identity`
+(1) `cat $(realpath $(which px-device-identity))`
 
 ```bash
-export OPENSSL_CONF="/gnu/store/r1cad9m26xncpj8jb907mc2g8zw1vfvz-tpm2-tss-engine-1.1.0/etc/openssl-tss2.conf${OPENSSL_CONF:+:}$OPENSSL_CONF"
-export PATH="/gnu/store/r1cad9m26xncpj8jb907mc2g8zw1vfvz-tpm2-tss-engine-1.1.0/bin/${PATH:+:}$PATH"
-export PATH="/gnu/store/cs1kihs34ccqhc69yx0c4kaf3rkiwyyy-openssl-1.1.1l/bin/${PATH:+:}$PATH"
-export TPM2TSSENGINE_TCTI="/gnu/store/1a0qagvjvapk252q798w5d899is5p059-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TSSENGINE_TCTI:+:}$TPM2TSSENGINE_TCTI"
-export TPM2TOOLS_TCTI="/gnu/store/1a0qagvjvapk252q798w5d899is5p059-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TOOLS_TCTI:+:}$TPM2TOOLS_TCTI"
+export OPENSSL_CONF="/gnu/store/4mv6xb2y5n0xq984d9svw3va9lwl5nl4-tpm2-tss-engine-1.2.0/etc/openssl-tss2.conf${OPENSSL_CONF:+:}$OPENSSL_CONF"
+export PATH="/gnu/store/4mv6xb2y5n0xq984d9svw3va9lwl5nl4-tpm2-tss-engine-1.2.0/bin/${PATH:+:}$PATH"
+export PATH="/gnu/store/x4pw8wnnvvaf6ajr8ynm453rhpwiyjcc-openssl-1.1.1u/bin/${PATH:+:}$PATH"
+export TPM2TSSENGINE_TCTI="/gnu/store/9zll5mkghhicryjfnk9988dqbgpn52d4-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TSSENGINE_TCTI:+:}$TPM2TSSENGINE_TCTI"
+export TPM2TOOLS_TCTI="/gnu/store/9zll5mkghhicryjfnk9988dqbgpn52d4-tpm2-tss-3.0.3/lib/libtss2-tcti-device.so:/dev/tpm0${TPM2TOOLS_TCTI:+:}$TPM2TOOLS_TCTI"
 ```
 
 (3) Set a active access token (for ex. `master` user) for introspection test:
 
-```
+```bash
 export PX_DEVICE_IDENTITY_INTROSPECTION_TEST_TOKEN=HGIvr8n-MHN8bQcPUPqIztW6FRSUJ_Nvz0gf0L074kU
 ```
 

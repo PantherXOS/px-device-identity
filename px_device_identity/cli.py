@@ -6,6 +6,8 @@ from typing import List, Union
 from px_device_identity.config import load_json_setup_config
 import sys
 
+from px_device_identity.device.config import CONFIG_DIR, KEY_DIR
+
 from .classes import OperationProperties
 from .device import DeviceProperties
 from .util import is_fqdn
@@ -56,6 +58,8 @@ def get_cl(args: Union[List, None] = None):
                         choices=[True, False],
                         help="Force operations: Overwrite existing device registration."
                         )
+    parser.add_argument("-kd", "--key-dir", type=str, default=KEY_DIR)
+    parser.add_argument("-cd", "--config-dir", type=str, default=CONFIG_DIR)
     parser.add_argument("-d", "--debug", type=bool, default=False,
                         help="Turn on debug messages"
                         )
@@ -126,8 +130,10 @@ def get_cl_arguments(parsed_args=None, setup_config_path: str = '/etc/config.jso
         )
 
     return {
-        'operation': operation_properties,
-        'device_properties': device_properties,
-        'message': args.message,
-        'debug': args.debug,
+        "operation": operation_properties,
+        "device_properties": device_properties,
+        "key_dir": args.key_dir,
+        "config_dir": args.config_dir,
+        "message": args.message,
+        "debug": args.debug,
     }

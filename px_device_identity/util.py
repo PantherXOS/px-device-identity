@@ -65,7 +65,10 @@ def list_of_commands_to_string(command: list):
 
 def run_commands(commands: list):
     commands_string = list_of_commands_to_string(commands)
-    result = subprocess.run(commands_string, capture_output=True, shell=True)
+    log.debug("Running command: %s", commands_string)
+    result = subprocess.run(
+        commands_string, capture_output=True, shell=True, check=True
+    )
     if result.returncode == 1:
         log.error(result.stderr)
         raise subprocess.CalledProcessError(

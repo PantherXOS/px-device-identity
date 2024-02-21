@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.11.0]
+
+### Changed
+
+- Added support for custom key and config dir
+- Adapt most paths, to default to `/folder` instead of `/folder/`
+- Drop legacy config schema
+
+### Fixed
+
+- Check to make sure TPM related commands actually fail, when they should.
+
 ## [0.10.9]
 
 ### Added
