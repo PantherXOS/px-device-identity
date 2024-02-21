@@ -7,10 +7,9 @@ opsys = system()
 
 log = logging.getLogger('px_device_identity')
 formatter = logging.Formatter(
-    '%(asctime)s - %(name)s - %(levelname)s: %(message)s', "%Y-%m-%d %H:%M:%S")
+    "%(asctime)s - %(name)s - %(levelname)s: %(message)s", "%Y-%m-%d %H:%M:%S"
+)
 formatter_cli = logging.Formatter('%(levelname)s: %(message)s')
-
-log.setLevel(logging.DEBUG)
 
 if opsys == 'Linux':
     file_logger = os.environ.get('PX_DEVICE_IDENTITY_FILE_LOGGER')

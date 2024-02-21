@@ -33,7 +33,10 @@ def main(cl_arguments_overwrite: Union[dict, None] = None):
     key_dir = cl_arguments["key_dir"]
     config_dir = cl_arguments["config_dir"]
     message: str = cl_arguments['message']
-    # debug: bool = cl_arguments['debug']
+    debug: bool = cl_arguments["debug"]
+
+    if debug:
+        ch.setLevel(logging.DEBUG)
 
     device = Device(operation.force_operation, key_dir=key_dir, config_dir=config_dir)
 

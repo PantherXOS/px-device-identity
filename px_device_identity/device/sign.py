@@ -18,14 +18,17 @@ class Sign:
     '''Sign message using RSA/ECC keys'''
 
     def __init__(
-        self, device_properties: 'DeviceProperties', message: str, key_dir=KEY_DIR
+        self,
+        device_properties: "DeviceProperties",
+        message: str,
+        key_dir: str = KEY_DIR,
     ):
         self.key_security: str = device_properties.key_security
         self.key_type: str = device_properties.key_type
         self.message: str = message
         self.key_dir = key_dir
-        self.private_key_dir = key_dir + 'private.pem'
-        self.public_key_dir = key_dir + 'public.pem'
+        self.private_key_dir = key_dir + "/" + "private.pem"
+        self.public_key_dir = key_dir + "/" + "public.pem"
 
     def _sign_with_rsa_signing_key(self, key_content: str) -> str:
         '''Sign with RSA keys (no TPM)'''

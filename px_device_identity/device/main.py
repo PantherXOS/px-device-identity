@@ -27,9 +27,14 @@ def create_keys(properties: "DeviceProperties", key_dir: str):
 class Device:
     '''Handles configuration and keys'''
 
-    def __init__(self, overwrite: bool = False, key_dir=KEY_DIR, config_dir=CONFIG_DIR):
+    def __init__(
+        self,
+        overwrite: bool = False,
+        key_dir: str = KEY_DIR,
+        config_dir: str = CONFIG_DIR,
+    ):
         # Paths and Config
-        self.key_dir: str = key_dir
+        self.key_dir = key_dir
         self.config_dir = config_dir
         self.config_path = config_dir + "/" + CONFIG_FILE_NAME
         # Device
@@ -171,7 +176,7 @@ class Device:
         '''
         if self.properties is None:
             raise NotInitiated()
-        return Sign(self.properties, message).sign()
+        return Sign(self.properties, message, self.key_dir).sign()
 
     def get_access_token(self, aud: str = '/oidc/token'):
         '''
