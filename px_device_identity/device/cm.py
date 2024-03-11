@@ -56,11 +56,11 @@ class CM:
             if result.status_code == 201:
                 formatted_result = json_loads(result.text)
                 verification_code: str = formatted_result["verification_code"]
-                log.info("    ------------------")
-                log.info("    Received verification code: {}".format(
-                    verification_code))
-                log.info("    -> Awaiting confirmation from administrator.")
-                log.info("    ------")
+                # print so it's visible with any log level
+                print("    ------------------")
+                print("    Received verification code: {}".format(verification_code))
+                print("    -> Awaiting confirmation from administrator.")
+                print("    ------")
                 self.verification_code = verification_code
             else:
                 log.error("Could not post device registration. Status {}".format(
@@ -115,18 +115,23 @@ class CM:
                 log.debug('Request status: {}'.format(status))
                 if status == 'pending':
                     timeout = total_time_approx - waited_time_approx
-                    log.info(
-                        '=> Waiting for approval ... Going to sleep for {}s. \
-                            Timeout in {}s.'.format(wait_time, timeout)
+                    # print so it's visible with any log level
+                    print(
+                        "=> Waiting for approval ... Going to sleep for {}s. \
+                            Timeout in {}s.".format(
+                            wait_time, timeout
+                        )
                     )
                     sleep(wait_time)
                 if status == 'rejected':
                     raise Exception(
                         "The device registration was rejected after {}s.".format(waited_time_approx))
                 if status == 'approved':
-                    log.info(
+                    # print so it's visible with any log level
+                    print(
                         "The device registration was approved after {}s".format(
-                            waited_time_approx)
+                            waited_time_approx
+                        )
                     )
                     device_id: str = str(result_formatted["deviceId"])
                     client_id: str = str(result_formatted["clientId"])

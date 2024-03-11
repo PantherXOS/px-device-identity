@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 
+## [0.11.2]
+
+### Changed
+
+- Use `print` for logs related to registration, so they show no matter the log level
+
 ## [0.11.1]
 
 ### Fixed

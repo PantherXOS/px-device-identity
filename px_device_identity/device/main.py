@@ -216,9 +216,9 @@ class Device:
             if response is None:
                 raise ValueError('Access token request response is empty.')
             set_device_access_token_cache(response, aud=aud)
-        except:
-            log.error('Could not get access token')
-            raise
+        except Exception as err:
+            log.error("Could not get access token %s", err)
+            raise err
         else:
             return response
 
